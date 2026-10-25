@@ -1,0 +1,6 @@
+{
+  "name": "Indian Pixel Studio Ledger & Invoice Suite",
+  "description": "Pixel-perfect A4 invoice generator with 40-40-20 milestone payment schedule, GST engine, UPI QR settlement, and revenue health ledger.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

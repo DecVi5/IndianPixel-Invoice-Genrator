@@ -1,0 +1,157 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Poppins', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro', system-ui, sans-serif;
+  --font-poppins: 'Poppins', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
+  --font-display: 'Montserrat Alternates', sans-serif;
+  --font-montserrat: 'Montserrat Alternates', sans-serif;
+  --font-mono: 'Space Mono', ui-monospace, SFMono-Regular, monospace;
+
+  /* Official Company Palette */
+  --color-counter: #ACBEA3; /* Camouflage Green */
+  --color-cta: #FFA400;     /* Amber Yellow */
+  --color-light: #F8F4ED;   /* Linen */
+  --color-main: #08221B;    /* Midnight Green */
+  --color-dark: #2C3330;    /* Gunmetal Gray */
+}
+
+@layer base {
+  :root {
+    /* Apple Human Interface Typography Stack with Poppins & Montserrat Alternates */
+    --font-sans: 'Poppins', -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", sans-serif;
+    --font-poppins: 'Poppins', -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+    --font-display: 'Montserrat Alternates', sans-serif;
+    --font-mono: 'Space Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+    /* Studio Palette */
+    --color-counter: #ACBEA3; /* Camouflage Green */
+    --color-cta: #FFA400;     /* Amber Yellow */
+    --color-light: #F8F4ED;   /* Linen */
+    --color-main: #08221B;    /* Midnight Green */
+    --color-dark: #2C3330;    /* Gunmetal Gray */
+
+    /* Emil Kowalski & Apple Motion Tokens */
+    --ease-out-apple: cubic-bezier(0.23, 1, 0.32, 1);
+    --ease-in-out-apple: cubic-bezier(0.77, 0, 0.175, 1);
+    --ease-spring-subtle: cubic-bezier(0.32, 0.72, 0, 1);
+  }
+
+  body {
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+    background-color: #2C3330;
+    color: #F8F4ED;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Montserrat Alternates', sans-serif;
+  }
+}
+
+/* Reduced Motion Accessibility (WCAG 2.2 / Apple HIG) */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Apple HIG tactile button press feedback */
+.press-scale {
+  transition: transform 140ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+.press-scale:active {
+  transform: scale(0.97);
+}
+
+.font-montserrat {
+  font-family: 'Montserrat Alternates', sans-serif !important;
+}
+
+.font-poppins {
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif !important;
+}
+
+.font-space-mono {
+  font-family: 'Space Mono', ui-monospace, SFMono-Regular, monospace !important;
+}
+
+/* Apple Smooth Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(172, 190, 163, 0.35);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(172, 190, 163, 0.6);
+}
+
+/* Crisp Vector Print Styles for Pixel-Perfect A4 output & PDF generation */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 0;
+  }
+
+  *, *:before, *:after {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  html, body {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    color: #08221B !important;
+    font-family: 'Poppins', -apple-system, sans-serif !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 210mm !important;
+    height: auto !important;
+  }
+
+  .no-print,
+  nav,
+  header,
+  aside,
+  button,
+  .print-hide {
+    display: none !important;
+  }
+
+  .a4-sheet,
+  #invoice-print-sheet {
+    box-shadow: none !important;
+    border: none !important;
+    width: 210mm !important;
+    min-height: 297mm !important;
+    max-height: 297mm !important;
+    padding: 13mm 16mm !important;
+    margin: 0 auto !important;
+    box-sizing: border-box !important;
+    page-break-after: avoid !important;
+    page-break-inside: avoid !important;
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    overflow: hidden !important;
+  }
+
+  table {
+    page-break-inside: avoid;
+  }
+
+  tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
+  }
+}
