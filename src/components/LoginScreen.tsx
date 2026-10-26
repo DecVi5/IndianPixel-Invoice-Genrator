@@ -8,6 +8,10 @@ import {
   Check,
   Sparkles,
   Lock,
+  User,
+  Mail as MailIcon,
+  KeyRound,
+  CheckCircle2,
 } from 'lucide-react';
 
 interface LoginScreenProps {
@@ -15,9 +19,25 @@ interface LoginScreenProps {
   logoDataUrl?: string;
 }
 
+const AUTHORIZED_ACCOUNTS = [
+  {
+    email: 'admin@indianpixel.in',
+    role: 'Studio Administrator / Director',
+    defaultUsername: 'Admin',
+  },
+  {
+    email: 'cfo@indianpixel.in',
+    role: 'Chief Financial Officer / Finance Lead',
+    defaultUsername: 'CFO',
+  },
+];
+
+const MASTER_PASSWORD = 'IPCT*4057#';
+
 export function LoginScreen({ onLoginSuccess, logoDataUrl }: LoginScreenProps) {
+  const [username, setUsername] = useState('Admin');
+  const [mail, setMail] = useState('admin@indianpixel.in');
   const [password, setPassword] = useState('');
-  const [studioUser, setStudioUser] = useState('Director / Lead');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -42,32 +62,53 @@ export function LoginScreen({ onLoginSuccess, logoDataUrl }: LoginScreenProps) {
     },
   ];
 
-  const handleUnlock = (pwdToTest = password) => {
+  const handleAuthenticate = (emailToTest = mail, pwdToTest = password) => {
     setIsSubmitting(true);
     setError(null);
 
-    // Confidential password is "12345678"
-    if (pwdToTest === '12345678') {
-      setTimeout(() => {
-        setIsSubmitting(false);
-        onLoginSuccess();
-      }, 350);
-    } else {
-      setTimeout(() => {
-        setIsSubmitting(false);
-        setError('Incorrect access password. Enter "12345678" to unlock.');
-      }, 250);
+    const cleanEmail = emailToTest.trim().toLowerCase();
+    const cleanPwd = pwdToTest.trim();
+
+    const isAuthorizedEmail = AUTHORIZED_ACCOUNTS.some(
+      (acc) => acc.email.toLowerCase() === cleanEmail
+    );
+
+    if (!cleanEmail) {
+      setIsSubmitting(false);
+      setError('Please enter your authorized Mail ID.');
+      return;
     }
+
+    if (!isAuthorizedEmail) {
+      setIsSubmitting(false);
+      setError('Unauthorized Mail ID. Access restricted to admin@indianpixel.in or cfo@indianpixel.in.');
+      return;
+    }
+
+    if (cleanPwd !== MASTER_PASSWORD) {
+      setTimeout(() => {
+        setIsSubmitting(false);
+        setError('Incorrect PassWord. Please enter the authorized studio password.');
+      }, 250);
+      return;
+    }
+
+    setTimeout(() => {
+      setIsSubmitting(false);
+      onLoginSuccess();
+    }, 350);
   };
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    handleUnlock(password);
+    handleAuthenticate(mail, password);
   };
 
-  const handleFastUnlock = () => {
-    setPassword('12345678');
-    handleUnlock('12345678');
+  const handleSelectAccount = (accountEmail: string, defaultName: string) => {
+    setMail(accountEmail);
+    setUsername(defaultName);
+    setPassword(MASTER_PASSWORD);
+    setError(null);
   };
 
   return (
@@ -226,7 +267,7 @@ export function LoginScreen({ onLoginSuccess, logoDataUrl }: LoginScreenProps) {
           </div>
         </div>
 
-        {/* RIGHT COLUMN: Clean Apple Human Interface Form Panel */}
+        {/* RIGHT COLUMN: Clean Authentication Form Panel */}
         <div className="lg:col-span-7 flex flex-col justify-center px-3 sm:px-6 lg:px-8 py-3 sm:py-5 text-[#F8F4ED] space-y-5">
           {/* Header */}
           <div className="space-y-1.5">
@@ -239,67 +280,99 @@ export function LoginScreen({ onLoginSuccess, logoDataUrl }: LoginScreenProps) {
             <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-[#F8F4ED] font-sans">
               Sign in to Studio Portal
             </h1>
-            <p className="text-xs text-[#ACBEA3] font-poppins flex items-center gap-2 flex-wrap">
-              <span>Confidential financial portal.</span>
-              <button
-                type="button"
-                onClick={handleFastUnlock}
-                className="inline-flex items-center gap-1 text-[#FFA400] hover:text-[#ffb732] font-medium underline underline-offset-2 cursor-pointer transition-colors"
-              >
-                <span>Quick Unlock (12345678)</span>
-                <ArrowRight className="w-3 h-3" />
-              </button>
+            <p className="text-xs text-[#ACBEA3] font-poppins">
+              Authorized personnel only. Please verify your studio credentials.
             </p>
           </div>
 
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-3.5">
-            {/* Row 1: Studio User & Unit */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <label className="text-[11px] font-medium text-[#ACBEA3] block">
-                  Director / User Role
-                </label>
-                <input
-                  type="text"
-                  value={studioUser}
-                  onChange={(e) => setStudioUser(e.target.value)}
-                  placeholder="Director / Lead"
-                  className="w-full px-3.5 py-2.5 bg-[#2C3330] hover:bg-[#2C3330]/90 focus:bg-[#2C3330] border border-[#ACBEA3]/30 focus:border-[#FFA400] focus:ring-1 focus:ring-[#FFA400]/40 rounded-xl text-xs sm:text-sm text-[#F8F4ED] placeholder-[#ACBEA3]/50 outline-none transition-all"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-[11px] font-medium text-[#ACBEA3] block">
-                  Studio Unit
-                </label>
-                <input
-                  type="text"
-                  defaultValue="Indian Pixel Studio"
-                  placeholder="Studio Unit"
-                  className="w-full px-3.5 py-2.5 bg-[#2C3330]/70 hover:bg-[#2C3330] focus:bg-[#2C3330] border border-[#ACBEA3]/30 focus:border-[#FFA400] focus:ring-1 focus:ring-[#FFA400]/40 rounded-xl text-xs sm:text-sm text-[#F8F4ED] placeholder-[#ACBEA3]/50 outline-none transition-all"
-                />
-              </div>
+          {/* Quick Account Selector Pills */}
+          <div className="space-y-1.5">
+            <label className="text-[11px] font-medium text-[#ACBEA3] block">
+              Authorized Accounts
+            </label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {AUTHORIZED_ACCOUNTS.map((acc) => {
+                const isSelected = mail.toLowerCase() === acc.email.toLowerCase();
+                return (
+                  <button
+                    key={acc.email}
+                    type="button"
+                    onClick={() => handleSelectAccount(acc.email, acc.defaultUsername)}
+                    className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer flex items-center justify-between ${
+                      isSelected
+                        ? 'bg-[#2C3330] border-[#FFA400] ring-1 ring-[#FFA400]/40'
+                        : 'bg-[#2C3330]/50 border-[#ACBEA3]/25 hover:bg-[#2C3330] hover:border-[#ACBEA3]/50'
+                    }`}
+                  >
+                    <div>
+                      <div className="text-xs font-semibold text-[#F8F4ED] font-space-mono">
+                        {acc.email}
+                      </div>
+                      <div className="text-[10px] text-[#ACBEA3]">
+                        {acc.role}
+                      </div>
+                    </div>
+                    {isSelected && (
+                      <CheckCircle2 className="w-4 h-4 text-[#FFA400] shrink-0" />
+                    )}
+                  </button>
+                );
+              })}
             </div>
+          </div>
 
-            {/* Row 2: Email input */}
-            <div className="space-y-1">
-              <label className="text-[11px] font-medium text-[#ACBEA3] block">
-                Executive Email
+          {/* Form with exact requested fields: Username, "Mail", "PassWord" */}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Field 1: Username */}
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-semibold text-[#ACBEA3] flex items-center gap-1.5">
+                <User className="w-3.5 h-3.5 text-[#FFA400]" />
+                <span>Username</span>
               </label>
               <input
-                type="email"
-                defaultValue="theindianpixel@gmail.com"
-                placeholder="theindianpixel@gmail.com"
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Enter Username"
+                required
                 className="w-full px-3.5 py-2.5 bg-[#2C3330] hover:bg-[#2C3330]/90 focus:bg-[#2C3330] border border-[#ACBEA3]/30 focus:border-[#FFA400] focus:ring-1 focus:ring-[#FFA400]/40 rounded-xl text-xs sm:text-sm text-[#F8F4ED] placeholder-[#ACBEA3]/50 outline-none transition-all"
               />
             </div>
 
-            {/* Row 3: Password input with eye toggle */}
-            <div className="space-y-1">
-              <label className="text-[11px] font-medium text-[#ACBEA3] block">
-                Access Password
+            {/* Field 2: Mail */}
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-semibold text-[#ACBEA3] flex items-center gap-1.5">
+                <MailIcon className="w-3.5 h-3.5 text-[#FFA400]" />
+                <span>Mail</span>
               </label>
+              <input
+                type="email"
+                value={mail}
+                onChange={(e) => {
+                  setMail(e.target.value);
+                  if (error) setError(null);
+                }}
+                placeholder="admin@indianpixel.in or cfo@indianpixel.in"
+                required
+                className="w-full px-3.5 py-2.5 bg-[#2C3330] hover:bg-[#2C3330]/90 focus:bg-[#2C3330] border border-[#ACBEA3]/30 focus:border-[#FFA400] focus:ring-1 focus:ring-[#FFA400]/40 rounded-xl text-xs sm:text-sm text-[#F8F4ED] placeholder-[#ACBEA3]/50 font-space-mono outline-none transition-all"
+              />
+            </div>
+
+            {/* Field 3: PassWord */}
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <label className="text-[11px] font-semibold text-[#ACBEA3] flex items-center gap-1.5">
+                  <KeyRound className="w-3.5 h-3.5 text-[#FFA400]" />
+                  <span>PassWord</span>
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setPassword(MASTER_PASSWORD)}
+                  className="text-[10px] text-[#FFA400] hover:underline cursor-pointer font-space-mono"
+                >
+                  Fill Key
+                </button>
+              </div>
               <div className="relative">
                 <input
                   type={showPassword ? 'text' : 'password'}
@@ -308,7 +381,7 @@ export function LoginScreen({ onLoginSuccess, logoDataUrl }: LoginScreenProps) {
                     setPassword(e.target.value);
                     if (error) setError(null);
                   }}
-                  placeholder="Enter password (default: 12345678)"
+                  placeholder="Enter PassWord"
                   autoFocus
                   required
                   className={`w-full pl-3.5 pr-11 py-2.5 bg-[#2C3330] hover:bg-[#2C3330]/90 focus:bg-[#2C3330] border rounded-xl text-xs sm:text-sm font-space-mono text-[#F8F4ED] placeholder-[#ACBEA3]/50 outline-none transition-all ${
@@ -367,55 +440,6 @@ export function LoginScreen({ onLoginSuccess, logoDataUrl }: LoginScreenProps) {
             </button>
           </form>
 
-          {/* Divider: Or access with */}
-          <div className="relative flex items-center justify-center pt-0.5">
-            <div className="border-t border-[#ACBEA3]/20 w-full" />
-            <span className="bg-[#08221B] px-3 text-[10.5px] font-poppins text-[#ACBEA3]/60 whitespace-nowrap">
-              Or access with
-            </span>
-            <div className="border-t border-[#ACBEA3]/20 w-full" />
-          </div>
-
-          {/* Social / Fast SSO Pill Buttons */}
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              type="button"
-              onClick={handleFastUnlock}
-              className="flex items-center justify-center gap-2 py-2 px-3 rounded-xl border border-[#ACBEA3]/25 bg-[#2C3330]/80 hover:bg-[#2C3330] text-xs font-poppins font-medium text-[#F8F4ED] transition-all cursor-pointer hover:border-[#FFA400]/50 active:scale-95"
-            >
-              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24">
-                <path
-                  fill="#4285F4"
-                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                />
-                <path
-                  fill="#34A853"
-                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                />
-                <path
-                  fill="#FBBC05"
-                  d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
-                />
-                <path
-                  fill="#EA4335"
-                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
-                />
-              </svg>
-              <span>Google SSO</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={handleFastUnlock}
-              className="flex items-center justify-center gap-2 py-2 px-3 rounded-xl border border-[#ACBEA3]/25 bg-[#2C3330]/80 hover:bg-[#2C3330] text-xs font-poppins font-medium text-[#F8F4ED] transition-all cursor-pointer hover:border-[#FFA400]/50 active:scale-95"
-            >
-              <svg className="w-3.5 h-3.5 fill-[#F8F4ED]" viewBox="0 0 170 170">
-                <path d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.19-2.12-9.97-3.17-14.34-3.17-4.58 0-9.49 1.05-14.75 3.17-5.26 2.13-9.5 3.24-12.74 3.35-4.35.13-9.16-1.9-14.42-6.08-3.69-3.04-7.67-7.81-11.96-14.34-6.19-9.52-11.13-20.21-14.82-32.06-3.69-11.85-5.54-22.99-5.54-33.42 0-14.34 3.58-26.24 10.75-35.7 7.17-9.45 16.3-14.28 27.4-14.49 4.8 0 10.15 1.25 16.07 3.76 5.92 2.51 9.87 3.82 11.85 3.92 1.63 0 5.62-1.36 11.96-4.07 6.34-2.71 11.86-3.87 16.57-3.48 12.39.87 22.39 5.39 30.01 13.56-10.87 6.53-16.19 15.55-15.98 27.06.22 9.02 3.69 16.74 10.43 23.15 6.74 6.41 14.89 10.1 24.45 11.08-2.17 6.53-4.89 13.37-8.15 20.52zM119.22 31.84c0-7.28 2.61-14.13 7.82-20.54 5.22-6.41 11.63-10.43 19.24-12.06.22 1.3.33 2.5.33 3.59 0 7.06-2.72 13.91-8.15 20.54-5.43 6.63-12.06 10.43-19.89 11.41.21-.98.32-2.17.32-3.57z" />
-              </svg>
-              <span>Apple ID</span>
-            </button>
-          </div>
-
           {/* Security badge at bottom */}
           <div className="flex items-center justify-between pt-2 border-t border-[#ACBEA3]/20 text-[11px] text-[#ACBEA3]">
             <div className="flex items-center gap-1.5">
@@ -430,3 +454,4 @@ export function LoginScreen({ onLoginSuccess, logoDataUrl }: LoginScreenProps) {
     </div>
   );
 }
+

@@ -241,7 +241,7 @@ export function Sidebar({
               <Lock className="w-3.5 h-3.5 text-[#FFA400]" />
               <span>Lock Studio</span>
             </div>
-            <span className="text-[10px] font-space-mono text-[#ACBEA3]">12345678</span>
+            <span className="text-[10px] font-space-mono text-[#ACBEA3]">Secure</span>
           </button>
         )}
 

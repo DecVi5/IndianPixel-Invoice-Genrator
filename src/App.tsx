@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Invoice, StudioConfig, MilestoneStatus, MilestonePhase } from './types/invoice.ts';
 import {
   loadStudioConfig,
@@ -175,7 +175,7 @@ export default function App() {
     setEditorSubView('split');
   };
 
-  const handleSaveInvoice = (updated: Invoice) => {
+  const handleSaveInvoice = useCallback((updated: Invoice, options?: { isAutoSave?: boolean }) => {
     setInvoices((prev) => {
       const exists = prev.some((inv) => inv.id === updated.id);
       if (exists) {
@@ -184,11 +184,13 @@ export default function App() {
       return [updated, ...prev];
     });
     setActiveInvoiceId(updated.id);
-    showToast(`Invoice ${updated.invoiceNo} saved`);
-  };
+    if (!options?.isAutoSave) {
+      showToast(`Invoice ${updated.invoiceNo} saved`);
+    }
+  }, []);
 
   // Real-time synchronization while typing for live bill
-  const handleLiveUpdate = (updated: Invoice) => {
+  const handleLiveUpdate = useCallback((updated: Invoice) => {
     setInvoices((prev) => {
       const exists = prev.some((inv) => inv.id === updated.id);
       if (exists) {
@@ -197,7 +199,7 @@ export default function App() {
       return [updated, ...prev];
     });
     setActiveInvoiceId(updated.id);
-  };
+  }, []);
 
   const handleDuplicateInvoice = (inv: Invoice) => {
     const nextNo = getNextInvoiceNumber(invoices);

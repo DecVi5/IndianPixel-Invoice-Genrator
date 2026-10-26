@@ -118,13 +118,13 @@ export function HomeScreen({
   const chartData = useMemo(() => {
     if (invoices.length === 0) {
       return [
-        { day: 'Mon', output: 24, forecast: 20, billed: '₹ 24,000', projected: '₹ 20,000' },
-        { day: 'Tue', output: 45, forecast: 38, billed: '₹ 45,000', projected: '₹ 38,000' },
-        { day: 'Wed', output: 35, forecast: 42, billed: '₹ 35,000', projected: '₹ 42,000' },
-        { day: 'Thu', output: 68, forecast: 50, billed: '₹ 68,000', projected: '₹ 50,000' },
-        { day: 'Fri', output: 52, forecast: 46, billed: '₹ 52,000', projected: '₹ 46,000' },
-        { day: 'Sat', output: 60, forecast: 55, billed: '₹ 60,000', projected: '₹ 55,000' },
-        { day: 'Sun', output: 75, forecast: 65, billed: '₹ 75,000', projected: '₹ 65,000' },
+        { day: 'Mon', output: 0, forecast: 0, billed: '₹ 0.00', projected: '₹ 0.00' },
+        { day: 'Tue', output: 0, forecast: 0, billed: '₹ 0.00', projected: '₹ 0.00' },
+        { day: 'Wed', output: 0, forecast: 0, billed: '₹ 0.00', projected: '₹ 0.00' },
+        { day: 'Thu', output: 0, forecast: 0, billed: '₹ 0.00', projected: '₹ 0.00' },
+        { day: 'Fri', output: 0, forecast: 0, billed: '₹ 0.00', projected: '₹ 0.00' },
+        { day: 'Sat', output: 0, forecast: 0, billed: '₹ 0.00', projected: '₹ 0.00' },
+        { day: 'Sun', output: 0, forecast: 0, billed: '₹ 0.00', projected: '₹ 0.00' },
       ];
     }
 
@@ -153,7 +153,7 @@ export function HomeScreen({
             </h1>
             {invoices.length === 0 && (
               <span className="text-[11px] font-medium px-2.5 py-0.5 rounded-full bg-[#ACBEA3]/15 text-[#FFA400] border border-[#ACBEA3]/30 font-space-mono">
-                Sample Preview
+                Deployment Ready · ₹0.00
               </span>
             )}
           </div>
@@ -198,14 +198,12 @@ export function HomeScreen({
           </div>
           <div>
             <div className="text-2xl sm:text-3xl font-bold font-space-mono text-[#F8F4ED] tracking-tight tabular-nums">
-              {invoices.length > 0
-                ? formatIndianCurrency(metrics.totalContracted)
-                : '₹ 2,65,000'}
+              {formatIndianCurrency(metrics.totalContracted)}
             </div>
             <div className="text-[11px] text-[#ACBEA3] mt-1">
               {invoices.length > 0
                 ? `${invoices.length} Registered Invoice${invoices.length > 1 ? 's' : ''}`
-                : 'Retainer & Sprint Volume'}
+                : '0 Invoices on Ledger'}
             </div>
           </div>
           <div className="pt-2 border-t border-[#ACBEA3]/15 flex items-center justify-between text-xs">
@@ -235,9 +233,7 @@ export function HomeScreen({
           </div>
           <div>
             <div className="text-2xl sm:text-3xl font-bold font-space-mono text-[#F8F4ED] tracking-tight tabular-nums">
-              {invoices.length > 0
-                ? formatIndianCurrency(metrics.totalCollected)
-                : '₹ 1,50,000'}
+              {formatIndianCurrency(metrics.totalCollected)}
             </div>
             <div className="text-[11px] text-[#ACBEA3] mt-1">
               Bank UPI / Direct Settlement
@@ -245,7 +241,7 @@ export function HomeScreen({
           </div>
           <div className="pt-2 border-t border-[#ACBEA3]/15 flex items-center justify-between text-xs">
             <span className="text-[#ACBEA3] font-medium text-[11px]">
-              {invoices.length > 0 ? `${metrics.collectionRate}% Realized` : '57% Liquidity Inflow'}
+              {metrics.collectionRate}% Realized
             </span>
             <span className="text-[11px] font-space-mono text-[#FFA400]">Verified</span>
           </div>
@@ -263,17 +259,19 @@ export function HomeScreen({
           </div>
           <div>
             <div className="text-2xl sm:text-3xl font-bold font-space-mono text-[#FFA400] tracking-tight tabular-nums">
-              {invoices.length > 0
-                ? formatIndianCurrency(metrics.pendingReceivables)
-                : '₹ 1,15,000'}
+              {formatIndianCurrency(metrics.pendingReceivables)}
             </div>
             <div className="text-[11px] text-[#ACBEA3] mt-1">
               Scheduled milestone balance
             </div>
           </div>
           <div className="pt-2 border-t border-[#ACBEA3]/15 flex items-center justify-between text-xs">
-            <span className="text-[#ACBEA3] text-[11px]">Milestones 2 &amp; 3</span>
-            <span className="text-[11px] font-space-mono text-[#ACBEA3]">Due net-14</span>
+            <span className="text-[#ACBEA3] text-[11px]">
+              {invoices.length > 0 ? 'Milestones 2 & 3' : '₹ 0.00 Balance'}
+            </span>
+            <span className="text-[11px] font-space-mono text-[#ACBEA3]">
+              {invoices.length > 0 ? 'Due net-14' : 'All clear'}
+            </span>
           </div>
         </div>
 

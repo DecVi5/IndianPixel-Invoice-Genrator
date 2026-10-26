@@ -26,9 +26,9 @@ export const DEFAULT_STUDIO_CONFIG: StudioConfig = {
 };
 
 const STORAGE_KEYS = {
-  CONFIG: 'ips_studio_config_apple_v5',
-  INVOICES: 'ips_invoices_apple_v5',
-  NEXT_INV_SEQ: 'ips_next_seq_apple_v5',
+  CONFIG: 'ips_studio_config_prod_v1',
+  INVOICES: 'ips_invoices_prod_v1',
+  NEXT_INV_SEQ: 'ips_next_seq_prod_v1',
 };
 
 // Purge any older legacy keys from earlier testing so user gets fresh start
@@ -46,6 +46,9 @@ export function purgeLegacyStorage(): void {
       'ips_studio_config_apple_v4',
       'ips_invoices_apple_v4',
       'ips_next_seq_apple_v4',
+      'ips_studio_config_apple_v5',
+      'ips_invoices_apple_v5',
+      'ips_next_seq_apple_v5',
     ];
     legacyKeys.forEach((k) => localStorage.removeItem(k));
   } catch (e) {
@@ -117,15 +120,8 @@ export function saveStudioConfig(config: StudioConfig): void {
  */
 export function loadInvoices(): Invoice[] {
   try {
-    let raw = localStorage.getItem(STORAGE_KEYS.INVOICES);
-    if (!raw) {
-      const v4Raw = localStorage.getItem('ips_invoices_apple_v4');
-      if (v4Raw) {
-        raw = v4Raw;
-        localStorage.setItem(STORAGE_KEYS.INVOICES, v4Raw);
-      }
-    }
     purgeLegacyStorage();
+    const raw = localStorage.getItem(STORAGE_KEYS.INVOICES);
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed)) {

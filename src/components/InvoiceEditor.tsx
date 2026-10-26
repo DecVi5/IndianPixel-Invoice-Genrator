@@ -1,4 +1,4 @@
-import { useState, ChangeEvent, useEffect } from 'react';
+import { useState, ChangeEvent, useEffect, useRef } from 'react';
 import {
   Invoice,
   LineItem,
@@ -46,7 +46,7 @@ import {
 interface InvoiceEditorProps {
   invoice: Invoice;
   studioConfig: StudioConfig;
-  onSaveInvoice: (updated: Invoice) => void;
+  onSaveInvoice: (updated: Invoice, options?: { isAutoSave?: boolean }) => void;
   onViewInvoice: () => void;
   onLiveUpdate?: (updated: Invoice) => void;
   onToggleSplitLiveView?: () => void;
@@ -66,6 +66,8 @@ export function InvoiceEditor({
 }: InvoiceEditorProps) {
   const [current, setCurrent] = useState<Invoice>({ ...invoice });
   const [saveToast, setSaveToast] = useState(false);
+  const [autoSaveStatus, setAutoSaveStatus] = useState<'saved' | 'saving' | 'unsaved'>('saved');
+  const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
   const [showItemDiscountIndex, setShowItemDiscountIndex] = useState<number | null>(null);
   const [selectedRushTier, setSelectedRushTier] = useState<string>('tier-01');
   const [revisionsCount, setRevisionsCount] = useState<number>(1);
@@ -73,10 +75,46 @@ export function InvoiceEditor({
   const [trademarkCount, setTrademarkCount] = useState<number>(1);
   const [isAddonsExpanded, setIsAddonsExpanded] = useState<boolean>(true);
 
+  const lastSavedSnapshotRef = useRef<string>(JSON.stringify(invoice));
+  const currentRef = useRef<Invoice>(current);
+  currentRef.current = current;
+  const onSaveInvoiceRef = useRef(onSaveInvoice);
+  onSaveInvoiceRef.current = onSaveInvoice;
+
   // Sync internal state when invoice prop changes
   useEffect(() => {
     setCurrent({ ...invoice });
+    lastSavedSnapshotRef.current = JSON.stringify(invoice);
+    setAutoSaveStatus('saved');
   }, [invoice.id]);
+
+  // Periodic 5-Second Auto-Save Mechanism to prevent data loss while drafting complex project invoices
+  useEffect(() => {
+    const autoSaveInterval = setInterval(() => {
+      const activeSnapshot = JSON.stringify(currentRef.current);
+      if (activeSnapshot !== lastSavedSnapshotRef.current) {
+        setAutoSaveStatus('saving');
+        onSaveInvoiceRef.current(currentRef.current, { isAutoSave: true });
+        lastSavedSnapshotRef.current = activeSnapshot;
+        setTimeout(() => {
+          setAutoSaveStatus('saved');
+          setLastSavedAt(new Date());
+        }, 350);
+      }
+    }, 5000);
+
+    return () => clearInterval(autoSaveInterval);
+  }, []);
+
+  // Prevent data loss: auto-save on component unmount if dirty
+  useEffect(() => {
+    return () => {
+      const activeSnapshot = JSON.stringify(currentRef.current);
+      if (activeSnapshot !== lastSavedSnapshotRef.current) {
+        onSaveInvoiceRef.current(currentRef.current, { isAutoSave: true });
+      }
+    };
+  }, []);
 
   const recompute = (
     items: LineItem[],
@@ -423,8 +461,21 @@ export function InvoiceEditor({
     );
   };
 
+  // Mark unsaved whenever current state changes from last snapshot
+  useEffect(() => {
+    currentRef.current = current;
+    const currentJson = JSON.stringify(current);
+    if (currentJson !== lastSavedSnapshotRef.current) {
+      setAutoSaveStatus('unsaved');
+    }
+  }, [current]);
+
   const handleSave = () => {
+    const activeSnapshot = JSON.stringify(current);
     onSaveInvoice(current);
+    lastSavedSnapshotRef.current = activeSnapshot;
+    setAutoSaveStatus('saved');
+    setLastSavedAt(new Date());
     setSaveToast(true);
     setTimeout(() => setSaveToast(false), 2500);
   };
@@ -446,7 +497,7 @@ export function InvoiceEditor({
     <div className="w-full max-w-5xl mx-auto space-y-6 pb-12 font-poppins">
       {/* Top Action Bar */}
       <div className="flex flex-wrap items-center justify-between gap-4 p-4 bg-white border border-[#ACBEA3]/40 rounded-2xl shadow-xs">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
           <div className="w-10 h-10 rounded-xl bg-[#08221B] flex items-center justify-center p-1.5 shadow-xs shrink-0">
             <BrandLogo
               customLogoUrl={studioConfig.logoDataUrl}
@@ -460,7 +511,7 @@ export function InvoiceEditor({
             {current.invoiceNo}
           </span>
           <span className="text-[#ACBEA3]">·</span>
-          <span className="text-xs text-[#2C3330] font-medium truncate max-w-xs sm:max-w-md">
+          <span className="text-xs text-[#2C3330] font-medium truncate max-w-[140px] sm:max-w-xs">
             {current.projectName || 'Untitled Project'}
           </span>
           <span
@@ -474,6 +525,47 @@ export function InvoiceEditor({
           >
             {current.masterStatus}
           </span>
+
+          {/* 5-Second Auto-Save Status Pill */}
+          <div
+            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium transition-all ${
+              autoSaveStatus === 'saving'
+                ? 'bg-[#FFA400]/25 text-[#08221B] border border-[#FFA400]/60'
+                : autoSaveStatus === 'unsaved'
+                ? 'bg-amber-100 text-amber-900 border border-amber-300'
+                : 'bg-[#08221B]/10 text-[#08221B] border border-[#ACBEA3]/50'
+            }`}
+            title="Auto-saves every 5 seconds to prevent draft loss"
+          >
+            {autoSaveStatus === 'saving' ? (
+              <>
+                <span className="w-1.5 h-1.5 rounded-full bg-[#FFA400] animate-ping" />
+                <span className="font-space-mono text-[10.5px] font-semibold text-[#08221B]">
+                  Saving draft...
+                </span>
+              </>
+            ) : autoSaveStatus === 'unsaved' ? (
+              <>
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                <span className="font-space-mono text-[10.5px] font-medium">
+                  Unsaved · auto-saves in 5s
+                </span>
+              </>
+            ) : (
+              <>
+                <CheckCircle2 className="w-3.5 h-3.5 text-[#08221B]" />
+                <span className="font-space-mono text-[10.5px] font-medium text-[#08221B]">
+                  {lastSavedAt
+                    ? `Auto-saved at ${lastSavedAt.toLocaleTimeString([], {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit',
+                      })}`
+                    : 'Auto-saved (5s sync)'}
+                </span>
+              </>
+            )}
+          </div>
         </div>
 
         <div className="flex items-center gap-2">
