@@ -10,11 +10,24 @@ import {
   saveStudioConfig,
   loadInvoices,
   saveInvoices,
+  loadPersistedFromIndexedDB,
   getNextInvoiceNumber,
   createBlankInvoice,
   clearAllDataToZero,
   DEFAULT_STUDIO_CONFIG,
 } from './utils/storage.ts';
+import {
+  initDriveAuth,
+  googleDriveSignIn,
+  googleDriveLogout,
+  findStudioLedgerFileInDrive,
+  loadStudioLedgerFromDrive,
+  createNewStudioLedgerInDrive,
+  updateExistingStudioLedgerInDrive,
+  deleteStudioLedgerFromDrive,
+  DRIVE_LEDGER_FILENAME,
+  DriveFileMeta,
+} from './utils/googleDrive.ts';
 import { deriveMasterStatus, formatDateToDDMMYYYY, formatIndianCurrency } from './utils/financials.ts';
 import { Sidebar, MainNavTab } from './components/Sidebar.tsx';
 import { TopNavbar } from './components/TopNavbar.tsx';
@@ -26,14 +39,11 @@ import { InvoicePrintSheet } from './components/InvoicePrintSheet.tsx';
 import { SettingsPage } from './components/SettingsPage.tsx';
 import { StudioSettingsModal } from './components/StudioSettingsModal.tsx';
 import { LoginScreen } from './components/LoginScreen.tsx';
-import { BrandLogo } from './components/BrandLogo.tsx';
 import {
   ArrowLeft,
   Edit3,
   Eye,
-  Menu,
   X,
-  Plus,
   CheckCircle2,
   RotateCcw,
   Zap,
@@ -41,52 +51,39 @@ import {
   ZoomIn,
   ZoomOut,
   RefreshCw,
-  Lock,
-  Moon,
-  Sun,
+  Cloud,
+  Trash2,
 } from 'lucide-react';
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
     try {
-      return sessionStorage.getItem('ips_authenticated') === 'true';
+      return (
+        localStorage.getItem('ips_authenticated') === 'true' ||
+        sessionStorage.getItem('ips_authenticated') === 'true'
+      );
     } catch {
       return false;
     }
   });
 
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
-    try {
-      return localStorage.getItem('ips_dark_mode') !== 'false';
-    } catch {
-      return true;
-    }
-  });
+  const [isDarkMode] = useState<boolean>(true);
 
   const handleToggleDarkMode = () => {
-    setIsDarkMode((prev) => {
-      const next = !prev;
-      try {
-        localStorage.setItem('ips_dark_mode', String(next));
-      } catch (e) {
-        console.error(e);
-      }
-      return next;
-    });
+    // Keep all dark permanently as requested
+    try {
+      localStorage.setItem('ips_dark_mode', 'true');
+    } catch (e) {
+      console.error(e);
+    }
   };
 
-  // Sync document root class and background color with isDarkMode
+  // Sync document root class and background color with dark studio theme
   useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark');
-      document.body.style.backgroundColor = '#071311';
-      document.body.style.color = '#f1f5f9';
-    } else {
-      document.documentElement.classList.remove('dark');
-      document.body.style.backgroundColor = '#2C3330';
-      document.body.style.color = '#08221B';
-    }
-  }, [isDarkMode]);
+    document.documentElement.classList.add('dark');
+    document.body.style.backgroundColor = '#08221B';
+    document.body.style.color = '#F8F4ED';
+  }, []);
 
   const [studioConfig, setStudioConfig] = useState<StudioConfig>(() =>
     loadStudioConfig()
@@ -101,22 +98,68 @@ export default function App() {
     return list[0]?.id || '';
   });
   const [editorSubView, setEditorSubView] = useState<'split' | 'form' | 'preview'>('split');
-  const [liveZoomScale, setLiveZoomScale] = useState<number>(0.54);
+  const [liveZoomScale, setLiveZoomScale] = useState<number>(0.46);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [isResetModalOpen, setIsResetModalOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Google Drive Cloud Persistence State
+  const [driveConnected, setDriveConnected] = useState<boolean>(false);
+  const [driveUserEmail, setDriveUserEmail] = useState<string | null>(null);
+  const [driveFileMeta, setDriveFileMeta] = useState<DriveFileMeta | null>(null);
+  const [driveLastSynced, setDriveLastSynced] = useState<string | null>(null);
+  const [isDriveSyncing, setIsDriveSyncing] = useState<boolean>(false);
+  const [pendingDriveModal, setPendingDriveModal] = useState<'overwrite' | 'delete' | null>(null);
+
   // Apple-style transient toast
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => {
       setToastMessage((curr) => (curr === msg ? null : curr));
-    }, 2800);
+    }, 3200);
   };
 
-  // Sync state to LocalStorage
+  // Recover from IndexedDB if localStorage was cleared by browser session
+  useEffect(() => {
+    let active = true;
+    loadPersistedFromIndexedDB().then((persisted) => {
+      if (!active) return;
+      if (persisted.studioConfig) {
+        setStudioConfig((curr) => ({ ...curr, ...persisted.studioConfig }));
+      }
+      if (Array.isArray(persisted.invoices) && persisted.invoices.length > 0) {
+        setInvoices((curr) => {
+          if (curr.length === 0 && persisted.invoices && persisted.invoices.length > 0) {
+            setActiveInvoiceId(persisted.invoices[0].id);
+            return persisted.invoices;
+          }
+          return curr;
+        });
+      }
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  // Initialize Firebase Google Drive Auth Listener
+  useEffect(() => {
+    const unsubscribe = initDriveAuth(
+      (user) => {
+        setDriveConnected(true);
+        setDriveUserEmail(user.email || user.displayName || 'Connected Account');
+      },
+      () => {
+        setDriveConnected(false);
+        setDriveUserEmail(null);
+      }
+    );
+    return () => unsubscribe();
+  }, []);
+
+  // Sync state to LocalStorage + IndexedDB
   useEffect(() => {
     saveStudioConfig(studioConfig);
   }, [studioConfig]);
@@ -127,6 +170,7 @@ export default function App() {
 
   const handleLoginSuccess = () => {
     try {
+      localStorage.setItem('ips_authenticated', 'true');
       sessionStorage.setItem('ips_authenticated', 'true');
     } catch (e) {
       console.error(e);
@@ -137,12 +181,214 @@ export default function App() {
 
   const handleLockStudio = () => {
     try {
+      localStorage.removeItem('ips_authenticated');
       sessionStorage.removeItem('ips_authenticated');
     } catch (e) {
       console.error(e);
     }
     setIsAuthenticated(false);
     showToast('Studio locked');
+  };
+
+  // Google Drive Cloud Handlers
+  const handleConnectGoogleDrive = async () => {
+    try {
+      setIsDriveSyncing(true);
+      const authResult = await googleDriveSignIn();
+      if (!authResult) return;
+
+      setDriveConnected(true);
+      setDriveUserEmail(authResult.user.email || authResult.user.displayName || 'Connected');
+
+      // Check if indian-pixel-studio-ledger.json already exists in Google Drive
+      const existingFile = await findStudioLedgerFileInDrive();
+      if (existingFile) {
+        setDriveFileMeta(existingFile);
+        const formattedTime = existingFile.modifiedTime
+          ? new Date(existingFile.modifiedTime).toLocaleTimeString([], {
+              hour: '2-digit',
+              minute: '2-digit',
+            })
+          : 'Found in Drive';
+        setDriveLastSynced(formattedTime);
+
+        // If local invoices are empty, automatically restore from Google Drive!
+        if (invoices.length === 0) {
+          const cloudData = await loadStudioLedgerFromDrive(existingFile.id);
+          if (cloudData.studioConfig) {
+            setStudioConfig(cloudData.studioConfig);
+          }
+          if (Array.isArray(cloudData.invoices) && cloudData.invoices.length > 0) {
+            setInvoices(cloudData.invoices);
+            setActiveInvoiceId(cloudData.invoices[0].id);
+            showToast(
+              `Restored ${cloudData.invoices.length} invoice(s) from Google Drive`
+            );
+            return;
+          }
+        }
+        showToast('Google Drive connected — Cloud ledger ready');
+      } else {
+        // Create initial file in Google Drive so data is immediately persisted
+        const created = await createNewStudioLedgerInDrive(studioConfig, invoices);
+        setDriveFileMeta(created);
+        setDriveLastSynced(
+          new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        );
+        showToast('Connected & created initial ledger in Google Drive');
+      }
+    } catch (err) {
+      console.error('Google Drive connection failed:', err);
+      showToast('Google Drive sign-in cancelled or failed');
+    } finally {
+      setIsDriveSyncing(false);
+    }
+  };
+
+  // Initiates Sync to Google Drive (creates if new, or opens confirmation modal before overwriting existing Drive file)
+  const handleRequestSyncToGoogleDrive = async () => {
+    if (!driveConnected) {
+      await handleConnectGoogleDrive();
+      return;
+    }
+
+    try {
+      setIsDriveSyncing(true);
+      const existing = driveFileMeta || (await findStudioLedgerFileInDrive());
+      if (!existing) {
+        const created = await createNewStudioLedgerInDrive(studioConfig, invoices);
+        setDriveFileMeta(created);
+        setDriveLastSynced(
+          new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        );
+        showToast(`Created ${DRIVE_LEDGER_FILENAME} in Google Drive`);
+      } else {
+        setDriveFileMeta(existing);
+        // Require explicit user confirmation before overwriting existing file in Google Drive
+        setPendingDriveModal('overwrite');
+      }
+    } catch (err: any) {
+      if (err?.message === 'NO_ACCESS_TOKEN') {
+        setDriveConnected(false);
+        showToast('Session expired — Please sign in with Google again');
+      } else {
+        console.error('Failed to check Drive before sync:', err);
+        showToast('Could not reach Google Drive');
+      }
+    } finally {
+      setIsDriveSyncing(false);
+    }
+  };
+
+  // Executes overwrite in Google Drive after user clicks Confirm in modal
+  const handleConfirmOverwriteGoogleDrive = async () => {
+    if (!driveFileMeta) return;
+    try {
+      setPendingDriveModal(null);
+      setIsDriveSyncing(true);
+      const updated = await updateExistingStudioLedgerInDrive(
+        driveFileMeta.id,
+        studioConfig,
+        invoices
+      );
+      setDriveFileMeta(updated);
+      setDriveLastSynced(
+        new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      );
+      showToast(`Synced ${invoices.length} invoice(s) to Google Drive`);
+    } catch (err: any) {
+      if (err?.message === 'NO_ACCESS_TOKEN') {
+        setDriveConnected(false);
+        showToast('Please sign in with Google to complete sync');
+      } else {
+        console.error('Failed to update file in Google Drive:', err);
+        showToast('Failed to update ledger in Google Drive');
+      }
+    } finally {
+      setIsDriveSyncing(false);
+    }
+  };
+
+  // Restores studioConfig and invoices from Google Drive
+  const handleRestoreFromGoogleDrive = async () => {
+    if (!driveConnected) {
+      await handleConnectGoogleDrive();
+      return;
+    }
+    try {
+      setIsDriveSyncing(true);
+      const existing = driveFileMeta || (await findStudioLedgerFileInDrive());
+      if (!existing) {
+        showToast('No saved ledger file found in Google Drive yet');
+        return;
+      }
+      setDriveFileMeta(existing);
+      const cloudData = await loadStudioLedgerFromDrive(existing.id);
+      if (cloudData.studioConfig) {
+        setStudioConfig(cloudData.studioConfig);
+      }
+      if (Array.isArray(cloudData.invoices)) {
+        setInvoices(cloudData.invoices);
+        if (cloudData.invoices.length > 0) {
+          setActiveInvoiceId(cloudData.invoices[0].id);
+        }
+      }
+      setDriveLastSynced(
+        new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      );
+      showToast(
+        `Restored ${cloudData.invoices?.length || 0} invoice(s) from Google Drive`
+      );
+    } catch (err: any) {
+      if (err?.message === 'NO_ACCESS_TOKEN') {
+        setDriveConnected(false);
+        showToast('Please sign in with Google to restore');
+      } else {
+        console.error('Failed to restore from Google Drive:', err);
+        showToast('Failed to load ledger from Google Drive');
+      }
+    } finally {
+      setIsDriveSyncing(false);
+    }
+  };
+
+  // Requests deletion of cloud backup file from Google Drive (opens confirmation modal)
+  const handleRequestDeleteFromGoogleDrive = async () => {
+    if (!driveConnected) return;
+    const existing = driveFileMeta || (await findStudioLedgerFileInDrive());
+    if (!existing) {
+      showToast('No backup file in Google Drive to delete');
+      return;
+    }
+    setDriveFileMeta(existing);
+    setPendingDriveModal('delete');
+  };
+
+  // Executes deletion in Google Drive after user clicks Confirm in modal
+  const handleConfirmDeleteFromGoogleDrive = async () => {
+    if (!driveFileMeta) return;
+    try {
+      setPendingDriveModal(null);
+      setIsDriveSyncing(true);
+      await deleteStudioLedgerFromDrive(driveFileMeta.id);
+      setDriveFileMeta(null);
+      setDriveLastSynced(null);
+      showToast(`Deleted ${DRIVE_LEDGER_FILENAME} from Google Drive`);
+    } catch (err) {
+      console.error('Failed to delete file from Google Drive:', err);
+      showToast('Failed to delete file from Google Drive');
+    } finally {
+      setIsDriveSyncing(false);
+    }
+  };
+
+  const handleDisconnectGoogleDrive = async () => {
+    await googleDriveLogout();
+    setDriveConnected(false);
+    setDriveUserEmail(null);
+    setDriveFileMeta(null);
+    setDriveLastSynced(null);
+    showToast('Disconnected from Google Drive');
   };
 
   // Fallback blank invoice when list is reset to 0
@@ -520,7 +766,7 @@ export default function App() {
 
       {/* Main Responsive Shell: Full-screen on mobile, curved card on tablet & desktop */}
       <div className="w-full max-w-[1720px] min-h-screen sm:min-h-0 sm:h-[95vh] rounded-none sm:rounded-[32px] overflow-hidden shadow-2xl flex flex-col transition-colors duration-300 relative bg-[#08221B] border-0 sm:border border-[#ACBEA3]/25">
-        {/* Top Navigation Header with Mobile Drawer Trigger */}
+        {/* Top Navigation Header with Mobile Drawer Trigger, Financial Goal Tracker & Google Drive Sync */}
         <TopNavbar
           activeTab={activeTab}
           setActiveTab={(tab) => {
@@ -532,6 +778,11 @@ export default function App() {
           }}
           onCreateInvoice={handleCreateNewInvoice}
           studioConfig={studioConfig}
+          invoices={invoices}
+          onUpdateFinancialGoal={(newGoal) => {
+            setStudioConfig((prev) => ({ ...prev, financialGoal: newGoal }));
+            showToast(`Financial goal set to ${formatIndianCurrency(newGoal)}`);
+          }}
           isDarkMode={isDarkMode}
           onToggleDarkMode={handleToggleDarkMode}
           onLockStudio={handleLockStudio}
@@ -543,6 +794,15 @@ export default function App() {
           setTimeFilter={setTimeFilter}
           onOpenSearch={() => setIsSearchOpen(true)}
           onToggleMobileMenu={() => setMobileMenuOpen(!mobileMenuOpen)}
+          driveConnected={driveConnected}
+          driveUserEmail={driveUserEmail}
+          driveFileName={driveFileMeta?.name || DRIVE_LEDGER_FILENAME}
+          driveLastSynced={driveLastSynced}
+          isDriveSyncing={isDriveSyncing}
+          onConnectGoogleDrive={handleConnectGoogleDrive}
+          onSyncToGoogleDrive={handleRequestSyncToGoogleDrive}
+          onRestoreFromGoogleDrive={handleRestoreFromGoogleDrive}
+          onDisconnectGoogleDrive={handleDisconnectGoogleDrive}
         />
 
         {/* Body Container with Left Sidebar Intact */}
@@ -604,11 +864,15 @@ export default function App() {
 
           {/* Right Main Canvas */}
           <main className="flex-1 p-3.5 sm:p-5 lg:p-6 overflow-y-auto relative flex flex-col transition-colors duration-300 bg-[#2C3330] text-[#F8F4ED]">
-          {/* PAGE 1: Home Screen with Basic Stats, Current Invoices, Revenue Health Recharts */}
+          {/* PAGE 1: Home Screen with Financial Goal Tracker, Basic Stats, Current Invoices, Revenue Health Recharts */}
           {activeTab === 'home' && (
             <HomeScreen
               invoices={invoices}
               studioConfig={studioConfig}
+              onUpdateFinancialGoal={(newGoal) => {
+                setStudioConfig((prev) => ({ ...prev, financialGoal: newGoal }));
+                showToast(`Financial goal set to ${formatIndianCurrency(newGoal)}`);
+              }}
               onNavigateTab={(tab) => {
                 if (tab === 'create') {
                   handleCreateNewInvoice();
@@ -665,6 +929,16 @@ export default function App() {
               onLockStudio={handleLockStudio}
               isDarkMode={isDarkMode}
               onToggleDarkMode={handleToggleDarkMode}
+              driveConnected={driveConnected}
+              driveUserEmail={driveUserEmail}
+              driveFileName={driveFileMeta?.name || DRIVE_LEDGER_FILENAME}
+              driveLastSynced={driveLastSynced}
+              isDriveSyncing={isDriveSyncing}
+              onConnectGoogleDrive={handleConnectGoogleDrive}
+              onSyncToGoogleDrive={handleRequestSyncToGoogleDrive}
+              onRestoreFromGoogleDrive={handleRestoreFromGoogleDrive}
+              onDeleteFromGoogleDrive={handleRequestDeleteFromGoogleDrive}
+              onDisconnectGoogleDrive={handleDisconnectGoogleDrive}
             />
           )}
 
@@ -770,81 +1044,51 @@ export default function App() {
 
                   {/* Right Column: Real-Time Live Bill Preview (5 cols on XL) */}
                   <div className="xl:col-span-5 sticky top-2 space-y-2">
-                    <div
-                      className={`p-3 rounded-2xl border shadow-xs flex items-center justify-between ${
-                        isDarkMode
-                          ? 'bg-[#18202F]/80 backdrop-blur-xl border-white/10 text-white'
-                          : 'bg-white border-[#ACBEA3]/40 text-[#08221B]'
-                      }`}
-                    >
+                    <div className="p-3 rounded-2xl border shadow-xs flex items-center justify-between bg-[#08221B] border-[#ACBEA3]/35 text-[#F8F4ED]">
                       <div className="flex items-center gap-2">
                         <div className="w-2.5 h-2.5 rounded-full bg-[#FFA400] animate-pulse" />
-                        <span
-                          className={`font-montserrat font-bold text-xs tracking-wide uppercase ${
-                            isDarkMode ? 'text-white' : 'text-[#08221B]'
-                          }`}
-                        >
-                          Live Bill Synchronized
+                        <span className="font-montserrat font-bold text-xs tracking-wide uppercase text-[#F8F4ED]">
+                          Live Bill (1-Page A4)
                         </span>
                       </div>
 
                       <div className="flex items-center gap-1.5">
                         <button
-                          onClick={() => setLiveZoomScale(0.54)}
+                          onClick={() => setLiveZoomScale(0.46)}
                           title="Fit Live Bill to panel width"
-                          className={`px-2 py-0.5 rounded text-[10px] font-poppins font-semibold transition-colors cursor-pointer ${
-                            isDarkMode
-                              ? 'bg-white/10 hover:bg-white/20 text-white'
-                              : 'bg-[#F8F4ED] hover:bg-[#ACBEA3]/30 text-[#08221B]'
-                          }`}
+                          className="px-2 py-0.5 rounded text-[10px] font-poppins font-semibold transition-colors cursor-pointer bg-[#2C3330] hover:bg-[#38423e] text-[#F8F4ED] border border-[#ACBEA3]/30"
                         >
                           Fit
                         </button>
                         <button
                           onClick={() =>
                             setLiveZoomScale((curr) =>
-                              curr <= 0.4 ? 0.54 : Math.round((curr - 0.06) * 100) / 100
+                              curr <= 0.36 ? 0.46 : Math.round((curr - 0.05) * 100) / 100
                             )
                           }
                           title="Zoom Out Live Bill"
-                          className={`p-1 rounded transition-colors cursor-pointer ${
-                            isDarkMode
-                              ? 'bg-white/10 hover:bg-white/20 text-white'
-                              : 'bg-[#F8F4ED] hover:bg-[#ACBEA3]/30 text-[#08221B]'
-                          }`}
+                          className="p-1 rounded transition-colors cursor-pointer bg-[#2C3330] hover:bg-[#38423e] text-[#F8F4ED] border border-[#ACBEA3]/30"
                         >
                           <ZoomOut className="w-3.5 h-3.5" />
                         </button>
-                        <span
-                          className={`text-[10px] font-space-mono font-semibold px-1 ${
-                            isDarkMode ? 'text-white' : 'text-[#08221B]'
-                          }`}
-                        >
+                        <span className="text-[10px] font-space-mono font-semibold px-1 text-[#F8F4ED]">
                           {Math.round(liveZoomScale * 100)}%
                         </span>
                         <button
                           onClick={() =>
                             setLiveZoomScale((curr) =>
-                              curr >= 1.0 ? 0.54 : Math.round((curr + 0.06) * 100) / 100
+                              curr >= 1.0 ? 0.46 : Math.round((curr + 0.05) * 100) / 100
                             )
                           }
                           title="Zoom In Live Bill"
-                          className={`p-1 rounded transition-colors cursor-pointer ${
-                            isDarkMode
-                              ? 'bg-white/10 hover:bg-white/20 text-white'
-                              : 'bg-[#F8F4ED] hover:bg-[#ACBEA3]/30 text-[#08221B]'
-                          }`}
+                          className="p-1 rounded transition-colors cursor-pointer bg-[#2C3330] hover:bg-[#38423e] text-[#F8F4ED] border border-[#ACBEA3]/30"
                         >
                           <ZoomIn className="w-3.5 h-3.5" />
                         </button>
                         <button
                           onClick={() => setEditorSubView('preview')}
                           title="Open Fullscreen A4 Print Sheet"
-                          className={`p-1 rounded transition-colors cursor-pointer ${
-                            isDarkMode
-                              ? 'bg-white/10 hover:bg-white/20 text-white'
-                              : 'bg-[#F8F4ED] hover:bg-[#ACBEA3]/30 text-[#08221B]'
-                          }`}
+                          className="p-1 rounded transition-colors cursor-pointer bg-[#2C3330] hover:bg-[#38423e] text-[#FFA400] border border-[#ACBEA3]/30"
                         >
                           <Maximize2 className="w-3.5 h-3.5" />
                         </button>
@@ -852,33 +1096,35 @@ export default function App() {
                     </div>
 
                     {/* Scale-Fitted Live Bill Container */}
-                    <div
-                      className={`border rounded-2xl p-2 sm:p-3 overflow-y-auto max-h-[calc(88vh-110px)] flex justify-center shadow-inner ${
-                        isDarkMode
-                          ? 'bg-black/30 border-white/10'
-                          : 'bg-[#2C3330]/5 border-[#ACBEA3]/40'
-                      }`}
-                    >
+                    <div className="border rounded-2xl p-2 sm:p-3 overflow-x-auto overflow-y-auto max-h-[calc(88vh-90px)] flex justify-center shadow-inner bg-[#08221B]/60 border-[#ACBEA3]/30">
                       <div
                         style={{
-                          transform: `scale(${liveZoomScale})`,
-                          transformOrigin: 'top center',
-                          width: '210mm',
-                          marginBottom: `calc((1 - ${liveZoomScale}) * -297mm)`,
+                          width: `calc(210mm * ${liveZoomScale})`,
+                          height: `calc(297mm * ${liveZoomScale})`,
+                          position: 'relative',
                         }}
-                        className="transition-transform duration-200 shrink-0"
+                        className="shrink-0 overflow-hidden rounded-sm shadow-xl"
                       >
-                        <InvoicePrintSheet
-                          invoice={activeInvoice}
-                          studioConfig={studioConfig}
-                          hidePrintControls={true}
-                          onToggleSingleBillPaid={() =>
-                            handleToggleMilestone(activeInvoice.id, 1)
-                          }
-                          onMilestoneToggle={(phaseId) =>
-                            handleToggleMilestone(activeInvoice.id, phaseId)
-                          }
-                        />
+                        <div
+                          style={{
+                            transform: `scale(${liveZoomScale})`,
+                            transformOrigin: 'top left',
+                            width: '210mm',
+                            height: '297mm',
+                          }}
+                        >
+                          <InvoicePrintSheet
+                            invoice={activeInvoice}
+                            studioConfig={studioConfig}
+                            hidePrintControls={true}
+                            onToggleSingleBillPaid={() =>
+                              handleToggleMilestone(activeInvoice.id, 1)
+                            }
+                            onMilestoneToggle={(phaseId) =>
+                              handleToggleMilestone(activeInvoice.id, phaseId)
+                            }
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -1051,6 +1297,68 @@ export default function App() {
                 <div className="p-5 text-center text-xs text-slate-500">
                   No registered invoices found. Click + Generate Invoice to create one.
                 </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Mandatory User Confirmation Dialog for Google Drive Overwrite / Delete Operations */}
+      {pendingDriveModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-in fade-in">
+          <div className="rounded-3xl p-6 sm:p-7 max-w-md w-full shadow-2xl border bg-[#08221B] border-[#FFA400]/50 text-[#F8F4ED] space-y-5 font-poppins">
+            <div
+              className={`w-12 h-12 rounded-2xl flex items-center justify-center mx-auto border ${
+                pendingDriveModal === 'delete'
+                  ? 'bg-rose-500/20 border-rose-500/40 text-rose-400'
+                  : 'bg-[#FFA400]/20 border-[#FFA400]/40 text-[#FFA400]'
+              }`}
+            >
+              {pendingDriveModal === 'delete' ? (
+                <Trash2 className="w-6 h-6" />
+              ) : (
+                <Cloud className="w-6 h-6" />
+              )}
+            </div>
+
+            <div className="text-center space-y-2">
+              <h3 className="text-lg font-bold font-montserrat text-[#F8F4ED]">
+                {pendingDriveModal === 'delete'
+                  ? `Delete '${DRIVE_LEDGER_FILENAME}' from Google Drive?`
+                  : `Update '${DRIVE_LEDGER_FILENAME}' in Google Drive?`}
+              </h3>
+              <p className="text-xs leading-relaxed text-[#ACBEA3]">
+                {pendingDriveModal === 'delete'
+                  ? `This will permanently delete the backup file '${DRIVE_LEDGER_FILENAME}' from your Google Drive (${driveUserEmail || 'connected account'}). Your local studio invoices will remain untouched.`
+                  : `This will overwrite the existing file '${DRIVE_LEDGER_FILENAME}' in your Google Drive with your current studio configuration and ${invoices.length} invoice(s).`}
+              </p>
+            </div>
+
+            <div className="flex items-center gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setPendingDriveModal(null)}
+                className="flex-1 py-2.5 rounded-xl border border-[#ACBEA3]/40 bg-[#2C3330] hover:bg-[#38423e] text-xs font-semibold text-[#F8F4ED] transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              {pendingDriveModal === 'delete' ? (
+                <button
+                  type="button"
+                  onClick={handleConfirmDeleteFromGoogleDrive}
+                  className="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-xs font-bold font-montserrat text-white shadow-xs transition-all active:scale-95 cursor-pointer"
+                >
+                  Confirm Delete
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleConfirmOverwriteGoogleDrive}
+                  className="flex-1 py-2.5 rounded-xl bg-[#FFA400] hover:bg-[#e69400] text-xs font-bold font-montserrat text-[#08221B] shadow-xs transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-1.5"
+                >
+                  <RefreshCw className="w-3.5 h-3.5" />
+                  <span>Confirm Sync</span>
+                </button>
               )}
             </div>
           </div>

@@ -52,6 +52,7 @@ export interface StudioConfig {
   ifscCode: string;
   upiId: string;
   defaultTerms: string;
+  financialGoal?: number;
 }
 
 export interface Invoice {

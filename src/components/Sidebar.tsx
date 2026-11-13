@@ -12,7 +12,6 @@ import {
   Activity,
   ShieldCheck,
   Moon,
-  Sun,
   X,
 } from 'lucide-react';
 
@@ -43,8 +42,6 @@ export function Sidebar({
   onImportBackup,
   onResetDefaults,
   onLockStudio,
-  isDarkMode = true,
-  onToggleDarkMode,
   onCloseMobileMenu,
 }: SidebarProps) {
   const handleNavClick = (tab: MainNavTab) => {
@@ -200,35 +197,19 @@ export function Sidebar({
 
       {/* Utilities & Lock Studio */}
       <div className="space-y-3 pt-3 border-t border-[#ACBEA3]/15">
-        {/* Dark Mode Feature Switch */}
-        {onToggleDarkMode && (
-          <button
-            type="button"
-            onClick={onToggleDarkMode}
-            className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-[#ACBEA3] hover:text-[#F8F4ED] hover:bg-[#2C3330]/50 border border-[#ACBEA3]/20 transition-colors cursor-pointer"
-            title={isDarkMode ? 'Switch to Light Appearance' : 'Switch to Dark Appearance'}
-          >
-            <div className="flex items-center gap-2">
-              {isDarkMode ? (
-                <Moon className="w-3.5 h-3.5 text-[#FFA400]" />
-              ) : (
-                <Sun className="w-3.5 h-3.5 text-[#FFA400]" />
-              )}
-              <span>{isDarkMode ? 'Dark Mode' : 'Light Mode'}</span>
-            </div>
-            <div
-              className={`w-7 h-3.5 rounded-full p-0.5 transition-colors flex items-center ${
-                isDarkMode ? 'bg-[#FFA400]' : 'bg-[#2C3330]'
-              }`}
-            >
-              <div
-                className={`w-2.5 h-2.5 rounded-full bg-[#08221B] shadow-xs transition-transform duration-200 ${
-                  isDarkMode ? 'translate-x-3.5' : 'translate-x-0'
-                }`}
-              />
-            </div>
-          </button>
-        )}
+        {/* Permanent Dark Mode Indicator */}
+        <div
+          className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-[#F8F4ED] bg-[#2C3330]/70 border border-[#ACBEA3]/25"
+          title="Studio Dark Theme Active"
+        >
+          <div className="flex items-center gap-2">
+            <Moon className="w-3.5 h-3.5 text-[#FFA400]" />
+            <span>Dark Studio Theme</span>
+          </div>
+          <span className="text-[9px] font-space-mono font-bold text-[#FFA400] uppercase">
+            Locked
+          </span>
+        </div>
 
         {/* Studio Lock Button */}
         {onLockStudio && (

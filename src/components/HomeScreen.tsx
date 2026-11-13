@@ -25,15 +25,14 @@ import {
   Layers,
   Sparkles,
   ShieldCheck,
-  CreditCard,
   QrCode,
-  ArrowRight,
   Building2,
 } from 'lucide-react';
 
 interface HomeScreenProps {
   invoices: Invoice[];
   studioConfig: StudioConfig;
+  onUpdateFinancialGoal?: (newGoal: number) => void;
   onNavigateTab: (tab: 'home' | 'create' | 'invoices' | 'settings' | 'analytics') => void;
   onSelectInvoice: (invoice: Invoice) => void;
   onEditInvoice: (invoice: Invoice) => void;
@@ -48,7 +47,6 @@ export function HomeScreen({
   onSelectInvoice,
   onEditInvoice,
   onLoadSampleData,
-  isDarkMode = true,
 }: HomeScreenProps) {
   const [activeDataIndex, setActiveDataIndex] = useState<number | null>(3); // Default Thu
 
@@ -197,7 +195,7 @@ export function HomeScreen({
             </div>
           </div>
           <div>
-            <div className="text-2xl sm:text-3xl font-bold font-space-mono text-[#F8F4ED] tracking-tight tabular-nums">
+            <div className="text-xl sm:text-2xl font-bold font-space-mono text-[#F8F4ED] tracking-tight tabular-nums whitespace-nowrap">
               {formatIndianCurrency(metrics.totalContracted)}
             </div>
             <div className="text-[11px] text-[#ACBEA3] mt-1">
@@ -232,7 +230,7 @@ export function HomeScreen({
             </div>
           </div>
           <div>
-            <div className="text-2xl sm:text-3xl font-bold font-space-mono text-[#F8F4ED] tracking-tight tabular-nums">
+            <div className="text-xl sm:text-2xl font-bold font-space-mono text-[#F8F4ED] tracking-tight tabular-nums whitespace-nowrap">
               {formatIndianCurrency(metrics.totalCollected)}
             </div>
             <div className="text-[11px] text-[#ACBEA3] mt-1">
@@ -258,7 +256,7 @@ export function HomeScreen({
             </div>
           </div>
           <div>
-            <div className="text-2xl sm:text-3xl font-bold font-space-mono text-[#FFA400] tracking-tight tabular-nums">
+            <div className="text-xl sm:text-2xl font-bold font-space-mono text-[#FFA400] tracking-tight tabular-nums whitespace-nowrap">
               {formatIndianCurrency(metrics.pendingReceivables)}
             </div>
             <div className="text-[11px] text-[#ACBEA3] mt-1">
@@ -645,7 +643,6 @@ export function HomeScreen({
             {/* Mobile Cards View (Visible only on small phones < 640px) */}
             <div className="block sm:hidden divide-y divide-[#ACBEA3]/10">
               {recentInvoices.map((inv) => {
-                const isSingle = inv.billingType === 'single';
                 const isOverdue = isInvoiceOverdue(inv.dueDate, inv.masterStatus);
 
                 return (

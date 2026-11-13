@@ -58,8 +58,12 @@ npm install
 npm run dev
 ```
 
-Visit `http://localhost:3000` in your browser. Default studio unlock code is `12345678`.
+Visit `http://localhost:3000` in your browser. 
 
+### Authorized Studio Credentials
+- **Admin**: `admin@indianpixel.in`
+- **CFO**: `cfo@indianpixel.in`
+- **PassWord**: `IPCT*4057#`
 ---
 
 ## License

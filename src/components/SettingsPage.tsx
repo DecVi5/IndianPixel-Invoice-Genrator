@@ -15,6 +15,9 @@ import {
   Moon,
   Sun,
   Palette,
+  Cloud,
+  RefreshCw,
+  Trash2,
 } from 'lucide-react';
 
 interface SettingsPageProps {
@@ -26,6 +29,17 @@ interface SettingsPageProps {
   onLockStudio: () => void;
   isDarkMode?: boolean;
   onToggleDarkMode?: () => void;
+  // Google Drive Cloud Persistence Props
+  driveConnected?: boolean;
+  driveUserEmail?: string | null;
+  driveFileName?: string | null;
+  driveLastSynced?: string | null;
+  isDriveSyncing?: boolean;
+  onConnectGoogleDrive?: () => void;
+  onSyncToGoogleDrive?: () => void;
+  onRestoreFromGoogleDrive?: () => void;
+  onDeleteFromGoogleDrive?: () => void;
+  onDisconnectGoogleDrive?: () => void;
 }
 
 export function SettingsPage({
@@ -36,7 +50,16 @@ export function SettingsPage({
   onResetData,
   onLockStudio,
   isDarkMode = true,
-  onToggleDarkMode,
+  driveConnected = false,
+  driveUserEmail = null,
+  driveFileName = null,
+  driveLastSynced = null,
+  isDriveSyncing = false,
+  onConnectGoogleDrive,
+  onSyncToGoogleDrive,
+  onRestoreFromGoogleDrive,
+  onDeleteFromGoogleDrive,
+  onDisconnectGoogleDrive,
 }: SettingsPageProps) {
   const [formData, setFormData] = useState<StudioConfig>({ ...config });
   const [logoPreview, setLogoPreview] = useState<string | undefined>(config.logoDataUrl);
@@ -600,122 +623,215 @@ export function SettingsPage({
           </div>
         </div>
 
-        {/* Card 4: Dark Mode Feature Toggle */}
-        <div
-          className={`p-6 rounded-2xl transition-all duration-200 space-y-4 border ${
-            isDarkMode
-              ? 'bg-[#18202F]/75 backdrop-blur-xl border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.35)]'
-              : 'bg-white/90 backdrop-blur-md border-[#ACBEA3]/40 shadow-xs'
-          }`}
-        >
-          <div
-            className={`flex items-center justify-between pb-2 border-b ${
-              isDarkMode ? 'border-white/10' : 'border-[#ACBEA3]/20'
-            }`}
-          >
+        {/* Card 4: Financial Goal Target & Dark Studio Theme */}
+        <div className="p-6 rounded-2xl transition-all duration-200 space-y-4 border bg-[#08221B] border-[#ACBEA3]/25 shadow-sm">
+          <div className="flex items-center justify-between pb-2 border-b border-[#ACBEA3]/20">
             <div className="flex items-center gap-2">
               <Palette className="w-4 h-4 text-[#FFA400]" />
-              <h3
-                className={`font-montserrat font-bold text-sm ${
-                  isDarkMode ? 'text-white' : 'text-[#08221B]'
-                }`}
-              >
-                Interface Appearance &amp; Dark Mode
+              <h3 className="font-montserrat font-bold text-sm text-[#F8F4ED]">
+                Financial Goal Target &amp; Dark Studio Theme
               </h3>
             </div>
-            <span
-              className={`text-[10px] font-space-mono font-bold px-2 py-0.5 rounded border ${
-                isDarkMode
-                  ? 'bg-white/10 text-[#ACBEA3] border-white/10'
-                  : 'bg-[#F8F4ED] text-[#08221B] border-[#ACBEA3]/40'
-              }`}
-            >
-              {isDarkMode ? 'Dark Mode Active' : 'Warm Linen Active'}
+            <span className="text-[10px] font-space-mono font-bold px-2 py-0.5 rounded border bg-[#2C3330] text-[#FFA400] border-[#ACBEA3]/30">
+              Dark Mode Locked
             </span>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-            {/* Dark Mode Option */}
-            <button
-              type="button"
-              onClick={() => onToggleDarkMode && (!isDarkMode ? onToggleDarkMode() : null)}
-              className={`p-4 rounded-2xl border text-left transition-all cursor-pointer flex items-start gap-3.5 ${
-                isDarkMode
-                  ? 'bg-[#121622] text-white border-[#FFA400]/60 shadow-lg ring-2 ring-[#FFA400]/40'
-                  : 'bg-white/60 text-[#2C3330] border-[#ACBEA3]/40 hover:bg-[#F8F4ED]'
-              }`}
-            >
-              <div className="w-9 h-9 rounded-xl bg-[#282b36] text-[#FFA400] flex items-center justify-center shrink-0">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="p-4 rounded-2xl bg-[#2C3330] border border-[#ACBEA3]/30 space-y-2">
+              <label className="block text-[10px] font-montserrat font-bold uppercase text-[#ACBEA3]">
+                TARGET FINANCIAL GOAL (₹) — REDUCED PER TRANSACTION
+              </label>
+              <input
+                type="number"
+                min={0}
+                step={1000}
+                value={formData.financialGoal ?? 500000}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    financialGoal: Math.max(0, Number(e.target.value) || 0),
+                  })
+                }
+                className="w-full px-3 py-2 rounded-xl bg-[#08221B] border border-[#ACBEA3]/40 text-xs font-space-mono font-bold text-[#F8F4ED] focus:border-[#FFA400] outline-none"
+              />
+              <p className="text-[11px] text-[#ACBEA3]">
+                Displayed at the top of the workspace. Every generated invoice transaction automatically reduces the remaining goal balance.
+              </p>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-[#2C3330] text-[#F8F4ED] border border-[#FFA400]/50 flex items-start gap-3.5">
+              <div className="w-9 h-9 rounded-xl bg-[#08221B] border border-[#ACBEA3]/30 text-[#FFA400] flex items-center justify-center shrink-0">
                 <Moon className="w-5 h-5" />
               </div>
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
                   <span className="font-montserrat font-bold text-sm">
-                    Dark Obsidian Studio
+                    Dark Midnight Studio
                   </span>
-                  {isDarkMode && (
-                    <span className="text-[10px] font-semibold bg-[#FFA400] text-[#08221B] px-1.5 py-0.2 rounded font-space-mono">
-                      Selected
-                    </span>
-                  )}
+                  <span className="text-[10px] font-semibold bg-[#FFA400] text-[#08221B] px-1.5 py-0.2 rounded font-space-mono">
+                    Locked Active
+                  </span>
                 </div>
-                <p className="text-xs opacity-75">
-                  Deep slate &amp; obsidian luxury interface with glassmorphism and reduced eye fatigue during night drafting.
+                <p className="text-xs text-[#ACBEA3]">
+                  Permanent dark theme (#08221B Midnight Green &amp; #2C3330 Gunmetal) active across all dashboards, editors, and modals.
                 </p>
               </div>
-            </button>
-
-            {/* Light Mode Option */}
-            <button
-              type="button"
-              onClick={() => onToggleDarkMode && (isDarkMode ? onToggleDarkMode() : null)}
-              className={`p-4 rounded-2xl border text-left transition-all cursor-pointer flex items-start gap-3.5 ${
-                !isDarkMode
-                  ? 'bg-[#08221B] text-white border-[#08221B] shadow-md ring-2 ring-[#FFA400]/40'
-                  : 'bg-white/[0.04] text-slate-300 border-white/10 hover:bg-white/[0.08]'
-              }`}
-            >
-              <div className="w-9 h-9 rounded-xl bg-[#FFA400] text-[#08221B] flex items-center justify-center shrink-0">
-                <Sun className="w-5 h-5" />
-              </div>
-              <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <span className="font-montserrat font-bold text-sm">
-                    Warm Emerald Linen
-                  </span>
-                  {!isDarkMode && (
-                    <span className="text-[10px] font-semibold bg-[#FFA400] text-[#08221B] px-1.5 py-0.2 rounded font-space-mono">
-                      Selected
-                    </span>
-                  )}
-                </div>
-                <p className="text-xs opacity-75">
-                  Signature Indian Pixel warmth with forest green, natural linen background and sage borders.
-                </p>
-              </div>
-            </button>
+            </div>
           </div>
         </div>
 
-        {/* Card 5: Confidentiality Protection & Data Workflow */}
-        <div
-          className={`p-6 rounded-2xl transition-all duration-200 space-y-4 border ${
-            isDarkMode
-              ? 'bg-[#18202F]/75 backdrop-blur-xl border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.35)]'
-              : 'bg-white/90 backdrop-blur-md border-[#ACBEA3]/40 shadow-xs'
-          }`}
-        >
-          <div
-            className={`flex items-center gap-2 pb-2 border-b ${
-              isDarkMode ? 'border-white/10' : 'border-[#ACBEA3]/20'
-            }`}
-          >
-            <Lock className="w-4 h-4 text-[#FFA400]" />
-            <h3
-              className={`font-montserrat font-bold text-sm ${
-                isDarkMode ? 'text-white' : 'text-[#08221B]'
+        {/* Card 5: Google Drive Cloud Persistence & Deployment Sync */}
+        <div className="p-6 rounded-2xl transition-all duration-200 space-y-4 border bg-[#08221B] border-[#FFA400]/40 shadow-sm">
+          <div className="flex items-center justify-between pb-2 border-b border-[#ACBEA3]/20">
+            <div className="flex items-center gap-2">
+              <Cloud className="w-4 h-4 text-[#FFA400]" />
+              <h3 className="font-montserrat font-bold text-sm text-[#F8F4ED]">
+                Google Drive Cloud Persistence
+              </h3>
+            </div>
+            <span
+              className={`text-[10px] font-space-mono font-bold px-2.5 py-0.5 rounded border ${
+                driveConnected
+                  ? 'bg-[#FFA400]/20 text-[#FFA400] border-[#FFA400]/50'
+                  : 'bg-[#2C3330] text-[#ACBEA3] border-[#ACBEA3]/30'
               }`}
             >
+              {driveConnected ? 'Connected to Google Drive' : 'Not Connected'}
+            </span>
+          </div>
+
+          {!driveConnected ? (
+            <div className="p-4 rounded-2xl bg-[#2C3330] border border-[#ACBEA3]/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <div className="text-xs font-montserrat font-bold text-[#F8F4ED]">
+                  Persist Invoices &amp; Studio Settings in Google Drive
+                </div>
+                <p className="text-[11px] text-[#ACBEA3] leading-relaxed">
+                  Connect your Google account so your invoices, financial goals, and studio configuration are saved to <span className="font-space-mono text-[#F8F4ED]">indian-pixel-studio-ledger.json</span> in your Google Drive across sessions and deployments.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={onConnectGoogleDrive}
+                disabled={isDriveSyncing}
+                className="gsi-material-button shrink-0 px-4 py-2.5 rounded-xl bg-white hover:bg-[#F8F4ED] text-[#08221B] font-poppins font-semibold text-xs flex items-center gap-2.5 shadow-md transition-all cursor-pointer"
+              >
+                <div className="gsi-material-button-icon w-4 h-4 shrink-0">
+                  <svg
+                    version="1.1"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 48 48"
+                    style={{ display: 'block' }}
+                  >
+                    <path
+                      fill="#EA4335"
+                      d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"
+                    />
+                    <path
+                      fill="#4285F4"
+                      d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"
+                    />
+                    <path
+                      fill="#FBBC05"
+                      d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"
+                    />
+                    <path
+                      fill="#34A853"
+                      d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"
+                    />
+                    <path fill="none" d="M0 0h48v48H0z" />
+                  </svg>
+                </div>
+                <span className="gsi-material-button-contents">Sign in with Google</span>
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <div className="p-4 rounded-2xl bg-[#2C3330] border border-[#ACBEA3]/30 flex flex-wrap items-center justify-between gap-3 text-xs">
+                <div className="space-y-1">
+                  <div className="text-[#ACBEA3]">
+                    Connected Account:{' '}
+                    <strong className="font-space-mono text-[#F8F4ED]">
+                      {driveUserEmail || 'Google Workspace Account'}
+                    </strong>
+                  </div>
+                  <div className="text-[#ACBEA3]">
+                    Drive Ledger File:{' '}
+                    <span className="font-space-mono text-[#FFA400]">
+                      {driveFileName || 'indian-pixel-studio-ledger.json'}
+                    </span>
+                    {driveLastSynced ? ` · Last Synced: ${driveLastSynced}` : ''}
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={onDisconnectGoogleDrive}
+                  className="px-3 py-1.5 rounded-xl bg-[#08221B] hover:bg-rose-950/40 border border-[#ACBEA3]/30 text-rose-300 text-xs font-medium cursor-pointer"
+                >
+                  Disconnect
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <button
+                  type="button"
+                  onClick={onSyncToGoogleDrive}
+                  disabled={isDriveSyncing}
+                  className="p-3.5 rounded-xl border text-left transition-colors cursor-pointer space-y-1 bg-[#2C3330] hover:bg-[#363e3b] border-[#FFA400]/50"
+                >
+                  <RefreshCw
+                    className={`w-4 h-4 text-[#FFA400] ${isDriveSyncing ? 'animate-spin' : ''}`}
+                  />
+                  <div className="text-xs font-bold font-montserrat text-[#F8F4ED]">
+                    Sync Ledger to Drive
+                  </div>
+                  <div className="text-[10px] text-[#ACBEA3]">
+                    Save current invoices &amp; config to Drive
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={onRestoreFromGoogleDrive}
+                  disabled={isDriveSyncing}
+                  className="p-3.5 rounded-xl border text-left transition-colors cursor-pointer space-y-1 bg-[#2C3330] hover:bg-[#363e3b] border-[#ACBEA3]/30"
+                >
+                  <Download className="w-4 h-4 text-[#ACBEA3]" />
+                  <div className="text-xs font-bold font-montserrat text-[#F8F4ED]">
+                    Restore from Drive
+                  </div>
+                  <div className="text-[10px] text-[#ACBEA3]">
+                    Load saved ledger from Google Drive
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={onDeleteFromGoogleDrive}
+                  disabled={isDriveSyncing}
+                  className="p-3.5 rounded-xl border text-left transition-colors cursor-pointer space-y-1 bg-rose-500/10 hover:bg-rose-500/20 border-rose-500/30"
+                >
+                  <Trash2 className="w-4 h-4 text-rose-400" />
+                  <div className="text-xs font-bold text-rose-400 font-montserrat">
+                    Delete Cloud File
+                  </div>
+                  <div className="text-[10px] text-rose-300/70">
+                    Remove backup file from Google Drive
+                  </div>
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Card 6: Confidentiality Protection & Data Workflow */}
+        <div className="p-6 rounded-2xl transition-all duration-200 space-y-4 border bg-[#08221B] border-[#ACBEA3]/25 shadow-sm">
+          <div className="flex items-center gap-2 pb-2 border-b border-[#ACBEA3]/20">
+            <Lock className="w-4 h-4 text-[#FFA400]" />
+            <h3 className="font-montserrat font-bold text-sm text-[#F8F4ED]">
               Confidentiality &amp; Data Workflow
             </h3>
           </div>
@@ -724,21 +840,13 @@ export function SettingsPage({
             <button
               type="button"
               onClick={onExportBackup}
-              className={`p-3.5 rounded-xl border text-left transition-colors cursor-pointer space-y-1 ${
-                isDarkMode
-                  ? 'bg-white/[0.04] hover:bg-white/[0.08] border-white/10'
-                  : 'bg-[#F8F4ED] hover:bg-[#ACBEA3]/30 border-[#ACBEA3]/50'
-              }`}
+              className="p-3.5 rounded-xl border text-left transition-colors cursor-pointer space-y-1 bg-[#2C3330] hover:bg-[#363e3b] border-[#ACBEA3]/30"
             >
-              <Download className={`w-4 h-4 ${isDarkMode ? 'text-[#ACBEA3]' : 'text-[#08221B]'}`} />
-              <div
-                className={`text-xs font-bold font-montserrat ${
-                  isDarkMode ? 'text-white' : 'text-[#08221B]'
-                }`}
-              >
+              <Download className="w-4 h-4 text-[#FFA400]" />
+              <div className="text-xs font-bold font-montserrat text-[#F8F4ED]">
                 Export Backup
               </div>
-              <div className={`text-[10px] ${isDarkMode ? 'text-slate-400' : 'text-[#2C3330]/70'}`}>
+              <div className="text-[10px] text-[#ACBEA3]">
                 Download full JSON ledger backup
               </div>
             </button>
@@ -746,21 +854,13 @@ export function SettingsPage({
             <button
               type="button"
               onClick={onImportBackup}
-              className={`p-3.5 rounded-xl border text-left transition-colors cursor-pointer space-y-1 ${
-                isDarkMode
-                  ? 'bg-white/[0.04] hover:bg-white/[0.08] border-white/10'
-                  : 'bg-[#F8F4ED] hover:bg-[#ACBEA3]/30 border-[#ACBEA3]/50'
-              }`}
+              className="p-3.5 rounded-xl border text-left transition-colors cursor-pointer space-y-1 bg-[#2C3330] hover:bg-[#363e3b] border-[#ACBEA3]/30"
             >
-              <Upload className={`w-4 h-4 ${isDarkMode ? 'text-[#ACBEA3]' : 'text-[#08221B]'}`} />
-              <div
-                className={`text-xs font-bold font-montserrat ${
-                  isDarkMode ? 'text-white' : 'text-[#08221B]'
-                }`}
-              >
+              <Upload className="w-4 h-4 text-[#ACBEA3]" />
+              <div className="text-xs font-bold font-montserrat text-[#F8F4ED]">
                 Restore Backup
               </div>
-              <div className={`text-[10px] ${isDarkMode ? 'text-slate-400' : 'text-[#2C3330]/70'}`}>
+              <div className="text-[10px] text-[#ACBEA3]">
                 Upload previously saved JSON file
               </div>
             </button>
@@ -768,37 +868,25 @@ export function SettingsPage({
             <button
               type="button"
               onClick={onResetData}
-              className={`p-3.5 rounded-xl border text-left transition-colors cursor-pointer space-y-1 ${
-                isDarkMode
-                  ? 'bg-rose-500/10 hover:bg-rose-500/20 border-rose-500/30'
-                  : 'bg-rose-50 hover:bg-rose-100 border-red-200'
-              }`}
+              className="p-3.5 rounded-xl border text-left transition-colors cursor-pointer space-y-1 bg-rose-500/10 hover:bg-rose-500/20 border-rose-500/30"
             >
               <RotateCcw className="w-4 h-4 text-rose-400" />
               <div className="text-xs font-bold text-rose-400 font-montserrat">Reset Data to ₹0.00</div>
-              <div className={`text-[10px] ${isDarkMode ? 'text-rose-300/70' : 'text-red-600/70'}`}>
+              <div className="text-[10px] text-rose-300/70">
                 Purge custom test invoices
               </div>
             </button>
           </div>
 
-          <div
-            className={`p-3 rounded-xl flex items-center justify-between text-xs border ${
-              isDarkMode
-                ? 'bg-white/[0.03] border-white/10 text-slate-300'
-                : 'bg-[#F8F4ED] border-[#ACBEA3]/40 text-[#2C3330]'
-            }`}
-          >
+          <div className="p-3 rounded-xl flex items-center justify-between text-xs border bg-[#2C3330] border-[#ACBEA3]/30 text-[#ACBEA3]">
             <div className="flex items-center gap-2">
               <ShieldCheck className="w-4 h-4 text-[#FFA400]" />
-              <span>Workspace protected by password <strong>"12345678"</strong></span>
+              <span>Authorized accounts: <strong className="text-[#F8F4ED]">admin@indianpixel.in</strong> &amp; <strong className="text-[#F8F4ED]">cfo@indianpixel.in</strong></span>
             </div>
             <button
               type="button"
               onClick={onLockStudio}
-              className={`font-bold hover:underline cursor-pointer ${
-                isDarkMode ? 'text-[#FFA400]' : 'text-[#08221B]'
-              }`}
+              className="font-bold hover:underline cursor-pointer text-[#FFA400]"
             >
               Lock Now
             </button>

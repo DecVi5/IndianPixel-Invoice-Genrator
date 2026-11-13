@@ -240,10 +240,11 @@ export function calculateInvoiceFinancials(params: {
     grossSubtotal += itemGross;
 
     let itemDiscountAmount = 0;
-    if (item.itemDiscountType === 'percentage') {
+    const itemDiscType = item.itemDiscountType || 'percentage';
+    if (itemDiscType === 'percentage') {
       const pct = Math.max(0, Math.min(100, Number(item.itemDiscountValue) || 0));
       itemDiscountAmount = Math.round(((itemGross * pct) / 100) * 100) / 100;
-    } else if (item.itemDiscountType === 'flat') {
+    } else if (itemDiscType === 'flat') {
       itemDiscountAmount = Math.max(0, Math.min(itemGross, Number(item.itemDiscountValue) || 0));
     }
 
@@ -252,6 +253,7 @@ export function calculateInvoiceFinancials(params: {
 
     return {
       ...item,
+      itemDiscountType: itemDiscType,
       sacCode: item.sacCode || '998311',
       amount: itemNetAmount,
       itemDiscountAmount,

@@ -494,11 +494,11 @@ export function InvoiceEditor({
     : '';
 
   return (
-    <div className="w-full max-w-5xl mx-auto space-y-6 pb-12 font-poppins">
+    <div className="w-full max-w-5xl mx-auto space-y-6 pb-12 font-poppins text-[#F8F4ED]">
       {/* Top Action Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-4 p-4 bg-white border border-[#ACBEA3]/40 rounded-2xl shadow-xs">
+      <div className="flex flex-wrap items-center justify-between gap-4 p-4 bg-[#08221B] border border-[#ACBEA3]/30 rounded-2xl shadow-lg">
         <div className="flex items-center gap-3 flex-wrap">
-          <div className="w-10 h-10 rounded-xl bg-[#08221B] flex items-center justify-center p-1.5 shadow-xs shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-[#2C3330] border border-[#ACBEA3]/40 flex items-center justify-center p-1.5 shadow-xs shrink-0">
             <BrandLogo
               customLogoUrl={studioConfig.logoDataUrl}
               size="sm"
@@ -507,20 +507,20 @@ export function InvoiceEditor({
               withText={false}
             />
           </div>
-          <span className="font-space-mono text-sm font-bold text-[#08221B] tracking-wider">
+          <span className="font-space-mono text-sm font-bold text-[#F8F4ED] tracking-wider">
             {current.invoiceNo}
           </span>
-          <span className="text-[#ACBEA3]">·</span>
-          <span className="text-xs text-[#2C3330] font-medium truncate max-w-[140px] sm:max-w-xs">
+          <span className="text-[#ACBEA3]/60">·</span>
+          <span className="text-xs text-[#ACBEA3] font-medium truncate max-w-[140px] sm:max-w-xs">
             {current.projectName || 'Untitled Project'}
           </span>
           <span
-            className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+            className={`text-[10px] font-semibold px-2.5 py-0.5 rounded-full ${
               current.masterStatus === 'PAID'
-                ? 'bg-[#08221B] text-[#ACBEA3]'
+                ? 'bg-[#ACBEA3]/20 text-[#ACBEA3] border border-[#ACBEA3]/40'
                 : current.masterStatus === 'PARTIALLY PAID'
-                ? 'bg-[#FFA400]/20 text-[#08221B] border border-[#FFA400]/60'
-                : 'bg-red-50 text-red-600 border border-red-200'
+                ? 'bg-[#FFA400]/20 text-[#FFA400] border border-[#FFA400]/50'
+                : 'bg-rose-500/20 text-rose-300 border border-rose-500/40'
             }`}
           >
             {current.masterStatus}
@@ -530,31 +530,31 @@ export function InvoiceEditor({
           <div
             className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium transition-all ${
               autoSaveStatus === 'saving'
-                ? 'bg-[#FFA400]/25 text-[#08221B] border border-[#FFA400]/60'
+                ? 'bg-[#FFA400]/20 text-[#FFA400] border border-[#FFA400]/50'
                 : autoSaveStatus === 'unsaved'
-                ? 'bg-amber-100 text-amber-900 border border-amber-300'
-                : 'bg-[#08221B]/10 text-[#08221B] border border-[#ACBEA3]/50'
+                ? 'bg-[#FFA400]/15 text-[#FFA400] border border-[#FFA400]/40'
+                : 'bg-[#2C3330] text-[#ACBEA3] border border-[#ACBEA3]/35'
             }`}
             title="Auto-saves every 5 seconds to prevent draft loss"
           >
             {autoSaveStatus === 'saving' ? (
               <>
                 <span className="w-1.5 h-1.5 rounded-full bg-[#FFA400] animate-ping" />
-                <span className="font-space-mono text-[10.5px] font-semibold text-[#08221B]">
+                <span className="font-space-mono text-[10.5px] font-semibold text-[#FFA400]">
                   Saving draft...
                 </span>
               </>
             ) : autoSaveStatus === 'unsaved' ? (
               <>
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-                <span className="font-space-mono text-[10.5px] font-medium">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#FFA400]" />
+                <span className="font-space-mono text-[10.5px] font-medium text-[#FFA400]">
                   Unsaved · auto-saves in 5s
                 </span>
               </>
             ) : (
               <>
-                <CheckCircle2 className="w-3.5 h-3.5 text-[#08221B]" />
-                <span className="font-space-mono text-[10.5px] font-medium text-[#08221B]">
+                <CheckCircle2 className="w-3.5 h-3.5 text-[#FFA400]" />
+                <span className="font-space-mono text-[10.5px] font-medium text-[#F8F4ED]">
                   {lastSavedAt
                     ? `Auto-saved at ${lastSavedAt.toLocaleTimeString([], {
                         hour: '2-digit',
@@ -574,8 +574,8 @@ export function InvoiceEditor({
               onClick={onToggleSplitLiveView}
               className={`flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-xl border transition-all cursor-pointer ${
                 isSplitLiveActive
-                  ? 'bg-[#08221B] text-[#ACBEA3] border-[#08221B]'
-                  : 'bg-[#FFA400]/15 text-[#08221B] border-[#FFA400]/50 hover:bg-[#FFA400]/25'
+                  ? 'bg-[#2C3330] text-[#ACBEA3] border-[#ACBEA3]/40 hover:border-[#FFA400]'
+                  : 'bg-[#FFA400]/15 text-[#FFA400] border-[#FFA400]/50 hover:bg-[#FFA400]/25'
               }`}
               title="Toggle Live Synchronized Bill side-by-side"
             >
@@ -586,9 +586,9 @@ export function InvoiceEditor({
 
           <button
             onClick={onViewInvoice}
-            className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-[#08221B] bg-[#F8F4ED] hover:bg-[#ACBEA3]/30 border border-[#ACBEA3]/60 rounded-xl transition-colors cursor-pointer"
+            className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-[#F8F4ED] bg-[#2C3330] hover:bg-[#38423e] border border-[#ACBEA3]/35 rounded-xl transition-colors cursor-pointer"
           >
-            <Eye className="w-3.5 h-3.5" />
+            <Eye className="w-3.5 h-3.5 text-[#FFA400]" />
             <span>Full A4 / Print</span>
           </button>
 
@@ -600,7 +600,7 @@ export function InvoiceEditor({
             <span>Save Invoice</span>
           </button>
           {saveToast && (
-            <span className="text-xs text-[#08221B] font-semibold bg-[#ACBEA3]/40 px-2 py-1 rounded-md animate-fade-in">
+            <span className="text-xs text-[#FFA400] font-semibold bg-[#2C3330] border border-[#FFA400]/40 px-2.5 py-1 rounded-lg animate-fade-in">
               Saved!
             </span>
           )}
@@ -608,17 +608,17 @@ export function InvoiceEditor({
       </div>
 
       {/* BILLING STRUCTURE SELECTOR: Single Bill vs 3-Phase Milestone */}
-      <div className="p-5 bg-white border border-[#ACBEA3]/40 rounded-2xl shadow-xs space-y-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <h3 className="text-sm font-bold font-montserrat text-[#08221B]">
+      <div className="p-5 bg-[#08221B] border border-[#ACBEA3]/30 rounded-2xl shadow-lg space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            <h3 className="text-sm font-bold font-montserrat text-[#F8F4ED]">
               Billing Structure
             </h3>
-            <span className="text-[11px] text-[#2C3330]/70">
+            <span className="text-[11px] text-[#ACBEA3]">
               Select one-time single settlement or structured phased milestones
             </span>
           </div>
-          <span className="text-xs font-space-mono font-semibold text-[#08221B]">
+          <span className="text-xs font-space-mono font-semibold text-[#FFA400]">
             {current.billingType === 'single' ? 'Mode: Single Bill (100%)' : 'Mode: 3-Milestone Schedule'}
           </span>
         </div>
@@ -630,22 +630,22 @@ export function InvoiceEditor({
             onClick={() => handleToggleBillingType('single')}
             className={`p-4 rounded-xl border text-left transition-all cursor-pointer flex items-start gap-3.5 ${
               current.billingType === 'single'
-                ? 'bg-[#08221B] text-white border-[#08221B] shadow-md ring-2 ring-[#FFA400]/40'
-                : 'bg-[#F8F4ED]/60 text-[#2C3330] border-[#ACBEA3]/40 hover:border-[#08221B]/40 hover:bg-[#F8F4ED]'
+                ? 'bg-[#2C3330] text-[#F8F4ED] border-[#FFA400] shadow-md ring-1 ring-[#FFA400]/40'
+                : 'bg-[#2C3330]/45 text-[#ACBEA3] border-[#ACBEA3]/25 hover:border-[#ACBEA3]/50 hover:bg-[#2C3330]/75'
             }`}
           >
             <div
-              className={`p-2.5 rounded-xl ${
+              className={`p-2.5 rounded-xl shrink-0 ${
                 current.billingType === 'single'
                   ? 'bg-[#FFA400] text-[#08221B]'
-                  : 'bg-[#ACBEA3]/30 text-[#08221B]'
+                  : 'bg-[#08221B] text-[#ACBEA3] border border-[#ACBEA3]/30'
               }`}
             >
               <Zap className="w-5 h-5" />
             </div>
             <div className="space-y-1">
               <div className="flex items-center gap-2">
-                <span className="font-montserrat font-bold text-sm">
+                <span className="font-montserrat font-bold text-sm text-[#F8F4ED]">
                   Single Bill (100% Full Payment)
                 </span>
                 {current.billingType === 'single' && (
@@ -654,13 +654,7 @@ export function InvoiceEditor({
                   </span>
                 )}
               </div>
-              <p
-                className={`text-xs ${
-                  current.billingType === 'single'
-                    ? 'text-[#ACBEA3]'
-                    : 'text-[#2C3330]/70'
-                }`}
-              >
+              <p className="text-xs text-[#ACBEA3]">
                 Simple, direct billing. 100% of the bill is settled in a single payment without milestone splits.
               </p>
             </div>
@@ -672,22 +666,22 @@ export function InvoiceEditor({
             onClick={() => handleToggleBillingType('milestone')}
             className={`p-4 rounded-xl border text-left transition-all cursor-pointer flex items-start gap-3.5 ${
               current.billingType === 'milestone'
-                ? 'bg-[#08221B] text-white border-[#08221B] shadow-md ring-2 ring-[#FFA400]/40'
-                : 'bg-[#F8F4ED]/60 text-[#2C3330] border-[#ACBEA3]/40 hover:border-[#08221B]/40 hover:bg-[#F8F4ED]'
+                ? 'bg-[#2C3330] text-[#F8F4ED] border-[#FFA400] shadow-md ring-1 ring-[#FFA400]/40'
+                : 'bg-[#2C3330]/45 text-[#ACBEA3] border-[#ACBEA3]/25 hover:border-[#ACBEA3]/50 hover:bg-[#2C3330]/75'
             }`}
           >
             <div
-              className={`p-2.5 rounded-xl ${
+              className={`p-2.5 rounded-xl shrink-0 ${
                 current.billingType === 'milestone'
                   ? 'bg-[#FFA400] text-[#08221B]'
-                  : 'bg-[#ACBEA3]/30 text-[#08221B]'
+                  : 'bg-[#08221B] text-[#ACBEA3] border border-[#ACBEA3]/30'
               }`}
             >
               <Layers className="w-5 h-5" />
             </div>
             <div className="space-y-1">
               <div className="flex items-center gap-2">
-                <span className="font-montserrat font-bold text-sm">
+                <span className="font-montserrat font-bold text-sm text-[#F8F4ED]">
                   3-Phase Milestones (40% — 40% — 20%)
                 </span>
                 {current.billingType === 'milestone' && (
@@ -696,13 +690,7 @@ export function InvoiceEditor({
                   </span>
                 )}
               </div>
-              <p
-                className={`text-xs ${
-                  current.billingType === 'milestone'
-                    ? 'text-[#ACBEA3]'
-                    : 'text-[#2C3330]/70'
-                }`}
-              >
+              <p className="text-xs text-[#ACBEA3]">
                 Split invoice into 3 milestone disbursements (Advance, Midpoint, Handover).
               </p>
             </div>
@@ -713,17 +701,17 @@ export function InvoiceEditor({
       {/* Grid: Invoice Meta & Bill To Client */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Invoice Meta */}
-        <div className="p-6 bg-white border border-[#ACBEA3]/40 rounded-2xl shadow-xs space-y-4">
+        <div className="p-6 bg-[#08221B] border border-[#ACBEA3]/30 rounded-2xl shadow-lg space-y-4">
           <div className="flex items-center gap-2 pb-2 border-b border-[#ACBEA3]/20">
             <FileText className="w-4 h-4 text-[#FFA400]" />
-            <h3 className="text-sm font-bold font-montserrat text-[#08221B]">
+            <h3 className="text-sm font-bold font-montserrat text-[#F8F4ED]">
               Invoice Meta &amp; Dates
             </h3>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-[10px] font-montserrat font-bold text-[#2C3330] uppercase mb-1">
+              <label className="block text-[10px] font-montserrat font-bold text-[#ACBEA3] uppercase mb-1">
                 INVOICE NUMBER
               </label>
               <input
@@ -735,12 +723,12 @@ export function InvoiceEditor({
                   setCurrent(updated);
                   onLiveUpdate?.(updated);
                 }}
-                className="w-full px-3 py-2 bg-[#F8F4ED] border border-[#ACBEA3]/40 rounded-xl text-xs font-space-mono text-[#08221B] focus:border-[#08221B] outline-none"
+                className="w-full px-3 py-2 bg-[#2C3330] border border-[#ACBEA3]/35 rounded-xl text-xs font-space-mono text-[#F8F4ED] placeholder-[#ACBEA3]/50 focus:border-[#FFA400] outline-none"
               />
             </div>
 
             <div>
-              <label className="block text-[10px] font-montserrat font-bold text-[#2C3330] uppercase mb-1">
+              <label className="block text-[10px] font-montserrat font-bold text-[#ACBEA3] uppercase mb-1">
                 PROJECT NAME
               </label>
               <input
@@ -753,12 +741,12 @@ export function InvoiceEditor({
                   onLiveUpdate?.(updated);
                 }}
                 placeholder="e.g. Mitti & Co. — Dynamic Identity"
-                className="w-full px-3 py-2 bg-[#F8F4ED] border border-[#ACBEA3]/40 rounded-xl text-xs text-[#08221B] focus:border-[#08221B] outline-none"
+                className="w-full px-3 py-2 bg-[#2C3330] border border-[#ACBEA3]/35 rounded-xl text-xs text-[#F8F4ED] placeholder-[#ACBEA3]/50 focus:border-[#FFA400] outline-none"
               />
             </div>
 
             <div>
-              <label className="block text-[10px] font-montserrat font-bold text-[#2C3330] uppercase mb-1">
+              <label className="block text-[10px] font-montserrat font-bold text-[#ACBEA3] uppercase mb-1">
                 INVOICE DATE (DD/MM/YYYY)
               </label>
               <input
@@ -770,12 +758,12 @@ export function InvoiceEditor({
                   setCurrent(updated);
                   onLiveUpdate?.(updated);
                 }}
-                className="w-full px-3 py-2 bg-[#F8F4ED] border border-[#ACBEA3]/40 rounded-xl text-xs font-space-mono text-[#08221B] focus:border-[#08221B] outline-none"
+                className="w-full px-3 py-2 bg-[#2C3330] border border-[#ACBEA3]/35 rounded-xl text-xs font-space-mono text-[#F8F4ED] placeholder-[#ACBEA3]/50 focus:border-[#FFA400] outline-none"
               />
             </div>
 
             <div>
-              <label className="block text-[10px] font-montserrat font-bold text-[#2C3330] uppercase mb-1">
+              <label className="block text-[10px] font-montserrat font-bold text-[#ACBEA3] uppercase mb-1">
                 PAYMENT DUE DATE (DD/MM/YYYY)
               </label>
               <input
@@ -787,24 +775,24 @@ export function InvoiceEditor({
                   setCurrent(updated);
                   onLiveUpdate?.(updated);
                 }}
-                className="w-full px-3 py-2 bg-[#F8F4ED] border border-[#ACBEA3]/40 rounded-xl text-xs font-space-mono text-[#08221B] focus:border-[#08221B] outline-none"
+                className="w-full px-3 py-2 bg-[#2C3330] border border-[#ACBEA3]/35 rounded-xl text-xs font-space-mono text-[#F8F4ED] placeholder-[#ACBEA3]/50 focus:border-[#FFA400] outline-none"
               />
             </div>
           </div>
         </div>
 
         {/* Bill To Client Details */}
-        <div className="p-6 bg-white border border-[#ACBEA3]/40 rounded-2xl shadow-xs space-y-4">
+        <div className="p-6 bg-[#08221B] border border-[#ACBEA3]/30 rounded-2xl shadow-lg space-y-4">
           <div className="flex items-center gap-2 pb-2 border-b border-[#ACBEA3]/20">
             <Building2 className="w-4 h-4 text-[#FFA400]" />
-            <h3 className="text-sm font-bold font-montserrat text-[#08221B]">
+            <h3 className="text-sm font-bold font-montserrat text-[#F8F4ED]">
               Billed To (Client Details)
             </h3>
           </div>
 
           <div className="space-y-3">
             <div>
-              <label className="block text-[10px] font-montserrat font-bold text-[#2C3330] uppercase mb-1">
+              <label className="block text-[10px] font-montserrat font-bold text-[#ACBEA3] uppercase mb-1">
                 CLIENT / COMPANY NAME
               </label>
               <input
@@ -820,12 +808,12 @@ export function InvoiceEditor({
                   onLiveUpdate?.(updated);
                 }}
                 placeholder="Mitti Clayworks Private Limited"
-                className="w-full px-3 py-2 bg-[#F8F4ED] border border-[#ACBEA3]/40 rounded-xl text-xs font-medium text-[#08221B] focus:border-[#08221B] outline-none"
+                className="w-full px-3 py-2 bg-[#2C3330] border border-[#ACBEA3]/35 rounded-xl text-xs font-medium text-[#F8F4ED] placeholder-[#ACBEA3]/50 focus:border-[#FFA400] outline-none"
               />
             </div>
 
             <div>
-              <label className="block text-[10px] font-montserrat font-bold text-[#2C3330] uppercase mb-1">
+              <label className="block text-[10px] font-montserrat font-bold text-[#ACBEA3] uppercase mb-1">
                 BILLING ADDRESS
               </label>
               <textarea
@@ -841,13 +829,13 @@ export function InvoiceEditor({
                   onLiveUpdate?.(updated);
                 }}
                 placeholder="42 Pottery Lane, Fort, Mumbai 400001, Maharashtra"
-                className="w-full px-3 py-2 bg-[#F8F4ED] border border-[#ACBEA3]/40 rounded-xl text-xs text-[#08221B] focus:border-[#08221B] outline-none resize-none"
+                className="w-full px-3 py-2 bg-[#2C3330] border border-[#ACBEA3]/35 rounded-xl text-xs text-[#F8F4ED] placeholder-[#ACBEA3]/50 focus:border-[#FFA400] outline-none resize-none"
               />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
               <div>
-                <label className="block text-[10px] font-montserrat font-bold text-[#2C3330] uppercase mb-1">
+                <label className="block text-[10px] font-montserrat font-bold text-[#ACBEA3] uppercase mb-1">
                   PHONE
                 </label>
                 <input
@@ -863,12 +851,12 @@ export function InvoiceEditor({
                     onLiveUpdate?.(updated);
                   }}
                   placeholder="+91 98200 12345"
-                  className="w-full px-2.5 py-1.5 bg-[#F8F4ED] border border-[#ACBEA3]/40 rounded-xl text-xs text-[#08221B] focus:border-[#08221B] outline-none"
+                  className="w-full px-2.5 py-1.5 bg-[#2C3330] border border-[#ACBEA3]/35 rounded-xl text-xs text-[#F8F4ED] placeholder-[#ACBEA3]/50 focus:border-[#FFA400] outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-[10px] font-montserrat font-bold text-[#2C3330] uppercase mb-1">
+                <label className="block text-[10px] font-montserrat font-bold text-[#ACBEA3] uppercase mb-1">
                   EMAIL
                 </label>
                 <input
@@ -884,17 +872,17 @@ export function InvoiceEditor({
                     onLiveUpdate?.(updated);
                   }}
                   placeholder="client@mitticlay.com"
-                  className="w-full px-2.5 py-1.5 bg-[#F8F4ED] border border-[#ACBEA3]/40 rounded-xl text-xs text-[#08221B] focus:border-[#08221B] outline-none"
+                  className="w-full px-2.5 py-1.5 bg-[#2C3330] border border-[#ACBEA3]/35 rounded-xl text-xs text-[#F8F4ED] placeholder-[#ACBEA3]/50 focus:border-[#FFA400] outline-none"
                 />
               </div>
 
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <label className="text-[10px] font-montserrat font-bold text-[#2C3330] uppercase">
+                  <label className="text-[10px] font-montserrat font-bold text-[#ACBEA3] uppercase">
                     CLIENT GSTIN
                   </label>
                   {clientStateName && (
-                    <span className="text-[9px] text-[#08221B] font-semibold font-space-mono bg-[#ACBEA3]/40 px-1 rounded">
+                    <span className="text-[9px] text-[#FFA400] font-semibold font-space-mono bg-[#2C3330] border border-[#FFA400]/40 px-1 rounded">
                       {clientStateName}
                     </span>
                   )}
@@ -904,7 +892,7 @@ export function InvoiceEditor({
                   value={current.client.gstin || ''}
                   onChange={(e) => handleClientGstinChange(e.target.value)}
                   placeholder="27AAACM4491D1ZL"
-                  className="w-full px-2.5 py-1.5 bg-[#F8F4ED] border border-[#ACBEA3]/40 rounded-xl text-xs font-space-mono text-[#08221B] focus:border-[#08221B] outline-none uppercase"
+                  className="w-full px-2.5 py-1.5 bg-[#2C3330] border border-[#ACBEA3]/35 rounded-xl text-xs font-space-mono text-[#F8F4ED] placeholder-[#ACBEA3]/50 focus:border-[#FFA400] outline-none uppercase"
                 />
               </div>
             </div>
@@ -913,15 +901,15 @@ export function InvoiceEditor({
       </div>
 
       {/* STUDIO ADD-ONS & SERVICE ACCELERATORS (RUSH, REVISIONS, SUB-BRAND, TRADEMARK) */}
-      <div className="p-6 bg-white border border-[#ACBEA3]/40 rounded-2xl shadow-xs space-y-4">
+      <div className="p-6 bg-[#08221B] border border-[#ACBEA3]/30 rounded-2xl shadow-lg space-y-4">
         <div className="flex items-center justify-between pb-2 border-b border-[#ACBEA3]/20">
           <div className="flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-[#FFA400]" />
             <div>
-              <h3 className="text-sm font-bold font-montserrat text-[#08221B]">
+              <h3 className="text-sm font-bold font-montserrat text-[#F8F4ED]">
                 Studio Add-ons &amp; Service Accelerators
               </h3>
-              <p className="text-xs text-[#2C3330]/70">
+              <p className="text-xs text-[#ACBEA3]">
                 1-click additions for rush delivery, extra creative rounds, sub-brands, and trademark asset kits.
               </p>
             </div>
@@ -930,7 +918,7 @@ export function InvoiceEditor({
           <button
             type="button"
             onClick={() => setIsAddonsExpanded(!isAddonsExpanded)}
-            className="p-1.5 rounded-lg text-[#2C3330] hover:bg-[#F8F4ED] cursor-pointer"
+            className="p-1.5 rounded-lg text-[#ACBEA3] hover:text-[#F8F4ED] hover:bg-[#2C3330] cursor-pointer"
           >
             {isAddonsExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
           </button>
@@ -939,29 +927,29 @@ export function InvoiceEditor({
         {isAddonsExpanded && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
             {/* Addon 1: Fast-Track Rush Delivery */}
-            <div className="p-4 bg-[#F8F4ED]/60 border border-[#ACBEA3]/40 rounded-xl space-y-3 flex flex-col justify-between">
+            <div className="p-4 bg-[#2C3330]/75 border border-[#ACBEA3]/30 rounded-xl space-y-3 flex flex-col justify-between">
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5">
                     <Zap className="w-4 h-4 text-[#FFA400]" />
-                    <span className="font-montserrat font-bold text-xs text-[#08221B]">
+                    <span className="font-montserrat font-bold text-xs text-[#F8F4ED]">
                       Fast-Track Rush Delivery
                     </span>
                   </div>
-                  <span className="text-[10px] font-semibold bg-[#FFA400]/20 text-[#08221B] px-2 py-0.5 rounded-full border border-[#FFA400]/50">
+                  <span className="text-[10px] font-semibold bg-[#FFA400]/20 text-[#FFA400] px-2 py-0.5 rounded-full border border-[#FFA400]/40">
                     Priority Queue
                   </span>
                 </div>
-                <p className="text-[11px] text-[#2C3330]/80 leading-relaxed">
+                <p className="text-[11px] text-[#F8F4ED]/90 leading-relaxed">
                   <strong>When needed:</strong> Launch date moved up, urgent investor demo, or immediate retail deadline.
                 </p>
-                <p className="text-[10px] text-[#2C3330]/70">
+                <p className="text-[10px] text-[#ACBEA3]">
                   Turnaround reduced by 35%–50% (standard 3-week project delivered in 8–10 business days) with daily feedback loops.
                 </p>
 
                 {/* Tier Selection */}
                 <div className="space-y-1 pt-1">
-                  <span className="text-[9px] font-montserrat font-bold text-[#2C3330] uppercase block">
+                  <span className="text-[9px] font-montserrat font-bold text-[#ACBEA3] uppercase block">
                     SELECT RUSH TIER:
                   </span>
                   <div className="grid grid-cols-3 gap-1.5">
@@ -976,8 +964,8 @@ export function InvoiceEditor({
                         onClick={() => setSelectedRushTier(tier.id)}
                         className={`p-1.5 rounded-lg text-center border text-[10px] transition-all cursor-pointer ${
                           selectedRushTier === tier.id
-                            ? 'bg-[#08221B] text-white border-[#08221B] font-semibold'
-                            : 'bg-white text-[#2C3330] border-[#ACBEA3]/40 hover:border-[#08221B]'
+                            ? 'bg-[#FFA400] text-[#08221B] border-[#FFA400] font-semibold'
+                            : 'bg-[#08221B] text-[#F8F4ED] border-[#ACBEA3]/30 hover:border-[#FFA400]/60'
                         }`}
                       >
                         <div className="font-bold">{tier.name}</div>
@@ -991,7 +979,7 @@ export function InvoiceEditor({
               <button
                 type="button"
                 onClick={handleAddRushAddon}
-                className="w-full mt-2 py-2 bg-[#08221B] hover:bg-[#08221B]/90 text-[#ACBEA3] font-montserrat font-bold text-xs rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-98"
+                className="w-full mt-2 py-2 bg-[#08221B] hover:bg-[#08221B]/80 border border-[#ACBEA3]/35 hover:border-[#FFA400] text-[#F8F4ED] font-montserrat font-bold text-xs rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-98"
               >
                 <Plus className="w-3.5 h-3.5 text-[#FFA400]" />
                 <span>Add Rush Delivery to Invoice</span>
@@ -999,50 +987,50 @@ export function InvoiceEditor({
             </div>
 
             {/* Addon 2: Extra Creative Concepts & Revisions */}
-            <div className="p-4 bg-[#F8F4ED]/60 border border-[#ACBEA3]/40 rounded-xl space-y-3 flex flex-col justify-between">
+            <div className="p-4 bg-[#2C3330]/75 border border-[#ACBEA3]/30 rounded-xl space-y-3 flex flex-col justify-between">
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5">
                     <Palette className="w-4 h-4 text-[#FFA400]" />
-                    <span className="font-montserrat font-bold text-xs text-[#08221B]">
+                    <span className="font-montserrat font-bold text-xs text-[#F8F4ED]">
                       Extra Creative Concepts &amp; Revisions
                     </span>
                   </div>
-                  <span className="text-[10px] font-space-mono font-bold text-[#08221B]">
+                  <span className="text-[10px] font-space-mono font-bold text-[#FFA400]">
                     ₹3,999 / Round
                   </span>
                 </div>
-                <p className="text-[11px] text-[#2C3330]/80 leading-relaxed">
+                <p className="text-[11px] text-[#F8F4ED]/90 leading-relaxed">
                   <strong>When needed:</strong> Radically different art styles, alternate naming layouts, or iterations beyond standard package allowance.
                 </p>
-                <p className="text-[10px] text-[#2C3330]/70">
+                <p className="text-[10px] text-[#ACBEA3]">
                   Delivers 2 new concept presentation boards + 2 refinement rounds per round.
                 </p>
 
                 {/* Quantity */}
                 <div className="flex items-center justify-between pt-2">
-                  <span className="text-[10px] font-montserrat font-bold text-[#2C3330] uppercase">
+                  <span className="text-[10px] font-montserrat font-bold text-[#ACBEA3] uppercase">
                     NUMBER OF ROUNDS:
                   </span>
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
                       onClick={() => setRevisionsCount(Math.max(1, revisionsCount - 1))}
-                      className="w-6 h-6 rounded bg-white border border-[#ACBEA3]/50 text-xs font-bold"
+                      className="w-6 h-6 rounded bg-[#08221B] text-[#F8F4ED] border border-[#ACBEA3]/40 text-xs font-bold cursor-pointer"
                     >
                       -
                     </button>
-                    <span className="font-space-mono font-bold text-xs w-6 text-center">
+                    <span className="font-space-mono font-bold text-xs w-6 text-center text-[#F8F4ED]">
                       {revisionsCount}
                     </span>
                     <button
                       type="button"
                       onClick={() => setRevisionsCount(revisionsCount + 1)}
-                      className="w-6 h-6 rounded bg-white border border-[#ACBEA3]/50 text-xs font-bold"
+                      className="w-6 h-6 rounded bg-[#08221B] text-[#F8F4ED] border border-[#ACBEA3]/40 text-xs font-bold cursor-pointer"
                     >
                       +
                     </button>
-                    <span className="font-space-mono text-xs font-semibold text-[#08221B] ml-1">
+                    <span className="font-space-mono text-xs font-semibold text-[#FFA400] ml-1">
                       = ₹{(revisionsCount * 3999).toLocaleString('en-IN')}
                     </span>
                   </div>
@@ -1052,7 +1040,7 @@ export function InvoiceEditor({
               <button
                 type="button"
                 onClick={handleAddRevisionsAddon}
-                className="w-full mt-2 py-2 bg-[#08221B] hover:bg-[#08221B]/90 text-[#ACBEA3] font-montserrat font-bold text-xs rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-98"
+                className="w-full mt-2 py-2 bg-[#08221B] hover:bg-[#08221B]/80 border border-[#ACBEA3]/35 hover:border-[#FFA400] text-[#F8F4ED] font-montserrat font-bold text-xs rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-98"
               >
                 <Plus className="w-3.5 h-3.5 text-[#FFA400]" />
                 <span>Add Concepts &amp; Revisions</span>
@@ -1060,50 +1048,50 @@ export function InvoiceEditor({
             </div>
 
             {/* Addon 3: Sub-Brand & Sister Venture Identity */}
-            <div className="p-4 bg-[#F8F4ED]/60 border border-[#ACBEA3]/40 rounded-xl space-y-3 flex flex-col justify-between">
+            <div className="p-4 bg-[#2C3330]/75 border border-[#ACBEA3]/30 rounded-xl space-y-3 flex flex-col justify-between">
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5">
                     <Boxes className="w-4 h-4 text-[#FFA400]" />
-                    <span className="font-montserrat font-bold text-xs text-[#08221B]">
+                    <span className="font-montserrat font-bold text-xs text-[#F8F4ED]">
                       Sub-Brand &amp; Sister Venture Identity
                     </span>
                   </div>
-                  <span className="text-[10px] font-space-mono font-bold text-[#08221B]">
+                  <span className="text-[10px] font-space-mono font-bold text-[#FFA400]">
                     ₹6,999 / Sub-Brand
                   </span>
                 </div>
-                <p className="text-[11px] text-[#2C3330]/80 leading-relaxed">
+                <p className="text-[11px] text-[#F8F4ED]/90 leading-relaxed">
                   <strong>When needed:</strong> Child brand, spin-off company, or distinct product division inheriting parent brand prestige.
                 </p>
-                <p className="text-[10px] text-[#2C3330]/70">
+                <p className="text-[10px] text-[#ACBEA3]">
                   Delivers sub-brand logo system, adapted color &amp; font hierarchy, social media avatars, and master vector package.
                 </p>
 
                 {/* Quantity */}
                 <div className="flex items-center justify-between pt-2">
-                  <span className="text-[10px] font-montserrat font-bold text-[#2C3330] uppercase">
+                  <span className="text-[10px] font-montserrat font-bold text-[#ACBEA3] uppercase">
                     SUB-BRAND COUNT:
                   </span>
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
                       onClick={() => setSubbrandCount(Math.max(1, subbrandCount - 1))}
-                      className="w-6 h-6 rounded bg-white border border-[#ACBEA3]/50 text-xs font-bold"
+                      className="w-6 h-6 rounded bg-[#08221B] text-[#F8F4ED] border border-[#ACBEA3]/40 text-xs font-bold cursor-pointer"
                     >
                       -
                     </button>
-                    <span className="font-space-mono font-bold text-xs w-6 text-center">
+                    <span className="font-space-mono font-bold text-xs w-6 text-center text-[#F8F4ED]">
                       {subbrandCount}
                     </span>
                     <button
                       type="button"
                       onClick={() => setSubbrandCount(subbrandCount + 1)}
-                      className="w-6 h-6 rounded bg-white border border-[#ACBEA3]/50 text-xs font-bold"
+                      className="w-6 h-6 rounded bg-[#08221B] text-[#F8F4ED] border border-[#ACBEA3]/40 text-xs font-bold cursor-pointer"
                     >
                       +
                     </button>
-                    <span className="font-space-mono text-xs font-semibold text-[#08221B] ml-1">
+                    <span className="font-space-mono text-xs font-semibold text-[#FFA400] ml-1">
                       = ₹{(subbrandCount * 6999).toLocaleString('en-IN')}
                     </span>
                   </div>
@@ -1113,7 +1101,7 @@ export function InvoiceEditor({
               <button
                 type="button"
                 onClick={handleAddSubbrandAddon}
-                className="w-full mt-2 py-2 bg-[#08221B] hover:bg-[#08221B]/90 text-[#ACBEA3] font-montserrat font-bold text-xs rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-98"
+                className="w-full mt-2 py-2 bg-[#08221B] hover:bg-[#08221B]/80 border border-[#ACBEA3]/35 hover:border-[#FFA400] text-[#F8F4ED] font-montserrat font-bold text-xs rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-98"
               >
                 <Plus className="w-3.5 h-3.5 text-[#FFA400]" />
                 <span>Add Sub-Brand Identity</span>
@@ -1121,50 +1109,50 @@ export function InvoiceEditor({
             </div>
 
             {/* Addon 4: Trademark-Ready Asset Kit */}
-            <div className="p-4 bg-[#F8F4ED]/60 border border-[#ACBEA3]/40 rounded-xl space-y-3 flex flex-col justify-between">
+            <div className="p-4 bg-[#2C3330]/75 border border-[#ACBEA3]/30 rounded-xl space-y-3 flex flex-col justify-between">
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5">
                     <ShieldCheck className="w-4 h-4 text-[#FFA400]" />
-                    <span className="font-montserrat font-bold text-xs text-[#08221B]">
+                    <span className="font-montserrat font-bold text-xs text-[#F8F4ED]">
                       Trademark-Ready Asset Kit
                     </span>
                   </div>
-                  <span className="text-[10px] font-space-mono font-bold text-[#08221B]">
+                  <span className="text-[10px] font-space-mono font-bold text-[#FFA400]">
                     ₹2,499 / Mark
                   </span>
                 </div>
-                <p className="text-[11px] text-[#2C3330]/80 leading-relaxed">
+                <p className="text-[11px] text-[#F8F4ED]/90 leading-relaxed">
                   <strong>When needed:</strong> Filing for IP registration with Trademark Registry (IP India / USPTO).
                 </p>
-                <p className="text-[10px] text-[#2C3330]/70">
+                <p className="text-[10px] text-[#ACBEA3]">
                   Delivers monochrome vector proofs, safe-zone dimension sheets, and pure vector EPS/TIFF master assets formatted to exact legal filing rules.
                 </p>
 
                 {/* Quantity */}
                 <div className="flex items-center justify-between pt-2">
-                  <span className="text-[10px] font-montserrat font-bold text-[#2C3330] uppercase">
+                  <span className="text-[10px] font-montserrat font-bold text-[#ACBEA3] uppercase">
                     MARKS TO FILE:
                   </span>
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
                       onClick={() => setTrademarkCount(Math.max(1, trademarkCount - 1))}
-                      className="w-6 h-6 rounded bg-white border border-[#ACBEA3]/50 text-xs font-bold"
+                      className="w-6 h-6 rounded bg-[#08221B] text-[#F8F4ED] border border-[#ACBEA3]/40 text-xs font-bold cursor-pointer"
                     >
                       -
                     </button>
-                    <span className="font-space-mono font-bold text-xs w-6 text-center">
+                    <span className="font-space-mono font-bold text-xs w-6 text-center text-[#F8F4ED]">
                       {trademarkCount}
                     </span>
                     <button
                       type="button"
                       onClick={() => setTrademarkCount(trademarkCount + 1)}
-                      className="w-6 h-6 rounded bg-white border border-[#ACBEA3]/50 text-xs font-bold"
+                      className="w-6 h-6 rounded bg-[#08221B] text-[#F8F4ED] border border-[#ACBEA3]/40 text-xs font-bold cursor-pointer"
                     >
                       +
                     </button>
-                    <span className="font-space-mono text-xs font-semibold text-[#08221B] ml-1">
+                    <span className="font-space-mono text-xs font-semibold text-[#FFA400] ml-1">
                       = ₹{(trademarkCount * 2499).toLocaleString('en-IN')}
                     </span>
                   </div>
@@ -1174,7 +1162,7 @@ export function InvoiceEditor({
               <button
                 type="button"
                 onClick={handleAddTrademarkAddon}
-                className="w-full mt-2 py-2 bg-[#08221B] hover:bg-[#08221B]/90 text-[#ACBEA3] font-montserrat font-bold text-xs rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-98"
+                className="w-full mt-2 py-2 bg-[#08221B] hover:bg-[#08221B]/80 border border-[#ACBEA3]/35 hover:border-[#FFA400] text-[#F8F4ED] font-montserrat font-bold text-xs rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-98"
               >
                 <Plus className="w-3.5 h-3.5 text-[#FFA400]" />
                 <span>Add Trademark Kit</span>
@@ -1185,19 +1173,19 @@ export function InvoiceEditor({
       </div>
 
       {/* Dynamic Line Items Section */}
-      <div className="p-6 bg-white border border-[#ACBEA3]/40 rounded-2xl shadow-xs space-y-4">
+      <div className="p-6 bg-[#08221B] border border-[#ACBEA3]/30 rounded-2xl shadow-lg space-y-4">
         <div className="flex items-center justify-between pb-2 border-b border-[#ACBEA3]/20">
           <div>
-            <h3 className="text-sm font-bold font-montserrat text-[#08221B]">
+            <h3 className="text-sm font-bold font-montserrat text-[#F8F4ED]">
               Deliverables &amp; Billable Items
             </h3>
-            <p className="text-xs text-[#2C3330]/70">
+            <p className="text-xs text-[#ACBEA3]">
               Add billable services, design sprints, or asset packages with optional item discounts and SAC codes.
             </p>
           </div>
           <button
             onClick={handleAddItem}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-[#08221B] bg-[#ACBEA3]/30 hover:bg-[#ACBEA3]/50 border border-[#ACBEA3] rounded-xl transition-colors font-poppins cursor-pointer"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-[#08221B] bg-[#FFA400] hover:bg-[#ffb426] rounded-xl transition-colors font-poppins cursor-pointer shadow-xs"
           >
             <Plus className="w-3.5 h-3.5 text-[#08221B]" />
             <span>Add Custom Item</span>
@@ -1206,42 +1194,84 @@ export function InvoiceEditor({
 
         <div className="space-y-3">
           {current.items.map((item, idx) => {
-            const hasItemDiscount = Boolean(item.itemDiscountValue && item.itemDiscountValue > 0);
-            const isDiscountOpen = showItemDiscountIndex === idx;
+            const qtyNum = Number(item.qty) || 0;
+            const rateNum = Number(item.rate) || 0;
+            const itemGross = Math.round(qtyNum * rateNum * 100) / 100;
+            const itemDiscAmt = Number(item.itemDiscountAmount) || 0;
+            const hasItemDiscount = Boolean(
+              (item.itemDiscountValue && item.itemDiscountValue > 0) || itemDiscAmt > 0
+            );
+            const isDiscountOpen = showItemDiscountIndex === idx || hasItemDiscount;
 
             return (
               <div
                 key={item.id}
-                className="p-3 bg-[#F8F4ED]/60 border border-[#ACBEA3]/30 rounded-xl hover:border-[#08221B]/40 transition-colors space-y-2"
+                className="p-3.5 bg-[#2C3330]/85 border border-[#ACBEA3]/35 rounded-xl hover:border-[#FFA400]/60 transition-colors space-y-3"
               >
-                <div className="grid grid-cols-12 gap-2 sm:gap-3 items-center">
-                  <div className="col-span-12 sm:col-span-4">
-                    <label className="block text-[9px] font-montserrat font-bold text-[#2C3330] mb-0.5">
-                      #{idx + 1} DESCRIPTION
+                {/* Row 1: Item Description + Discount Toggle + Remove Button */}
+                <div className="flex items-end gap-2">
+                  <div className="flex-1">
+                    <label className="block text-[10px] font-montserrat font-bold text-[#ACBEA3] uppercase mb-1">
+                      #{idx + 1} DELIVERABLE / SERVICE DESCRIPTION
                     </label>
                     <input
                       type="text"
                       value={item.description}
                       onChange={(e) => handleItemChange(idx, 'description', e.target.value)}
                       placeholder="e.g. Dynamic Identity & Motion Brand Matrix"
-                      className="w-full px-2.5 py-1.5 bg-white border border-[#ACBEA3]/40 rounded-lg text-xs text-[#08221B] focus:border-[#08221B] outline-none"
+                      className="w-full px-3 py-2 bg-[#08221B] border border-[#ACBEA3]/40 rounded-lg text-xs text-[#F8F4ED] placeholder-[#ACBEA3]/45 focus:border-[#FFA400] outline-none"
                     />
                   </div>
 
-                  <div className="col-span-3 sm:col-span-1">
-                    <label className="block text-[9px] font-montserrat font-bold text-[#2C3330] mb-0.5">
-                      SAC
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setShowItemDiscountIndex(showItemDiscountIndex === idx ? null : idx)
+                    }
+                    className={`px-2.5 py-2 rounded-lg text-xs font-poppins font-medium transition-colors cursor-pointer flex items-center gap-1.5 shrink-0 border ${
+                      hasItemDiscount || showItemDiscountIndex === idx
+                        ? 'bg-[#FFA400]/20 text-[#FFA400] font-semibold border-[#FFA400]'
+                        : 'bg-[#08221B] text-[#ACBEA3] hover:text-[#F8F4ED] border-[#ACBEA3]/35'
+                    }`}
+                    title="Add or Edit Line-Item Discount"
+                  >
+                    <Tag className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline text-[11px]">
+                      {hasItemDiscount ? `-${formatIndianCurrency(itemDiscAmt)}` : 'Item Disc.'}
+                    </span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveItem(idx)}
+                    disabled={current.items.length <= 1}
+                    className={`p-2 rounded-lg border transition-colors cursor-pointer shrink-0 ${
+                      current.items.length <= 1
+                        ? 'bg-[#08221B]/50 text-[#ACBEA3]/30 border-[#ACBEA3]/15 cursor-not-allowed'
+                        : 'bg-[#08221B] text-[#ACBEA3] border-[#ACBEA3]/35 hover:text-rose-400 hover:border-rose-500/40'
+                    }`}
+                    title="Remove Item"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+
+                {/* Row 2: Spacious 12-Col Grid for SAC (2), Qty (2), Unit (2), Rate (3), and Line Amount (3) */}
+                <div className="grid grid-cols-2 sm:grid-cols-12 gap-2.5 items-end">
+                  <div className="col-span-1 sm:col-span-2">
+                    <label className="block text-[9.5px] font-montserrat font-bold text-[#ACBEA3] uppercase mb-1 whitespace-nowrap">
+                      SAC CODE
                     </label>
                     <input
                       type="text"
                       value={item.sacCode || '998311'}
                       onChange={(e) => handleItemChange(idx, 'sacCode', e.target.value)}
-                      className="w-full px-1.5 py-1.5 bg-white border border-[#ACBEA3]/40 rounded-lg text-[11px] font-space-mono text-[#08221B] focus:border-[#08221B] outline-none text-center"
+                      className="w-full px-2 py-2 bg-[#08221B] border border-[#ACBEA3]/40 rounded-lg text-xs font-space-mono font-semibold text-[#F8F4ED] focus:border-[#FFA400] outline-none text-center"
                     />
                   </div>
 
-                  <div className="col-span-3 sm:col-span-2">
-                    <label className="block text-[9px] font-montserrat font-bold text-[#2C3330] mb-0.5">
+                  <div className="col-span-1 sm:col-span-2">
+                    <label className="block text-[9.5px] font-montserrat font-bold text-[#ACBEA3] uppercase mb-1 whitespace-nowrap">
                       QTY
                     </label>
                     <input
@@ -1250,25 +1280,25 @@ export function InvoiceEditor({
                       step="0.5"
                       value={item.qty}
                       onChange={(e) => handleItemChange(idx, 'qty', e.target.value)}
-                      className="w-full px-2 py-1.5 bg-white border border-[#ACBEA3]/40 rounded-lg text-xs font-space-mono text-[#08221B] focus:border-[#08221B] outline-none text-center"
+                      className="w-full px-2 py-2 bg-[#08221B] border border-[#ACBEA3]/40 rounded-lg text-xs font-space-mono font-bold text-[#F8F4ED] focus:border-[#FFA400] outline-none text-center"
                     />
                   </div>
 
-                  <div className="col-span-3 sm:col-span-2">
-                    <label className="block text-[9px] font-montserrat font-bold text-[#2C3330] mb-0.5">
+                  <div className="col-span-1 sm:col-span-2">
+                    <label className="block text-[9.5px] font-montserrat font-bold text-[#ACBEA3] uppercase mb-1 whitespace-nowrap">
                       UNIT
                     </label>
                     <input
                       type="text"
                       value={item.unit}
                       onChange={(e) => handleItemChange(idx, 'unit', e.target.value)}
-                      placeholder="Sprint / Round"
-                      className="w-full px-2 py-1.5 bg-white border border-[#ACBEA3]/40 rounded-lg text-xs font-poppins text-[#08221B] focus:border-[#08221B] outline-none text-center"
+                      placeholder="Package"
+                      className="w-full px-2 py-2 bg-[#08221B] border border-[#ACBEA3]/40 rounded-lg text-xs font-poppins font-medium text-[#F8F4ED] placeholder-[#ACBEA3]/45 focus:border-[#FFA400] outline-none text-center"
                     />
                   </div>
 
-                  <div className="col-span-3 sm:col-span-2">
-                    <label className="block text-[9px] font-montserrat font-bold text-[#2C3330] mb-0.5">
+                  <div className="col-span-1 sm:col-span-3">
+                    <label className="block text-[9.5px] font-montserrat font-bold text-[#ACBEA3] uppercase mb-1 whitespace-nowrap">
                       RATE (₹)
                     </label>
                     <input
@@ -1277,58 +1307,39 @@ export function InvoiceEditor({
                       step="500"
                       value={item.rate}
                       onChange={(e) => handleItemChange(idx, 'rate', e.target.value)}
-                      className="w-full px-2 py-1.5 bg-white border border-[#ACBEA3]/40 rounded-lg text-xs font-space-mono text-[#08221B] focus:border-[#08221B] outline-none text-right"
+                      className="w-full px-2.5 py-2 bg-[#08221B] border border-[#ACBEA3]/40 rounded-lg text-xs font-space-mono font-bold text-[#F8F4ED] focus:border-[#FFA400] outline-none text-right"
                     />
                   </div>
 
-                  <div className="col-span-12 sm:col-span-1 flex items-center justify-between sm:justify-end gap-1.5 pt-1 sm:pt-3">
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setShowItemDiscountIndex(isDiscountOpen ? null : idx)
-                      }
-                      className={`p-1.5 rounded-lg text-xs transition-colors cursor-pointer ${
-                        hasItemDiscount
-                          ? 'bg-[#FFA400]/25 text-[#08221B] font-semibold border border-[#FFA400]'
-                          : 'text-[#2C3330]/60 hover:text-[#08221B] hover:bg-[#ACBEA3]/20'
-                      }`}
-                      title="Add Line-Item Discount"
-                    >
-                      <Tag className="w-3.5 h-3.5" />
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveItem(idx)}
-                      disabled={current.items.length <= 1}
-                      className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
-                        current.items.length <= 1
-                          ? 'text-[#ACBEA3]/40 cursor-not-allowed'
-                          : 'text-[#2C3330]/70 hover:text-red-600 hover:bg-red-50'
-                      }`}
-                      title="Remove Item"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
+                  <div className="col-span-2 sm:col-span-3">
+                    <label className="block text-[9.5px] font-montserrat font-bold text-[#FFA400] uppercase mb-1 whitespace-nowrap">
+                      LINE AMOUNT (₹)
+                    </label>
+                    <div className="w-full px-2.5 py-2 bg-[#08221B] border border-[#FFA400]/50 rounded-lg text-xs font-space-mono font-bold text-[#FFA400] text-right whitespace-nowrap flex items-center justify-between sm:justify-end">
+                      <span className="sm:hidden text-[10px] text-[#ACBEA3] font-poppins font-normal">
+                        Net Total:
+                      </span>
+                      <span>{formatIndianCurrency(item.amount)}</span>
+                    </div>
                   </div>
                 </div>
 
-                {/* Collapsible Item-Level Discount Input */}
+                {/* Collapsible Item-Level Discount Input & Calculated Amount Box */}
                 {isDiscountOpen && (
-                  <div className="pt-2 pb-1 px-3 bg-white border border-[#ACBEA3]/40 rounded-lg flex flex-wrap items-center justify-between gap-3 text-xs">
+                  <div className="p-2.5 bg-[#08221B] border border-[#FFA400]/40 rounded-xl grid grid-cols-1 sm:grid-cols-3 gap-2.5 items-center text-xs">
                     <div className="flex items-center gap-2">
-                      <Tag className="w-3.5 h-3.5 text-[#FFA400]" />
-                      <span className="font-montserrat font-bold text-[10px] text-[#08221B] uppercase">
+                      <Tag className="w-3.5 h-3.5 text-[#FFA400] shrink-0" />
+                      <span className="font-montserrat font-bold text-[10px] text-[#F8F4ED] uppercase">
                         Item #{idx + 1} Discount:
                       </span>
-                      <div className="flex bg-[#F8F4ED] rounded-lg p-0.5 border border-[#ACBEA3]/40">
+                      <div className="flex bg-[#2C3330] rounded-lg p-0.5 border border-[#ACBEA3]/35 shrink-0">
                         <button
                           type="button"
                           onClick={() => handleItemChange(idx, 'itemDiscountType', 'percentage')}
-                          className={`px-2 py-0.5 text-[10px] rounded ${
+                          className={`px-2 py-0.5 text-[10px] rounded cursor-pointer ${
                             item.itemDiscountType !== 'flat'
-                              ? 'bg-[#08221B] text-white font-semibold'
-                              : 'text-[#2C3330]'
+                              ? 'bg-[#FFA400] text-[#08221B] font-bold'
+                              : 'text-[#ACBEA3]'
                           }`}
                         >
                           %
@@ -1336,29 +1347,40 @@ export function InvoiceEditor({
                         <button
                           type="button"
                           onClick={() => handleItemChange(idx, 'itemDiscountType', 'flat')}
-                          className={`px-2 py-0.5 text-[10px] rounded ${
+                          className={`px-2 py-0.5 text-[10px] rounded cursor-pointer ${
                             item.itemDiscountType === 'flat'
-                              ? 'bg-[#08221B] text-white font-semibold'
-                              : 'text-[#2C3330]'
+                              ? 'bg-[#FFA400] text-[#08221B] font-bold'
+                              : 'text-[#ACBEA3]'
                           }`}
                         >
                           ₹
                         </button>
                       </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] text-[#ACBEA3] uppercase font-montserrat font-bold shrink-0">
+                        {item.itemDiscountType === 'flat' ? 'Flat (₹):' : 'Rate (%):'}
+                      </span>
                       <input
                         type="number"
                         min="0"
-                        value={item.itemDiscountValue || 0}
+                        value={item.itemDiscountValue ?? 0}
                         onChange={(e) => handleItemChange(idx, 'itemDiscountValue', e.target.value)}
                         placeholder="0"
-                        className="w-20 px-2 py-0.5 bg-[#F8F4ED] border border-[#ACBEA3]/40 rounded text-xs font-space-mono text-right outline-none"
+                        className="w-full px-2.5 py-1 bg-[#2C3330] border border-[#ACBEA3]/45 rounded-lg text-xs font-space-mono font-bold text-[#F8F4ED] text-right focus:border-[#FFA400] outline-none"
                       />
                     </div>
 
-                    <div className="flex items-center gap-3">
-                      <span className="text-[11px] text-[#2C3330]/80">
-                        Net: <strong className="text-[#08221B] font-space-mono">₹{item.amount.toLocaleString('en-IN')}</strong>
-                      </span>
+                    <div className="flex items-center justify-between sm:justify-end gap-2.5 bg-[#2C3330]/80 px-2.5 py-1.5 rounded-lg border border-[#ACBEA3]/30">
+                      <div className="text-left sm:text-right">
+                        <span className="text-[9.5px] text-[#ACBEA3] block">
+                          Gross: {formatIndianCurrency(itemGross)}
+                        </span>
+                        <span className="text-[11px] font-space-mono font-bold text-rose-400">
+                          Disc: - {formatIndianCurrency(itemDiscAmt)}
+                        </span>
+                      </div>
                       {hasItemDiscount && (
                         <button
                           type="button"
@@ -1366,9 +1388,9 @@ export function InvoiceEditor({
                             handleItemChange(idx, 'itemDiscountValue', 0);
                             setShowItemDiscountIndex(null);
                           }}
-                          className="text-[10px] text-red-600 hover:underline cursor-pointer"
+                          className="text-[10px] px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 hover:bg-rose-500/30 border border-rose-500/30 cursor-pointer shrink-0"
                         >
-                          Remove
+                          Clear
                         </button>
                       )}
                     </div>
@@ -1381,24 +1403,28 @@ export function InvoiceEditor({
       </div>
 
       {/* ADVANCED TAXES, GST CALCULATOR & DISCOUNT ENGINE */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div
+        className={`grid grid-cols-1 ${
+          isSplitLiveActive ? '2xl:grid-cols-2' : 'lg:grid-cols-2'
+        } gap-6`}
+      >
         {/* Tax, GST & TDS Engine */}
-        <div className="p-6 bg-white border border-[#ACBEA3]/40 rounded-2xl shadow-xs space-y-4">
+        <div className="p-6 bg-[#08221B] border border-[#ACBEA3]/30 rounded-2xl shadow-lg space-y-4">
           <div className="flex items-center justify-between pb-2 border-b border-[#ACBEA3]/20">
             <div className="flex items-center gap-2">
               <Calculator className="w-4 h-4 text-[#FFA400]" />
-              <h3 className="text-sm font-bold font-montserrat text-[#08221B]">
+              <h3 className="text-sm font-bold font-montserrat text-[#F8F4ED]">
                 Tax &amp; GST Calculation Engine
               </h3>
             </div>
-            <span className="text-[10px] font-space-mono font-bold bg-[#F8F4ED] px-2 py-0.5 rounded border border-[#ACBEA3]/40">
+            <span className="text-[10px] font-space-mono font-bold bg-[#2C3330] text-[#ACBEA3] px-2 py-0.5 rounded border border-[#ACBEA3]/35">
               SAC 9983 (Design &amp; IP)
             </span>
           </div>
 
           <div className="space-y-3">
             <div>
-              <span className="block text-[10px] font-montserrat font-bold text-[#2C3330] uppercase mb-1">
+              <span className="block text-[10px] font-montserrat font-bold text-[#ACBEA3] uppercase mb-1">
                 GST REGIME &amp; JURISDICTION
               </span>
               <div className="grid grid-cols-3 gap-2">
@@ -1416,8 +1442,8 @@ export function InvoiceEditor({
                   }
                   className={`px-2.5 py-2 text-xs font-medium rounded-xl border text-center transition-all cursor-pointer ${
                     current.gstType === 'intra'
-                      ? 'border-[#08221B] bg-[#08221B] text-white font-semibold'
-                      : 'border-[#ACBEA3]/40 bg-[#F8F4ED] text-[#2C3330] hover:border-[#08221B]'
+                      ? 'border-[#FFA400] bg-[#2C3330] text-[#FFA400] font-semibold'
+                      : 'border-[#ACBEA3]/30 bg-[#2C3330]/50 text-[#ACBEA3] hover:border-[#ACBEA3]'
                   }`}
                 >
                   Intra-State
@@ -1440,8 +1466,8 @@ export function InvoiceEditor({
                   }
                   className={`px-2.5 py-2 text-xs font-medium rounded-xl border text-center transition-all cursor-pointer ${
                     current.gstType === 'inter'
-                      ? 'border-[#08221B] bg-[#08221B] text-white font-semibold'
-                      : 'border-[#ACBEA3]/40 bg-[#F8F4ED] text-[#2C3330] hover:border-[#08221B]'
+                      ? 'border-[#FFA400] bg-[#2C3330] text-[#FFA400] font-semibold'
+                      : 'border-[#ACBEA3]/30 bg-[#2C3330]/50 text-[#ACBEA3] hover:border-[#ACBEA3]'
                   }`}
                 >
                   Inter-State
@@ -1464,13 +1490,13 @@ export function InvoiceEditor({
                   }
                   className={`px-2.5 py-2 text-xs font-medium rounded-xl border text-center transition-all cursor-pointer ${
                     current.gstType === 'zero'
-                      ? 'border-[#08221B] bg-[#08221B] text-white font-semibold'
-                      : 'border-[#ACBEA3]/40 bg-[#F8F4ED] text-[#2C3330] hover:border-[#08221B]'
+                      ? 'border-[#FFA400] bg-[#2C3330] text-[#FFA400] font-semibold'
+                      : 'border-[#ACBEA3]/30 bg-[#2C3330]/50 text-[#ACBEA3] hover:border-[#ACBEA3]'
                   }`}
                 >
                   Zero Tax
                   <span className="block text-[9px] opacity-75 font-space-mono">
-                    Export / SEZ
+                    Exempt / Export
                   </span>
                 </button>
               </div>
@@ -1479,7 +1505,7 @@ export function InvoiceEditor({
             {current.gstType !== 'zero' && (
               <div className="grid grid-cols-2 gap-3 pt-1">
                 <div>
-                  <span className="block text-[10px] font-montserrat font-bold text-[#2C3330] uppercase mb-1">
+                  <span className="block text-[10px] font-montserrat font-bold text-[#ACBEA3] uppercase mb-1">
                     GST RATE SLAB
                   </span>
                   <select
@@ -1495,7 +1521,7 @@ export function InvoiceEditor({
                         rate
                       );
                     }}
-                    className="w-full px-3 py-1.5 bg-[#F8F4ED] border border-[#ACBEA3]/40 rounded-xl text-xs font-space-mono text-[#08221B] focus:border-[#08221B] outline-none"
+                    className="w-full px-3 py-2 bg-[#2C3330] border border-[#ACBEA3]/35 rounded-xl text-xs font-space-mono text-[#F8F4ED] focus:border-[#FFA400] outline-none"
                   >
                     <option value={18}>18% (Standard Graphic Services)</option>
                     <option value={12}>12% (Print Goods / Books)</option>
@@ -1506,7 +1532,7 @@ export function InvoiceEditor({
                 </div>
 
                 <div>
-                  <span className="block text-[10px] font-montserrat font-bold text-[#2C3330] uppercase mb-1">
+                  <span className="block text-[10px] font-montserrat font-bold text-[#ACBEA3] uppercase mb-1">
                     COMPENSATION CESS (%)
                   </span>
                   <input
@@ -1530,16 +1556,63 @@ export function InvoiceEditor({
                         val
                       );
                     }}
-                    className="w-full px-3 py-1.5 bg-[#F8F4ED] border border-[#ACBEA3]/40 rounded-xl text-xs font-space-mono text-[#08221B] focus:border-[#08221B] outline-none text-right"
+                    className="w-full px-3 py-2 bg-[#2C3330] border border-[#ACBEA3]/35 rounded-xl text-xs font-space-mono text-[#F8F4ED] focus:border-[#FFA400] outline-none text-right"
                   />
                 </div>
               </div>
             )}
 
+            {/* Live Tax & GST Amount Boxes on the Editor Page */}
+            <div className="grid grid-cols-2 gap-2.5 pt-1">
+              <div className="p-2.5 rounded-xl bg-[#2C3330] border border-[#ACBEA3]/35">
+                <span className="block text-[9.5px] font-montserrat font-bold text-[#ACBEA3] uppercase">
+                  TAXABLE BASE (₹)
+                </span>
+                <span className="font-space-mono font-bold text-xs sm:text-sm text-[#F8F4ED] mt-0.5 block">
+                  {formatIndianCurrency(current.taxableAmount)}
+                </span>
+              </div>
+
+              <div className="p-2.5 rounded-xl bg-[#2C3330] border border-[#FFA400]/45">
+                <span className="block text-[9.5px] font-montserrat font-bold text-[#FFA400] uppercase">
+                  TOTAL GST / TAX (₹)
+                </span>
+                <span className="font-space-mono font-bold text-xs sm:text-sm text-[#FFA400] mt-0.5 block">
+                  + {formatIndianCurrency(current.totalTax)}
+                </span>
+              </div>
+
+              {current.gstType === 'intra' && (
+                <>
+                  <div className="p-2 rounded-xl bg-[#2C3330]/70 border border-[#ACBEA3]/25 flex items-center justify-between text-xs">
+                    <span className="text-[#ACBEA3] text-[10px]">CGST ({current.cgstRate}%):</span>
+                    <span className="font-space-mono font-semibold text-[#F8F4ED]">
+                      {formatIndianCurrency(current.cgstAmount)}
+                    </span>
+                  </div>
+                  <div className="p-2 rounded-xl bg-[#2C3330]/70 border border-[#ACBEA3]/25 flex items-center justify-between text-xs">
+                    <span className="text-[#ACBEA3] text-[10px]">SGST ({current.sgstRate}%):</span>
+                    <span className="font-space-mono font-semibold text-[#F8F4ED]">
+                      {formatIndianCurrency(current.sgstAmount)}
+                    </span>
+                  </div>
+                </>
+              )}
+
+              {current.gstType === 'inter' && (
+                <div className="col-span-2 p-2 rounded-xl bg-[#2C3330]/70 border border-[#ACBEA3]/25 flex items-center justify-between text-xs">
+                  <span className="text-[#ACBEA3] text-[10px]">IGST ({current.igstRate}%):</span>
+                  <span className="font-space-mono font-semibold text-[#F8F4ED]">
+                    {formatIndianCurrency(current.igstAmount)}
+                  </span>
+                </div>
+              )}
+            </div>
+
             {/* TDS Section 194J Calculation Module */}
-            <div className="p-3 bg-[#F8F4ED]/80 border border-[#ACBEA3]/40 rounded-xl space-y-2">
+            <div className="p-3 bg-[#2C3330]/75 border border-[#ACBEA3]/30 rounded-xl space-y-2">
               <div className="flex items-center justify-between">
-                <span className="font-montserrat font-bold text-xs text-[#08221B]">
+                <span className="font-montserrat font-bold text-xs text-[#F8F4ED]">
                   Client TDS Deduction (Sec. 194J)
                 </span>
                 <button
@@ -1564,8 +1637,8 @@ export function InvoiceEditor({
                   }}
                   className={`px-2.5 py-0.5 rounded text-[10px] font-semibold transition-colors cursor-pointer ${
                     current.tdsApplicable
-                      ? 'bg-[#08221B] text-[#ACBEA3]'
-                      : 'bg-white text-[#2C3330] border border-[#ACBEA3]/60'
+                      ? 'bg-[#FFA400] text-[#08221B]'
+                      : 'bg-[#08221B] text-[#ACBEA3] border border-[#ACBEA3]/40'
                   }`}
                 >
                   {current.tdsApplicable ? 'TDS Enabled' : 'Enable TDS'}
@@ -1575,14 +1648,19 @@ export function InvoiceEditor({
               {current.tdsApplicable && (
                 <div className="grid grid-cols-2 gap-2 pt-1 text-xs">
                   <div>
-                    <label className="text-[9px] font-montserrat font-bold text-[#2C3330] uppercase block mb-0.5">
+                    <label className="text-[9px] font-montserrat font-bold text-[#ACBEA3] uppercase block mb-0.5">
                       TDS SECTION &amp; RATE
                     </label>
                     <select
                       value={current.tdsRate || 10}
                       onChange={(e) => {
                         const rate = parseFloat(e.target.value) || 0;
-                        const section = rate === 10 ? '194J (10% Professional)' : rate === 2 ? '194J (2% Technical)' : `${rate}% Custom`;
+                        const section =
+                          rate === 10
+                            ? '194J (10% Professional)'
+                            : rate === 2
+                            ? '194J (2% Technical)'
+                            : `${rate}% Custom`;
                         recompute(
                           current.items,
                           current.discountType,
@@ -1600,7 +1678,7 @@ export function InvoiceEditor({
                           section
                         );
                       }}
-                      className="w-full px-2 py-1 bg-white border border-[#ACBEA3]/40 rounded-lg text-xs font-space-mono outline-none"
+                      className="w-full px-2 py-1.5 bg-[#08221B] border border-[#ACBEA3]/35 rounded-lg text-xs font-space-mono text-[#F8F4ED] outline-none"
                     >
                       <option value={10}>Sec. 194J — 10% (Professional)</option>
                       <option value={2}>Sec. 194J — 2% (Technical Services)</option>
@@ -1608,15 +1686,15 @@ export function InvoiceEditor({
                     </select>
                   </div>
 
-                  <div className="text-right">
-                    <span className="text-[9px] font-montserrat font-bold text-[#2C3330] uppercase block mb-0.5">
+                  <div className="p-2 rounded-lg bg-[#08221B] border border-rose-500/30 text-right">
+                    <span className="text-[9px] font-montserrat font-bold text-[#ACBEA3] uppercase block">
                       TDS AMOUNT DEDUCTED
                     </span>
-                    <span className="font-space-mono text-xs font-bold text-red-600 block pt-1">
+                    <span className="font-space-mono text-xs font-bold text-rose-400 block">
                       - {formatIndianCurrency(current.tdsAmount || 0)}
                     </span>
-                    <span className="text-[10px] text-[#2C3330]/70 font-poppins block">
-                      Net in Bank: {formatIndianCurrency(current.netReceivableAfterTds || 0)}
+                    <span className="text-[10px] text-[#ACBEA3] font-poppins block">
+                      Net: {formatIndianCurrency(current.netReceivableAfterTds || 0)}
                     </span>
                   </div>
                 </div>
@@ -1625,29 +1703,35 @@ export function InvoiceEditor({
           </div>
         </div>
 
-        {/* Comprehensive Discount Studio */}
-        <div className="p-6 bg-white border border-[#ACBEA3]/40 rounded-2xl shadow-xs space-y-4">
+        {/* Comprehensive Discount & Concession Studio */}
+        <div className="p-6 bg-[#08221B] border border-[#ACBEA3]/30 rounded-2xl shadow-lg space-y-4">
           <div className="flex items-center justify-between pb-2 border-b border-[#ACBEA3]/20">
             <div className="flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-[#FFA400]" />
-              <h3 className="text-sm font-bold font-montserrat text-[#08221B]">
+              <h3 className="text-sm font-bold font-montserrat text-[#F8F4ED]">
                 Discount &amp; Concession Engine
               </h3>
             </div>
-            {current.discountAmount > 0 && (
-              <span className="text-[11px] font-semibold bg-red-50 text-red-700 border border-red-200 px-2 py-0.5 rounded-full font-space-mono">
-                Saving ₹{current.discountAmount.toLocaleString('en-IN')}
-              </span>
-            )}
+            <span
+              className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full font-space-mono border ${
+                current.discountAmount > 0
+                  ? 'bg-[#FFA400]/20 text-[#FFA400] border-[#FFA400]/50'
+                  : 'bg-[#2C3330] text-[#ACBEA3] border-[#ACBEA3]/30'
+              }`}
+            >
+              {current.discountAmount > 0
+                ? `- ${formatIndianCurrency(current.discountAmount)}`
+                : '₹ 0.00 Disc.'}
+            </span>
           </div>
 
-          {/* Mode Selector & Custom Value */}
-          <div className="space-y-2">
+          {/* Mode Selector (Full-Width 2-Column Toggle) */}
+          <div className="space-y-2.5">
             <div className="flex items-center justify-between">
-              <span className="block text-[10px] font-montserrat font-bold text-[#2C3330] uppercase">
+              <span className="block text-[10px] font-montserrat font-bold text-[#ACBEA3] uppercase">
                 DISCOUNT CALCULATION MODE
               </span>
-              {current.discountValue > 0 && (
+              {(current.discountValue > 0 || current.discountAmount > 0) && (
                 <button
                   type="button"
                   onClick={() =>
@@ -1660,85 +1744,112 @@ export function InvoiceEditor({
                       current.gstRate
                     )
                   }
-                  className="text-[10px] text-red-600 hover:underline font-semibold cursor-pointer"
+                  className="text-[10px] text-rose-400 hover:underline font-semibold cursor-pointer"
                 >
                   Clear Discount (0)
                 </button>
               )}
             </div>
 
-            <div className="flex items-center gap-3">
-              <div className="flex bg-[#F8F4ED] border border-[#ACBEA3]/40 rounded-xl p-0.5 shrink-0">
-                <button
-                  type="button"
-                  onClick={() =>
-                    recompute(
-                      current.items,
-                      'percentage',
-                      current.discountValue,
-                      current.discountReason,
-                      current.gstType,
-                      current.gstRate
-                    )
-                  }
-                  className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all cursor-pointer ${
-                    current.discountType === 'percentage'
-                      ? 'bg-[#08221B] text-[#ACBEA3] font-semibold'
-                      : 'text-[#2C3330] hover:text-[#08221B]'
-                  }`}
-                >
-                  Percentage (%)
-                </button>
-                <button
-                  type="button"
-                  onClick={() =>
-                    recompute(
-                      current.items,
-                      'flat',
-                      current.discountValue,
-                      current.discountReason,
-                      current.gstType,
-                      current.gstRate
-                    )
-                  }
-                  className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all cursor-pointer ${
-                    current.discountType === 'flat'
-                      ? 'bg-[#08221B] text-[#ACBEA3] font-semibold'
-                      : 'text-[#2C3330] hover:text-[#08221B]'
-                  }`}
-                >
-                  Flat Amount (₹)
-                </button>
+            <div className="grid grid-cols-2 gap-2 bg-[#2C3330] border border-[#ACBEA3]/35 rounded-xl p-1">
+              <button
+                type="button"
+                onClick={() =>
+                  recompute(
+                    current.items,
+                    'percentage',
+                    current.discountValue,
+                    current.discountReason,
+                    current.gstType,
+                    current.gstRate
+                  )
+                }
+                className={`py-2 px-3 text-xs font-medium rounded-lg transition-all cursor-pointer text-center ${
+                  current.discountType === 'percentage'
+                    ? 'bg-[#FFA400] text-[#08221B] font-bold shadow-xs'
+                    : 'text-[#ACBEA3] hover:text-[#F8F4ED]'
+                }`}
+              >
+                Percentage (%)
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  recompute(
+                    current.items,
+                    'flat',
+                    current.discountValue,
+                    current.discountReason,
+                    current.gstType,
+                    current.gstRate
+                  )
+                }
+                className={`py-2 px-3 text-xs font-medium rounded-lg transition-all cursor-pointer text-center ${
+                  current.discountType === 'flat'
+                    ? 'bg-[#FFA400] text-[#08221B] font-bold shadow-xs'
+                    : 'text-[#ACBEA3] hover:text-[#F8F4ED]'
+                }`}
+              >
+                Flat Amount (₹)
+              </button>
+            </div>
+
+            {/* Dedicated 2-Box Row: Discount Input Box + Calculated Discount Amount (₹) Box */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+              {/* Box 1: Discount Value Input */}
+              <div className="p-3 rounded-xl bg-[#2C3330] border border-[#ACBEA3]/40 space-y-1">
+                <label className="block text-[9.5px] font-montserrat font-bold text-[#ACBEA3] uppercase">
+                  {current.discountType === 'percentage'
+                    ? 'DISCOUNT PERCENTAGE (%)'
+                    : 'FLAT DISCOUNT INPUT (₹)'}
+                </label>
+                <div className="relative flex items-center">
+                  <input
+                    type="number"
+                    min="0"
+                    max={current.discountType === 'percentage' ? 100 : undefined}
+                    value={current.discountValue}
+                    onChange={(e) => {
+                      const val = parseFloat(e.target.value) || 0;
+                      recompute(
+                        current.items,
+                        current.discountType,
+                        val,
+                        current.discountReason,
+                        current.gstType,
+                        current.gstRate
+                      );
+                    }}
+                    className="w-full pl-3 pr-14 py-2 bg-[#08221B] border border-[#ACBEA3]/45 rounded-lg text-sm font-space-mono font-bold text-[#F8F4ED] focus:border-[#FFA400] outline-none text-right"
+                  />
+                  <span className="pointer-events-none absolute right-2.5 text-[10px] font-space-mono font-bold text-[#FFA400] uppercase">
+                    {current.discountType === 'percentage' ? '% OFF' : '₹ FLAT'}
+                  </span>
+                </div>
               </div>
 
-              <div className="relative flex-1">
-                <input
-                  type="number"
-                  min="0"
-                  value={current.discountValue}
-                  onChange={(e) => {
-                    const val = parseFloat(e.target.value) || 0;
-                    recompute(
-                      current.items,
-                      current.discountType,
-                      val,
-                      current.discountReason,
-                      current.gstType,
-                      current.gstRate
-                    );
-                  }}
-                  className="w-full pl-14 pr-3 py-1.5 bg-[#F8F4ED] border border-[#ACBEA3]/40 rounded-xl text-xs font-space-mono text-[#08221B] focus:border-[#08221B] outline-none text-right font-bold"
-                />
-                <span className="pointer-events-none absolute left-2.5 top-2 text-[10px] text-[#2C3330]/60 font-semibold uppercase">
-                  {current.discountType === 'percentage' ? '% OFF' : '₹ FLAT'}
-                </span>
+              {/* Box 2: Calculated Discount Amount in ₹ */}
+              <div className="p-3 rounded-xl bg-[#2C3330] border border-[#FFA400]/55 space-y-1 flex flex-col justify-between">
+                <div className="flex items-center justify-between">
+                  <span className="text-[9.5px] font-montserrat font-bold text-[#FFA400] uppercase">
+                    DISCOUNT AMOUNT (₹)
+                  </span>
+                  <span className="text-[9.5px] font-space-mono text-[#ACBEA3]">
+                    {current.discountType === 'percentage'
+                      ? `${current.discountValue || 0}% of ₹${current.subtotal.toLocaleString('en-IN')}`
+                      : 'Flat Deduction'}
+                  </span>
+                </div>
+                <div className="w-full px-3 py-2 bg-[#08221B] border border-[#FFA400]/40 rounded-lg text-sm font-space-mono font-bold text-rose-400 text-right">
+                  - {formatIndianCurrency(current.discountAmount)}
+                </div>
               </div>
             </div>
           </div>
 
           {/* Quick Preset Chips for Faster Workflow */}
           <div className="space-y-1.5 pt-1">
-            <span className="block text-[10px] font-montserrat font-bold text-[#2C3330] uppercase">
+            <span className="block text-[10px] font-montserrat font-bold text-[#ACBEA3] uppercase">
               QUICK DISCOUNT PRESETS
             </span>
             <div className="flex flex-wrap gap-1.5">
@@ -1758,8 +1869,8 @@ export function InvoiceEditor({
                   }
                   className={`px-2.5 py-1 text-xs rounded-lg border font-space-mono font-medium transition-all cursor-pointer ${
                     current.discountType === 'percentage' && current.discountValue === pct
-                      ? 'bg-[#08221B] text-[#FFA400] border-[#08221B]'
-                      : 'bg-[#F8F4ED] text-[#2C3330] border-[#ACBEA3]/40 hover:border-[#08221B]'
+                      ? 'bg-[#FFA400] text-[#08221B] border-[#FFA400] font-bold'
+                      : 'bg-[#2C3330] text-[#F8F4ED] border-[#ACBEA3]/30 hover:border-[#FFA400]'
                   }`}
                 >
                   {pct === 0 ? 'No Disc.' : `${pct}%`}
@@ -1782,8 +1893,8 @@ export function InvoiceEditor({
                   }
                   className={`px-2.5 py-1 text-xs rounded-lg border font-space-mono font-medium transition-all cursor-pointer ${
                     current.discountType === 'flat' && current.discountValue === flatVal
-                      ? 'bg-[#08221B] text-[#FFA400] border-[#08221B]'
-                      : 'bg-[#F8F4ED] text-[#2C3330] border-[#ACBEA3]/40 hover:border-[#08221B]'
+                      ? 'bg-[#FFA400] text-[#08221B] border-[#FFA400] font-bold'
+                      : 'bg-[#2C3330] text-[#F8F4ED] border-[#ACBEA3]/30 hover:border-[#FFA400]'
                   }`}
                 >
                   ₹{flatVal.toLocaleString('en-IN')}
@@ -1794,7 +1905,7 @@ export function InvoiceEditor({
 
           {/* Discount Reason / Promo Code (Reflected on Live Bill) */}
           <div className="space-y-1.5 pt-2 border-t border-[#ACBEA3]/20">
-            <label className="block text-[10px] font-montserrat font-bold text-[#2C3330] uppercase">
+            <label className="block text-[10px] font-montserrat font-bold text-[#ACBEA3] uppercase">
               DISCOUNT TITLE / REASON (APPEARS ON LIVE BILL)
             </label>
             <input
@@ -1812,7 +1923,7 @@ export function InvoiceEditor({
                 );
               }}
               placeholder="e.g. Agency Retainer Discount / Early Bird Concession"
-              className="w-full px-3 py-1.5 bg-[#F8F4ED] border border-[#ACBEA3]/40 rounded-xl text-xs text-[#08221B] focus:border-[#08221B] outline-none"
+              className="w-full px-3 py-1.5 bg-[#2C3330] border border-[#ACBEA3]/35 rounded-xl text-xs text-[#F8F4ED] placeholder-[#ACBEA3]/45 focus:border-[#FFA400] outline-none"
             />
             {/* Quick Reason Suggestions */}
             <div className="flex flex-wrap gap-1 pt-1">
@@ -1830,7 +1941,7 @@ export function InvoiceEditor({
                       current.gstRate
                     )
                   }
-                  className="px-2 py-0.5 bg-[#F8F4ED] hover:bg-[#ACBEA3]/30 border border-[#ACBEA3]/40 rounded text-[10px] text-[#2C3330] transition-colors cursor-pointer"
+                  className="px-2 py-0.5 bg-[#2C3330] hover:bg-[#38423e] border border-[#ACBEA3]/30 rounded text-[10px] text-[#ACBEA3] hover:text-[#F8F4ED] transition-colors cursor-pointer"
                 >
                   + {sug}
                 </button>
@@ -1838,37 +1949,41 @@ export function InvoiceEditor({
             </div>
           </div>
 
-          {/* Quick Financial Summary */}
-          <div className="p-3 bg-[#F8F4ED]/80 border border-[#ACBEA3]/30 rounded-xl space-y-1.5 text-xs font-poppins mt-2">
-            <div className="flex justify-between">
-              <span className="text-[#2C3330]">Gross Subtotal:</span>
-              <span className="font-space-mono font-semibold text-[#08221B]">
+          {/* Quick Financial Summary Boxes (Always displays Discount Deduction & Net Totals) */}
+          <div className="p-3.5 bg-[#2C3330]/90 border border-[#ACBEA3]/35 rounded-xl space-y-2 text-xs font-poppins mt-2">
+            <div className="flex justify-between items-center">
+              <span className="text-[#ACBEA3]">Items Subtotal:</span>
+              <span className="font-space-mono font-semibold text-[#F8F4ED]">
                 {formatIndianCurrency(current.subtotal)}
               </span>
             </div>
-            {current.discountAmount > 0 && (
-              <div className="flex justify-between text-red-600">
-                <span>Discount Deduction:</span>
-                <span className="font-space-mono font-bold">
-                  - {formatIndianCurrency(current.discountAmount)}
-                </span>
-              </div>
-            )}
-            <div className="flex justify-between border-t border-[#ACBEA3]/20 pt-1">
-              <span className="text-[#2C3330] font-medium">Net Taxable Base:</span>
-              <span className="font-space-mono font-semibold text-[#08221B]">
+            <div className="flex justify-between items-center text-rose-400 bg-[#08221B]/70 px-2.5 py-1.5 rounded-lg border border-rose-500/30">
+              <span className="font-medium">
+                Discount Deduction{' '}
+                {current.discountType === 'percentage'
+                  ? `(${current.discountValue || 0}%)`
+                  : '(Flat)'}
+                :
+              </span>
+              <span className="font-space-mono font-bold">
+                - {formatIndianCurrency(current.discountAmount)}
+              </span>
+            </div>
+            <div className="flex justify-between items-center border-t border-[#ACBEA3]/20 pt-1.5">
+              <span className="text-[#ACBEA3] font-medium">Net Taxable Base:</span>
+              <span className="font-space-mono font-semibold text-[#F8F4ED]">
                 {formatIndianCurrency(current.taxableAmount)}
               </span>
             </div>
-            <div className="flex justify-between text-[#2C3330]">
+            <div className="flex justify-between items-center text-[#ACBEA3]">
               <span>Taxes ({current.gstType === 'zero' ? '0%' : `${current.gstRate}%`}):</span>
-              <span className="font-space-mono text-[#08221B]">
+              <span className="font-space-mono text-[#F8F4ED]">
                 + {formatIndianCurrency(current.totalTax)}
               </span>
             </div>
-            <div className="flex justify-between border-t border-[#08221B]/15 pt-1.5 text-sm font-bold font-montserrat text-[#08221B]">
+            <div className="flex justify-between items-center border-t border-[#ACBEA3]/25 pt-2 text-sm font-bold font-montserrat text-[#FFA400]">
               <span>Total Invoice Payable:</span>
-              <span className="font-space-mono text-[#08221B]">
+              <span className="font-space-mono text-[#FFA400]">
                 {formatIndianCurrency(current.totalAmountDue)}
               </span>
             </div>
@@ -1877,7 +1992,7 @@ export function InvoiceEditor({
       </div>
 
       {/* PAYMENT DISBURSEMENT SCHEDULE: SINGLE BILL OR 40-40-20 MILESTONE */}
-      <div className="p-6 bg-white border border-[#ACBEA3]/40 rounded-2xl shadow-xs space-y-4">
+      <div className="p-6 bg-[#08221B] border border-[#ACBEA3]/30 rounded-2xl shadow-lg space-y-4">
         {current.billingType === 'single' ? (
           /* Single Bill Payment Settlement Card */
           <div>
@@ -1885,10 +2000,10 @@ export function InvoiceEditor({
               <div className="flex items-center gap-2">
                 <Zap className="w-4 h-4 text-[#FFA400]" />
                 <div>
-                  <h3 className="text-sm font-bold font-montserrat text-[#08221B]">
+                  <h3 className="text-sm font-bold font-montserrat text-[#F8F4ED]">
                     Single Bill Payment Status (100% Full Payment)
                   </h3>
-                  <p className="text-xs text-[#2C3330]/70">
+                  <p className="text-xs text-[#ACBEA3]">
                     One-time payment for the entire invoice amount.
                   </p>
                 </div>
@@ -1896,30 +2011,30 @@ export function InvoiceEditor({
               <span
                 className={`font-poppins text-xs font-semibold px-3 py-1 rounded-full ${
                   current.singleBillPaid || current.masterStatus === 'PAID'
-                    ? 'bg-[#08221B] text-[#ACBEA3]'
-                    : 'bg-red-50 text-red-600 border border-red-200'
+                    ? 'bg-[#ACBEA3]/20 text-[#ACBEA3] border border-[#ACBEA3]/40'
+                    : 'bg-rose-500/20 text-rose-300 border border-rose-500/40'
                 }`}
               >
                 {current.singleBillPaid || current.masterStatus === 'PAID' ? 'PAID' : 'DUE / UNPAID'}
               </span>
             </div>
 
-            <div className="pt-3 flex flex-wrap items-center justify-between gap-4 p-4 bg-[#F8F4ED]/60 border border-[#ACBEA3]/30 rounded-xl">
+            <div className="pt-3 flex flex-wrap items-center justify-between gap-4 p-4 bg-[#2C3330]/75 border border-[#ACBEA3]/30 rounded-xl mt-3">
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <span className="font-montserrat font-bold text-sm text-[#08221B]">
+                  <span className="font-montserrat font-bold text-sm text-[#F8F4ED]">
                     Full Settlement (100%)
                   </span>
                   {current.singleBillPaid && current.singleBillPaidAt && (
-                    <span className="text-xs text-[#2C3330]/70 font-poppins">
+                    <span className="text-xs text-[#ACBEA3] font-poppins">
                       Cleared on {current.singleBillPaidAt}
                     </span>
                   )}
                 </div>
-                <div className="font-space-mono text-lg font-bold text-[#08221B]">
+                <div className="font-space-mono text-lg font-bold text-[#FFA400]">
                   {formatIndianCurrency(current.totalAmountDue)}
                 </div>
-                <p className="text-xs text-[#2C3330]/70">
+                <p className="text-xs text-[#ACBEA3]">
                   Due on {current.dueDate || 'Upon delivery'}
                 </p>
               </div>
@@ -1930,7 +2045,7 @@ export function InvoiceEditor({
                   onClick={handleToggleSingleBillPaid}
                   className={`px-4 py-2 rounded-xl text-xs font-poppins font-semibold flex items-center gap-2 transition-all cursor-pointer ${
                     current.singleBillPaid || current.masterStatus === 'PAID'
-                      ? 'bg-[#08221B] text-[#ACBEA3] hover:bg-[#08221B]/90'
+                      ? 'bg-[#08221B] text-[#ACBEA3] border border-[#ACBEA3]/40 hover:border-[#FFA400]'
                       : 'bg-[#FFA400] text-[#08221B] hover:bg-[#e69400] shadow-xs active:scale-95'
                   }`}
                 >
@@ -1954,12 +2069,12 @@ export function InvoiceEditor({
           <div>
             <div className="flex items-center justify-between pb-2 border-b border-[#ACBEA3]/20">
               <div className="flex items-center gap-2">
-                <Layers className="w-4 h-4 text-[#08221B]" />
+                <Layers className="w-4 h-4 text-[#FFA400]" />
                 <div>
-                  <h3 className="text-sm font-bold font-montserrat text-[#08221B]">
+                  <h3 className="text-sm font-bold font-montserrat text-[#F8F4ED]">
                     40% — 40% — 20% Milestone Schedule
                   </h3>
-                  <p className="text-xs text-[#2C3330]/70">
+                  <p className="text-xs text-[#ACBEA3]">
                     Independent phase toggles sync master status automatically.
                   </p>
                 </div>
@@ -1967,10 +2082,10 @@ export function InvoiceEditor({
               <span
                 className={`font-poppins text-xs font-semibold px-2.5 py-0.5 rounded-full ${
                   current.masterStatus === 'PAID'
-                    ? 'bg-[#08221B] text-[#ACBEA3]'
+                    ? 'bg-[#ACBEA3]/20 text-[#ACBEA3] border border-[#ACBEA3]/40'
                     : current.masterStatus === 'PARTIALLY PAID'
-                    ? 'bg-[#FFA400]/20 text-[#08221B] border border-[#FFA400]/60'
-                    : 'bg-red-50 text-red-600 border border-red-200'
+                    ? 'bg-[#FFA400]/20 text-[#FFA400] border border-[#FFA400]/50'
+                    : 'bg-rose-500/20 text-rose-300 border border-rose-500/40'
                 }`}
               >
                 {current.masterStatus}
@@ -1985,25 +2100,25 @@ export function InvoiceEditor({
                     key={phase.phaseId}
                     className={`flex items-center justify-between p-3 rounded-xl border transition-all ${
                       isPaid
-                        ? 'bg-[#ACBEA3]/15 border-[#ACBEA3]'
-                        : 'bg-[#F8F4ED]/50 border-[#ACBEA3]/30'
+                        ? 'bg-[#2C3330] border-[#ACBEA3]/60'
+                        : 'bg-[#2C3330]/50 border-[#ACBEA3]/25'
                     }`}
                   >
                     <div className="space-y-0.5">
                       <div className="flex items-center gap-2">
-                        <span className="font-montserrat font-bold text-xs text-[#08221B]">
+                        <span className="font-montserrat font-bold text-xs text-[#F8F4ED]">
                           Phase {phase.phaseId} ({phase.percentage}%)
                         </span>
                         {phase.paidAt && (
-                          <span className="text-[10px] text-[#2C3330]/70">
+                          <span className="text-[10px] text-[#ACBEA3]">
                             Cleared {phase.paidAt}
                           </span>
                         )}
                       </div>
-                      <p className="text-xs text-[#2C3330]/80">
+                      <p className="text-xs text-[#ACBEA3]">
                         {phase.name.split(':')[1]?.trim() || phase.name}
                       </p>
-                      <div className="font-space-mono text-sm font-bold text-[#08221B]">
+                      <div className="font-space-mono text-sm font-bold text-[#FFA400]">
                         ₹{phase.amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                       </div>
                     </div>
@@ -2013,8 +2128,8 @@ export function InvoiceEditor({
                       onClick={() => handleMilestoneToggle(phase.phaseId)}
                       className={`cursor-pointer px-3 py-1.5 rounded-xl text-xs font-poppins font-semibold flex items-center gap-1.5 transition-all ${
                         isPaid
-                          ? 'bg-[#08221B] text-[#ACBEA3]'
-                          : 'bg-white text-[#08221B] border border-[#ACBEA3] hover:bg-[#ACBEA3]/20'
+                          ? 'bg-[#08221B] text-[#ACBEA3] border border-[#ACBEA3]/40'
+                          : 'bg-[#FFA400] text-[#08221B] hover:bg-[#ffb426]'
                       }`}
                     >
                       {isPaid ? (
@@ -2036,17 +2151,17 @@ export function InvoiceEditor({
       </div>
 
       {/* Bank Settlement & Terms */}
-      <div className="p-6 bg-white border border-[#ACBEA3]/40 rounded-2xl shadow-xs space-y-4">
+      <div className="p-6 bg-[#08221B] border border-[#ACBEA3]/30 rounded-2xl shadow-lg space-y-4">
         <div className="flex items-center gap-2 pb-2 border-b border-[#ACBEA3]/20">
           <CreditCard className="w-4 h-4 text-[#FFA400]" />
-          <h3 className="text-sm font-bold font-montserrat text-[#08221B]">
+          <h3 className="text-sm font-bold font-montserrat text-[#F8F4ED]">
             Settlement Instructions &amp; Contractual Terms
           </h3>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
-            <label className="block text-[10px] font-montserrat font-bold text-[#2C3330] uppercase mb-1">
+            <label className="block text-[10px] font-montserrat font-bold text-[#ACBEA3] uppercase mb-1">
               BANK NAME
             </label>
             <input
@@ -2061,12 +2176,12 @@ export function InvoiceEditor({
                 setCurrent(updated);
                 onLiveUpdate?.(updated);
               }}
-              className="w-full px-2.5 py-1.5 bg-[#F8F4ED] border border-[#ACBEA3]/40 rounded-xl text-xs text-[#08221B] focus:border-[#08221B] outline-none"
+              className="w-full px-2.5 py-1.5 bg-[#2C3330] border border-[#ACBEA3]/35 rounded-xl text-xs text-[#F8F4ED] focus:border-[#FFA400] outline-none"
             />
           </div>
 
           <div>
-            <label className="block text-[10px] font-montserrat font-bold text-[#2C3330] uppercase mb-1">
+            <label className="block text-[10px] font-montserrat font-bold text-[#ACBEA3] uppercase mb-1">
               ACCOUNT NUMBER
             </label>
             <input
@@ -2084,12 +2199,12 @@ export function InvoiceEditor({
                 setCurrent(updated);
                 onLiveUpdate?.(updated);
               }}
-              className="w-full px-2.5 py-1.5 bg-[#F8F4ED] border border-[#ACBEA3]/40 rounded-xl text-xs font-space-mono text-[#08221B] focus:border-[#08221B] outline-none"
+              className="w-full px-2.5 py-1.5 bg-[#2C3330] border border-[#ACBEA3]/35 rounded-xl text-xs font-space-mono text-[#F8F4ED] focus:border-[#FFA400] outline-none"
             />
           </div>
 
           <div>
-            <label className="block text-[10px] font-montserrat font-bold text-[#2C3330] uppercase mb-1">
+            <label className="block text-[10px] font-montserrat font-bold text-[#ACBEA3] uppercase mb-1">
               UPI ID (VPA) FOR QR CODE
             </label>
             <input
@@ -2105,13 +2220,13 @@ export function InvoiceEditor({
                 onLiveUpdate?.(updated);
               }}
               placeholder="theindianpixel@okaxis"
-              className="w-full px-2.5 py-1.5 bg-[#F8F4ED] border border-[#ACBEA3]/40 rounded-xl text-xs font-space-mono text-[#08221B] focus:border-[#08221B] outline-none"
+              className="w-full px-2.5 py-1.5 bg-[#2C3330] border border-[#ACBEA3]/35 rounded-xl text-xs font-space-mono text-[#F8F4ED] placeholder-[#ACBEA3]/45 focus:border-[#FFA400] outline-none"
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-[10px] font-montserrat font-bold text-[#2C3330] uppercase mb-1">
+          <label className="block text-[10px] font-montserrat font-bold text-[#ACBEA3] uppercase mb-1">
             TERMS &amp; CONDITIONS (EDITABLE)
           </label>
           <textarea
@@ -2123,7 +2238,7 @@ export function InvoiceEditor({
               setCurrent(updated);
               onLiveUpdate?.(updated);
             }}
-            className="w-full px-3 py-2 bg-[#F8F4ED] border border-[#ACBEA3]/40 rounded-xl text-xs text-[#2C3330] focus:border-[#08221B] outline-none resize-none font-poppins"
+            className="w-full px-3 py-2 bg-[#2C3330] border border-[#ACBEA3]/35 rounded-xl text-xs text-[#F8F4ED] focus:border-[#FFA400] outline-none resize-none font-poppins"
           />
         </div>
       </div>

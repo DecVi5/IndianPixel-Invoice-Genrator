@@ -1,7 +1,7 @@
 import { useState, ChangeEvent } from 'react';
 import { StudioConfig } from '../types/invoice.ts';
 import { BrandLogo } from './BrandLogo.tsx';
-import { X, Save, Upload, RotateCcw, Building, CreditCard, FileCheck } from 'lucide-react';
+import { X, Save, Upload, RotateCcw, Building, CreditCard, FileCheck, Target } from 'lucide-react';
 
 interface StudioSettingsModalProps {
   isOpen: boolean;
@@ -46,21 +46,21 @@ export function StudioSettingsModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs no-print font-poppins">
-      <div className="bg-white border border-[#ACBEA3]/50 rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md no-print font-poppins text-[#F8F4ED]">
+      <div className="bg-[#08221B] border border-[#ACBEA3]/40 rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-[#ACBEA3]/20 sticky top-0 bg-white z-10">
+        <div className="flex items-center justify-between p-6 border-b border-[#ACBEA3]/20 sticky top-0 bg-[#08221B] z-10">
           <div>
-            <h2 className="text-base font-bold font-montserrat text-[#08221B] tracking-tight">
+            <h2 className="text-base font-bold font-montserrat text-[#F8F4ED] tracking-tight">
               Studio Configuration &amp; Branding
             </h2>
-            <p className="text-xs text-[#2C3330]/70">
+            <p className="text-xs text-[#ACBEA3]">
               Settings persist across all new and exported invoices.
             </p>
           </div>
           <button
             onClick={onClose}
-            className="p-2 text-[#2C3330]/70 hover:text-[#08221B] rounded-full hover:bg-[#F8F4ED] transition-colors"
+            className="p-2 text-[#ACBEA3] hover:text-[#F8F4ED] rounded-full hover:bg-[#2C3330] transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -68,25 +68,48 @@ export function StudioSettingsModal({
 
         {/* Form Body */}
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
+          {/* Financial Goal Target */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 pb-1 border-b border-[#ACBEA3]/20 text-xs font-bold font-montserrat text-[#F8F4ED]">
+              <Target className="w-4 h-4 text-[#FFA400]" />
+              <span>Studio Financial Goal Target (₹)</span>
+            </div>
+            <div>
+              <label className="block text-[10px] font-montserrat font-bold text-[#ACBEA3] uppercase mb-1">
+                TARGET FINANCIAL GOAL (REDUCED BY EVERY TRANSACTION)
+              </label>
+              <input
+                type="number"
+                min={0}
+                step={1000}
+                value={formData.financialGoal ?? 500000}
+                onChange={(e) =>
+                  setFormData({ ...formData, financialGoal: Math.max(0, Number(e.target.value) || 0) })
+                }
+                className="w-full px-3 py-2 bg-[#2C3330] border border-[#ACBEA3]/40 rounded-xl text-xs font-space-mono font-bold text-[#F8F4ED] focus:border-[#FFA400] outline-none"
+              />
+            </div>
+          </div>
+
           {/* Logo & Brand Identity */}
           <div className="space-y-3">
-            <div className="flex items-center gap-2 pb-1 border-b border-[#ACBEA3]/20 text-xs font-bold font-montserrat text-[#08221B]">
+            <div className="flex items-center gap-2 pb-1 border-b border-[#ACBEA3]/20 text-xs font-bold font-montserrat text-[#F8F4ED]">
               <Building className="w-4 h-4 text-[#FFA400]" />
               <span>Studio Brand Mark</span>
             </div>
 
-            <div className="flex items-center gap-4 p-4 bg-[#F8F4ED] border border-[#ACBEA3]/40 rounded-2xl">
+            <div className="flex items-center gap-4 p-4 bg-[#2C3330] border border-[#ACBEA3]/35 rounded-2xl">
               <div className="w-16 h-16 flex items-center justify-center bg-[#08221B] border border-[#ACBEA3]/40 rounded-2xl p-2.5 shrink-0 shadow-md">
                 <BrandLogo customLogoUrl={logoPreview} size="md" variant="icon" theme="white" withText={false} />
               </div>
 
               <div className="flex-1 space-y-2">
-                <div className="text-xs text-[#08221B] font-semibold">
+                <div className="text-xs text-[#F8F4ED] font-semibold">
                   {logoPreview ? 'Custom Studio Logo Uploaded' : 'Indian Pixel Geometric Star Mark'}
                 </div>
                 <div className="flex items-center gap-2">
-                  <label className="cursor-pointer px-3.5 py-1.5 bg-[#08221B] hover:bg-[#2C3330] text-xs font-semibold text-white rounded-xl transition-colors inline-flex items-center gap-1.5 shadow-xs">
-                    <Upload className="w-3.5 h-3.5" />
+                  <label className="cursor-pointer px-3.5 py-1.5 bg-[#08221B] hover:bg-[#10382d] border border-[#ACBEA3]/40 text-xs font-semibold text-[#F8F4ED] rounded-xl transition-colors inline-flex items-center gap-1.5 shadow-xs">
+                    <Upload className="w-3.5 h-3.5 text-[#FFA400]" />
                     <span>Upload Logo (PNG/SVG)</span>
                     <input
                       type="file"
@@ -100,7 +123,7 @@ export function StudioSettingsModal({
                     <button
                       type="button"
                       onClick={handleResetLogo}
-                      className="px-3.5 py-1.5 text-xs text-[#2C3330] hover:text-[#08221B] hover:bg-white rounded-xl transition-colors inline-flex items-center gap-1 border border-[#ACBEA3]"
+                      className="px-3.5 py-1.5 text-xs text-[#ACBEA3] hover:text-[#F8F4ED] hover:bg-[#08221B] rounded-xl transition-colors inline-flex items-center gap-1 border border-[#ACBEA3]/40 cursor-pointer"
                     >
                       <RotateCcw className="w-3.5 h-3.5" />
                       <span>Reset</span>
@@ -115,7 +138,7 @@ export function StudioSettingsModal({
           <div className="space-y-3">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-[10px] font-montserrat font-bold text-[#2C3330] uppercase mb-1">
+                <label className="block text-[10px] font-montserrat font-bold text-[#ACBEA3] uppercase mb-1">
                   STUDIO NAME
                 </label>
                 <input
@@ -125,12 +148,12 @@ export function StudioSettingsModal({
                     setFormData({ ...formData, studioName: e.target.value })
                   }
                   required
-                  className="w-full px-3 py-2 bg-[#F8F4ED] border border-[#ACBEA3]/40 rounded-xl text-xs text-[#08221B] focus:border-[#08221B] outline-none"
+                  className="w-full px-3 py-2 bg-[#2C3330] border border-[#ACBEA3]/40 rounded-xl text-xs text-[#F8F4ED] focus:border-[#FFA400] outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-[10px] font-montserrat font-bold text-[#2C3330] uppercase mb-1">
+                <label className="block text-[10px] font-montserrat font-bold text-[#ACBEA3] uppercase mb-1">
                   OFFICIAL EMAIL
                 </label>
                 <input
@@ -140,12 +163,12 @@ export function StudioSettingsModal({
                     setFormData({ ...formData, email: e.target.value })
                   }
                   required
-                  className="w-full px-3 py-2 bg-[#F8F4ED] border border-[#ACBEA3]/40 rounded-xl text-xs text-[#08221B] focus:border-[#08221B] outline-none"
+                  className="w-full px-3 py-2 bg-[#2C3330] border border-[#ACBEA3]/40 rounded-xl text-xs text-[#F8F4ED] focus:border-[#FFA400] outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-[10px] font-montserrat font-bold text-[#2C3330] uppercase mb-1">
+                <label className="block text-[10px] font-montserrat font-bold text-[#ACBEA3] uppercase mb-1">
                   STUDIO PHONE
                 </label>
                 <input
@@ -154,12 +177,12 @@ export function StudioSettingsModal({
                   onChange={(e) =>
                     setFormData({ ...formData, phone: e.target.value })
                   }
-                  className="w-full px-3 py-2 bg-[#F8F4ED] border border-[#ACBEA3]/40 rounded-xl text-xs text-[#08221B] focus:border-[#08221B] outline-none"
+                  className="w-full px-3 py-2 bg-[#2C3330] border border-[#ACBEA3]/40 rounded-xl text-xs text-[#F8F4ED] focus:border-[#FFA400] outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-[10px] font-montserrat font-bold text-[#2C3330] uppercase mb-1">
+                <label className="block text-[10px] font-montserrat font-bold text-[#ACBEA3] uppercase mb-1">
                   STUDIO WEBSITE
                 </label>
                 <input
@@ -168,12 +191,12 @@ export function StudioSettingsModal({
                   onChange={(e) =>
                     setFormData({ ...formData, web: e.target.value })
                   }
-                  className="w-full px-3 py-2 bg-[#F8F4ED] border border-[#ACBEA3]/40 rounded-xl text-xs text-[#08221B] focus:border-[#08221B] outline-none"
+                  className="w-full px-3 py-2 bg-[#2C3330] border border-[#ACBEA3]/40 rounded-xl text-xs text-[#F8F4ED] focus:border-[#FFA400] outline-none"
                 />
               </div>
 
               <div className="sm:col-span-2">
-                <label className="block text-[10px] font-montserrat font-bold text-[#2C3330] uppercase mb-1">
+                <label className="block text-[10px] font-montserrat font-bold text-[#ACBEA3] uppercase mb-1">
                   OFFICIAL ADDRESS (OPTIONAL — ONLINE STUDIO)
                 </label>
                 <input
@@ -183,18 +206,18 @@ export function StudioSettingsModal({
                     setFormData({ ...formData, address: e.target.value })
                   }
                   placeholder="Studio operates 100% online (no physical address)"
-                  className="w-full px-3 py-2 bg-[#F8F4ED] border border-[#ACBEA3]/40 rounded-xl text-xs text-[#08221B] focus:border-[#08221B] outline-none placeholder-[#2C3330]/40"
+                  className="w-full px-3 py-2 bg-[#2C3330] border border-[#ACBEA3]/40 rounded-xl text-xs text-[#F8F4ED] focus:border-[#FFA400] outline-none placeholder-[#ACBEA3]/50"
                 />
               </div>
             </div>
 
             {/* GSTIN Configuration */}
-            <div className="p-3.5 bg-[#F8F4ED] border border-[#ACBEA3]/40 rounded-2xl space-y-2">
+            <div className="p-3.5 bg-[#2C3330] border border-[#ACBEA3]/35 rounded-2xl space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-montserrat font-bold text-[#08221B]">
+                <span className="text-xs font-montserrat font-bold text-[#F8F4ED]">
                   GST REGISTRATION STATUS
                 </span>
-                <label className="flex items-center gap-2 cursor-pointer text-xs text-[#2C3330]">
+                <label className="flex items-center gap-2 cursor-pointer text-xs text-[#ACBEA3]">
                   <input
                     type="checkbox"
                     checked={formData.isGstRegistered}
@@ -204,25 +227,25 @@ export function StudioSettingsModal({
                         isGstRegistered: e.target.checked,
                       })
                     }
-                    className="accent-[#08221B]"
+                    className="accent-[#FFA400]"
                   />
                   <span>GST Registered Entity</span>
                 </label>
               </div>
 
               {!formData.isGstRegistered ? (
-                <div className="p-2.5 bg-white/80 border border-[#ACBEA3]/50 rounded-xl space-y-1">
-                  <div className="flex items-center gap-1.5 text-xs font-semibold text-[#08221B]">
+                <div className="p-2.5 bg-[#08221B] border border-[#ACBEA3]/30 rounded-xl space-y-1">
+                  <div className="flex items-center gap-1.5 text-xs font-semibold text-[#F8F4ED]">
                     <span className="w-2 h-2 rounded-full bg-[#FFA400]"></span>
                     <span>GST Status: Unregistered / Exempt under Section 22 of CGST Act</span>
                   </div>
-                  <p className="text-[10.5px] text-[#2C3330]/80 leading-relaxed font-poppins">
+                  <p className="text-[10.5px] text-[#ACBEA3] leading-relaxed font-poppins">
                     Indian Pixel operates within statutory turnover threshold exemption limits. Invoices are issued as exempt without collecting GST until you update this setting.
                   </p>
                 </div>
               ) : (
                 <div>
-                  <label className="block text-[10px] font-montserrat font-bold text-[#2C3330] mb-1">
+                  <label className="block text-[10px] font-montserrat font-bold text-[#ACBEA3] mb-1">
                     STUDIO GSTIN NUMBER
                   </label>
                   <input
@@ -232,13 +255,13 @@ export function StudioSettingsModal({
                       setFormData({ ...formData, gstin: e.target.value })
                     }
                     placeholder="e.g. 07AABCU9603R1ZX"
-                    className="w-full px-3 py-1.5 bg-white border border-[#ACBEA3]/40 rounded-xl text-xs font-space-mono text-[#08221B] focus:border-[#08221B] outline-none"
+                    className="w-full px-3 py-1.5 bg-[#08221B] border border-[#ACBEA3]/40 rounded-xl text-xs font-space-mono text-[#F8F4ED] focus:border-[#FFA400] outline-none"
                   />
                 </div>
               )}
 
-              <div className="pt-2 border-t border-[#ACBEA3]/30">
-                <label className="block text-[10px] font-montserrat font-bold text-[#2C3330] mb-1">
+              <div className="pt-2 border-t border-[#ACBEA3]/20">
+                <label className="block text-[10px] font-montserrat font-bold text-[#ACBEA3] mb-1">
                   PERMANENT ACCOUNT NUMBER (PAN)
                 </label>
                 <input
@@ -248,7 +271,7 @@ export function StudioSettingsModal({
                     setFormData({ ...formData, pan: e.target.value.toUpperCase() })
                   }
                   placeholder="e.g. KJKPD8069P"
-                  className="w-full px-3 py-1.5 bg-white border border-[#ACBEA3]/40 rounded-xl text-xs font-space-mono text-[#08221B] focus:border-[#08221B] outline-none uppercase"
+                  className="w-full px-3 py-1.5 bg-[#08221B] border border-[#ACBEA3]/40 rounded-xl text-xs font-space-mono text-[#F8F4ED] focus:border-[#FFA400] outline-none uppercase"
                 />
               </div>
             </div>
@@ -256,14 +279,14 @@ export function StudioSettingsModal({
 
           {/* Settlement Details */}
           <div className="space-y-3">
-            <div className="flex items-center gap-2 pb-1 border-b border-[#ACBEA3]/20 text-xs font-bold font-montserrat text-[#08221B]">
+            <div className="flex items-center gap-2 pb-1 border-b border-[#ACBEA3]/20 text-xs font-bold font-montserrat text-[#F8F4ED]">
               <CreditCard className="w-4 h-4 text-[#FFA400]" />
               <span>Default Settlement &amp; UPI Account</span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-[10px] font-montserrat font-bold text-[#2C3330] uppercase mb-1">
+                <label className="block text-[10px] font-montserrat font-bold text-[#ACBEA3] uppercase mb-1">
                   BANK NAME
                 </label>
                 <input
@@ -272,12 +295,12 @@ export function StudioSettingsModal({
                   onChange={(e) =>
                     setFormData({ ...formData, bankName: e.target.value })
                   }
-                  className="w-full px-3 py-2 bg-[#F8F4ED] border border-[#ACBEA3]/40 rounded-xl text-xs text-[#08221B] focus:border-[#08221B] outline-none"
+                  className="w-full px-3 py-2 bg-[#2C3330] border border-[#ACBEA3]/40 rounded-xl text-xs text-[#F8F4ED] focus:border-[#FFA400] outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-[10px] font-montserrat font-bold text-[#2C3330] uppercase mb-1">
+                <label className="block text-[10px] font-montserrat font-bold text-[#ACBEA3] uppercase mb-1">
                   ACCOUNT NAME
                 </label>
                 <input
@@ -286,12 +309,12 @@ export function StudioSettingsModal({
                   onChange={(e) =>
                     setFormData({ ...formData, accountName: e.target.value })
                   }
-                  className="w-full px-3 py-2 bg-[#F8F4ED] border border-[#ACBEA3]/40 rounded-xl text-xs text-[#08221B] focus:border-[#08221B] outline-none"
+                  className="w-full px-3 py-2 bg-[#2C3330] border border-[#ACBEA3]/40 rounded-xl text-xs text-[#F8F4ED] focus:border-[#FFA400] outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-[10px] font-montserrat font-bold text-[#2C3330] uppercase mb-1">
+                <label className="block text-[10px] font-montserrat font-bold text-[#ACBEA3] uppercase mb-1">
                   ACCOUNT NUMBER
                 </label>
                 <input
@@ -300,12 +323,12 @@ export function StudioSettingsModal({
                   onChange={(e) =>
                     setFormData({ ...formData, accountNumber: e.target.value })
                   }
-                  className="w-full px-3 py-2 bg-[#F8F4ED] border border-[#ACBEA3]/40 rounded-xl text-xs font-space-mono text-[#08221B] focus:border-[#08221B] outline-none"
+                  className="w-full px-3 py-2 bg-[#2C3330] border border-[#ACBEA3]/40 rounded-xl text-xs font-space-mono text-[#F8F4ED] focus:border-[#FFA400] outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-[10px] font-montserrat font-bold text-[#2C3330] uppercase mb-1">
+                <label className="block text-[10px] font-montserrat font-bold text-[#ACBEA3] uppercase mb-1">
                   IFSC CODE
                 </label>
                 <input
@@ -314,12 +337,12 @@ export function StudioSettingsModal({
                   onChange={(e) =>
                     setFormData({ ...formData, ifscCode: e.target.value })
                   }
-                  className="w-full px-3 py-2 bg-[#F8F4ED] border border-[#ACBEA3]/40 rounded-xl text-xs font-space-mono text-[#08221B] focus:border-[#08221B] outline-none"
+                  className="w-full px-3 py-2 bg-[#2C3330] border border-[#ACBEA3]/40 rounded-xl text-xs font-space-mono text-[#F8F4ED] focus:border-[#FFA400] outline-none"
                 />
               </div>
 
               <div className="sm:col-span-2">
-                <label className="block text-[10px] font-montserrat font-bold text-[#2C3330] uppercase mb-1">
+                <label className="block text-[10px] font-montserrat font-bold text-[#ACBEA3] uppercase mb-1">
                   UPI ID (VPA) FOR SCANNABLE QR
                 </label>
                 <input
@@ -329,7 +352,7 @@ export function StudioSettingsModal({
                     setFormData({ ...formData, upiId: e.target.value })
                   }
                   placeholder="theindianpixel@okaxis"
-                  className="w-full px-3 py-2 bg-[#F8F4ED] border border-[#ACBEA3]/40 rounded-xl text-xs font-space-mono text-[#08221B] focus:border-[#08221B] outline-none"
+                  className="w-full px-3 py-2 bg-[#2C3330] border border-[#ACBEA3]/40 rounded-xl text-xs font-space-mono text-[#F8F4ED] focus:border-[#FFA400] outline-none"
                 />
               </div>
             </div>
@@ -337,7 +360,7 @@ export function StudioSettingsModal({
 
           {/* Default Terms */}
           <div className="space-y-2">
-            <div className="flex items-center gap-2 pb-1 border-b border-[#ACBEA3]/20 text-xs font-bold font-montserrat text-[#08221B]">
+            <div className="flex items-center gap-2 pb-1 border-b border-[#ACBEA3]/20 text-xs font-bold font-montserrat text-[#F8F4ED]">
               <FileCheck className="w-4 h-4 text-[#FFA400]" />
               <span>Standard Contractual Terms</span>
             </div>
@@ -347,7 +370,7 @@ export function StudioSettingsModal({
               onChange={(e) =>
                 setFormData({ ...formData, defaultTerms: e.target.value })
               }
-              className="w-full px-3 py-2 bg-[#F8F4ED] border border-[#ACBEA3]/40 rounded-xl text-xs text-[#2C3330] focus:border-[#08221B] outline-none resize-none font-poppins"
+              className="w-full px-3 py-2 bg-[#2C3330] border border-[#ACBEA3]/40 rounded-xl text-xs text-[#F8F4ED] focus:border-[#FFA400] outline-none resize-none font-poppins"
             />
           </div>
 
@@ -356,13 +379,13 @@ export function StudioSettingsModal({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-xs font-medium text-[#2C3330] hover:text-[#08221B] rounded-xl transition-colors"
+              className="px-4 py-2 text-xs font-medium text-[#ACBEA3] hover:text-[#F8F4ED] rounded-xl transition-colors cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-6 py-2.5 text-xs font-bold font-montserrat text-[#08221B] bg-[#FFA400] hover:bg-[#e69400] rounded-xl transition-all active:scale-[0.98] flex items-center gap-1.5 shadow-xs"
+              className="px-6 py-2.5 text-xs font-bold font-montserrat text-[#08221B] bg-[#FFA400] hover:bg-[#e69400] rounded-xl transition-all active:scale-[0.98] flex items-center gap-1.5 shadow-xs cursor-pointer"
             >
               <Save className="w-4 h-4" />
               <span>Save Studio Settings</span>
