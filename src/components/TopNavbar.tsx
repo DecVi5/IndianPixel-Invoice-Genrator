@@ -106,9 +106,9 @@ export function TopNavbar({
   };
 
   return (
-    <header className="relative z-30 w-full px-3 sm:px-6 py-2.5 flex flex-wrap lg:flex-nowrap items-center justify-between gap-2.5 border-b border-[#ACBEA3]/20 bg-[#08221B]/95 backdrop-blur-md select-none">
-      {/* Left: Mobile Drawer Trigger + Brand Identity */}
-      <div className="flex items-center gap-2.5 sm:gap-3.5 shrink-0">
+    <header className="relative z-30 w-full px-5 sm:px-8 lg:px-10 py-3.5 flex flex-wrap lg:flex-nowrap items-center justify-between gap-4 border-b border-[#ACBEA3]/15 bg-[#08221B]/95 backdrop-blur-xl select-none">
+      {/* Left: Mobile Drawer Trigger + Brand Identity (No background box on logo) */}
+      <div className="flex items-center gap-3 sm:gap-4 shrink-0">
         {onToggleMobileMenu && (
           <button
             type="button"
@@ -120,25 +120,23 @@ export function TopNavbar({
           </button>
         )}
 
-        {/* Brand Mark & Title */}
+        {/* Brand Mark & Title — Clean transparent logo without background box */}
         <div
           onClick={() => setActiveTab('home')}
-          className="flex items-center gap-2.5 cursor-pointer group"
+          className="flex items-center gap-3 cursor-pointer group"
         >
-          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#2C3330] border border-[#ACBEA3]/40 flex items-center justify-center p-1.5 shadow-xs group-hover:border-[#FFA400] transition-colors">
-            <BrandLogo
-              customLogoUrl={studioConfig.logoDataUrl}
-              size="sm"
-              variant="icon"
-              theme="white"
-              withText={false}
-            />
-          </div>
+          <BrandLogo
+            customLogoUrl={studioConfig.logoDataUrl}
+            size="sm"
+            variant="icon"
+            theme="white"
+            withText={false}
+          />
           <div>
-            <span className="font-montserrat font-bold text-xs sm:text-sm text-[#F8F4ED] tracking-tight block">
+            <span className="font-montserrat font-bold text-sm sm:text-base text-[#F8F4ED] tracking-tight block leading-tight">
               {studioConfig.studioName || 'Indian Pixel'}
             </span>
-            <span className="text-[10px] text-[#ACBEA3] font-space-mono hidden sm:block -mt-0.5">
+            <span className="text-[10px] text-[#ACBEA3] font-space-mono hidden sm:block">
               Financial Suite
             </span>
           </div>

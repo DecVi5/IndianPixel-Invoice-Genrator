@@ -746,7 +746,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen p-0 sm:p-3 lg:p-6 flex items-center justify-center font-poppins antialiased bg-[#2C3330] text-[#F8F4ED]">
+    <div className="w-full h-screen min-h-screen overflow-hidden flex flex-col font-poppins antialiased bg-[#08221B] text-[#F8F4ED]">
       {/* Hidden file input for import backup */}
       <input
         type="file"
@@ -764,8 +764,8 @@ export default function App() {
         </div>
       )}
 
-      {/* Main Responsive Shell: Full-screen on mobile, curved card on tablet & desktop */}
-      <div className="w-full max-w-[1720px] min-h-screen sm:min-h-0 sm:h-[95vh] rounded-none sm:rounded-[32px] overflow-hidden shadow-2xl flex flex-col transition-colors duration-300 relative bg-[#08221B] border-0 sm:border border-[#ACBEA3]/25">
+      {/* Main Responsive Shell: Full-bleed end-to-end viewport layout */}
+      <div className="w-full flex-1 min-h-0 overflow-hidden flex flex-col transition-colors duration-200 relative bg-[#08221B]">
         {/* Top Navigation Header with Mobile Drawer Trigger, Financial Goal Tracker & Google Drive Sync */}
         <TopNavbar
           activeTab={activeTab}
@@ -862,8 +862,8 @@ export default function App() {
             </div>
           )}
 
-          {/* Right Main Canvas */}
-          <main className="flex-1 p-3.5 sm:p-5 lg:p-6 overflow-y-auto relative flex flex-col transition-colors duration-300 bg-[#2C3330] text-[#F8F4ED]">
+          {/* Right Main Canvas — Spans complete page end-to-end with generous negative space */}
+          <main className="flex-1 px-6 sm:px-9 lg:px-12 xl:px-14 py-7 sm:py-9 lg:py-10 overflow-y-auto relative flex flex-col transition-colors duration-200 bg-[#2C3330] text-[#F8F4ED]">
           {/* PAGE 1: Home Screen with Financial Goal Tracker, Basic Stats, Current Invoices, Revenue Health Recharts */}
           {activeTab === 'home' && (
             <HomeScreen
@@ -1026,9 +1026,9 @@ export default function App() {
 
               {/* View 1: Live Split View (Form on Left, Real-Time Synchronized A4 Bill on Right) */}
               {editorSubView === 'split' && (
-                <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 items-start">
+                <div className="grid grid-cols-1 xl:grid-cols-12 gap-7 lg:gap-8 items-start">
                   {/* Left Column: Form Controls (7 cols on XL) */}
-                  <div className="xl:col-span-7 space-y-4">
+                  <div className="xl:col-span-7 space-y-5">
                     <InvoiceEditor
                       key={activeInvoice.id}
                       invoice={activeInvoice}

@@ -125,25 +125,17 @@ export function LedgerDashboard({
   }, [invoices, statusFilter, searchQuery]);
 
   return (
-    <div className="space-y-6 pb-12 font-poppins">
+    <div className="w-full space-y-7 pb-14 font-poppins">
       {/* Top Banner: Studio Executive Header with Company Logo */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div
-            className={`w-11 h-11 rounded-2xl flex items-center justify-center p-2 shadow-md shrink-0 transition-colors ${
-              isDarkMode
-                ? 'bg-[#08221B] border border-[#ACBEA3]/40 shadow-[0_0_15px_rgba(172,190,163,0.15)]'
-                : 'bg-[#08221B] border border-[#08221B]'
-            }`}
-          >
-            <BrandLogo
-              customLogoUrl={studioConfig?.logoDataUrl}
-              size="sm"
-              variant="icon"
-              theme="white"
-              withText={false}
-            />
-          </div>
+        <div className="flex items-center gap-3.5">
+          <BrandLogo
+            customLogoUrl={studioConfig?.logoDataUrl}
+            size="md"
+            variant="icon"
+            theme="white"
+            withText={false}
+          />
           <div>
             <h2
               className={`text-xl font-bold font-montserrat tracking-tight transition-colors ${

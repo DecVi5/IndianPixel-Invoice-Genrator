@@ -52,13 +52,13 @@ export function Sidebar({
   };
 
   return (
-    <aside className="no-print w-64 sm:w-68 h-full flex flex-col justify-between p-4 select-none shrink-0 bg-[#08221B] text-[#F8F4ED] border-r border-[#ACBEA3]/20 overflow-y-auto">
+    <aside className="no-print w-64 sm:w-68 h-full flex flex-col justify-between px-5 py-6 select-none shrink-0 bg-[#08221B] text-[#F8F4ED] border-r border-[#ACBEA3]/15 overflow-y-auto">
       {/* Brand & Top Navigation */}
-      <div className="space-y-5">
-        {/* Brand Header with Close Button for Mobile Drawer */}
-        <div className="px-1 pt-1 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-[#2C3330] border border-[#ACBEA3]/40 flex items-center justify-center p-1 shadow-xs">
+      <div className="space-y-4">
+        {/* Brand Header with Close Button for Mobile Drawer (< lg screens only to avoid duplicate header on desktop) */}
+        {onCloseMobileMenu && (
+          <div className="lg:hidden px-1 pb-2 flex items-center justify-between gap-3 border-b border-[#ACBEA3]/15">
+            <div className="flex items-center gap-2.5">
               <BrandLogo
                 customLogoUrl={studioConfig.logoDataUrl}
                 size="sm"
@@ -66,32 +66,33 @@ export function Sidebar({
                 theme="white"
                 withText={false}
               />
-            </div>
-            <div>
-              <div className="font-montserrat font-bold text-sm text-[#F8F4ED] tracking-tight">
-                {studioConfig.studioName || 'Indian Pixel'}
+              <div>
+                <div className="font-montserrat font-bold text-sm text-[#F8F4ED] tracking-tight">
+                  {studioConfig.studioName || 'Indian Pixel'}
+                </div>
+                <div className="text-[10px] text-[#ACBEA3] font-space-mono">
+                  Financial Suite
+                </div>
               </div>
-              <div className="text-[10px] font-semibold text-[#FFA400] tracking-wider uppercase font-space-mono">
-                Suite v4.2 · Online
-              </div>
             </div>
-          </div>
 
-          {/* Close button on mobile/tablet drawer */}
-          {onCloseMobileMenu && (
             <button
               type="button"
               onClick={onCloseMobileMenu}
-              className="lg:hidden p-1.5 rounded-lg bg-[#2C3330] hover:bg-[#38423e] text-[#ACBEA3] hover:text-[#F8F4ED] cursor-pointer"
+              className="p-1.5 rounded-lg bg-[#2C3330] hover:bg-[#38423e] text-[#ACBEA3] hover:text-[#F8F4ED] cursor-pointer"
               aria-label="Close menu"
             >
               <X className="w-4 h-4" />
             </button>
-          )}
+          </div>
+        )}
+
+        <div className="px-2 text-[10px] font-montserrat font-semibold uppercase tracking-widest text-[#ACBEA3]/70">
+          Workspace
         </div>
 
         {/* Primary Navigation Links */}
-        <nav className="space-y-1 pt-1">
+        <nav className="space-y-1.5">
           {/* Page 1: Home Overview */}
           <button
             onClick={() => handleNavClick('home')}

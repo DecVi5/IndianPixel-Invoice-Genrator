@@ -1,4 +1,4 @@
-import { BRAND_LOGO_DATA_URL } from '../assets/brandLogoData.ts';
+import { BRAND_LOGO_DATA_URL, BRAND_LOGO_DARK_DATA_URL } from '../assets/brandLogoData.ts';
 
 export const DEFAULT_BRAND_LOGO = BRAND_LOGO_DATA_URL;
 
@@ -23,6 +23,7 @@ export function BrandLogo({
 }: BrandLogoProps) {
   // Determine text color: by default light/linen (#F8F4ED) for dark backgrounds
   let mainColor = '#F8F4ED';
+  const useDarkMark = isPrint || theme === 'black' || theme === 'green';
 
   if (theme === 'black') {
     mainColor = '#000000';
@@ -49,22 +50,23 @@ export function BrandLogo({
     customLogoUrl !== '/logo.svg' &&
     customLogoUrl !== '/vite.svg';
 
-  const activeLogoUrl = isCustomValid ? customLogoUrl : DEFAULT_BRAND_LOGO;
+  const defaultLogoForSurface = useDarkMark ? BRAND_LOGO_DARK_DATA_URL : BRAND_LOGO_DATA_URL;
+  const activeLogoUrl = isCustomValid ? customLogoUrl : defaultLogoForSurface;
   const dim = iconDims[size] || 36;
 
   const renderIcon = () => (
     <div
-      className="inline-flex items-center justify-center shrink-0 select-none overflow-hidden"
-      style={{ width: dim, height: dim }}
+      className="inline-flex items-center justify-center shrink-0 select-none overflow-hidden bg-transparent"
+      style={{ width: dim, height: dim, backgroundColor: 'transparent' }}
     >
       <img
         src={activeLogoUrl}
         alt="Indian Pixel Brand Logo"
-        className="w-full h-full object-contain pointer-events-none transition-transform duration-200"
+        className="w-full h-full object-contain pointer-events-none transition-transform duration-200 bg-transparent"
         loading="eager"
         onError={(e) => {
-          if (e.currentTarget.src !== BRAND_LOGO_DATA_URL) {
-            e.currentTarget.src = BRAND_LOGO_DATA_URL;
+          if (e.currentTarget.src !== defaultLogoForSurface) {
+            e.currentTarget.src = defaultLogoForSurface;
           }
         }}
       />

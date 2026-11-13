@@ -494,19 +494,17 @@ export function InvoiceEditor({
     : '';
 
   return (
-    <div className="w-full max-w-5xl mx-auto space-y-6 pb-12 font-poppins text-[#F8F4ED]">
+    <div className="w-full space-y-7 pb-14 font-poppins text-[#F8F4ED]">
       {/* Top Action Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-4 p-4 bg-[#08221B] border border-[#ACBEA3]/30 rounded-2xl shadow-lg">
-        <div className="flex items-center gap-3 flex-wrap">
-          <div className="w-10 h-10 rounded-xl bg-[#2C3330] border border-[#ACBEA3]/40 flex items-center justify-center p-1.5 shadow-xs shrink-0">
-            <BrandLogo
-              customLogoUrl={studioConfig.logoDataUrl}
-              size="sm"
-              variant="icon"
-              theme="white"
-              withText={false}
-            />
-          </div>
+      <div className="flex flex-wrap items-center justify-between gap-4 p-5 sm:p-6 bg-[#08221B] border border-[#ACBEA3]/25 rounded-2xl shadow-sm">
+        <div className="flex items-center gap-3.5 flex-wrap">
+          <BrandLogo
+            customLogoUrl={studioConfig.logoDataUrl}
+            size="sm"
+            variant="icon"
+            theme="white"
+            withText={false}
+          />
           <span className="font-space-mono text-sm font-bold text-[#F8F4ED] tracking-wider">
             {current.invoiceNo}
           </span>
@@ -1230,7 +1228,7 @@ export function InvoiceEditor({
                     }
                     className={`px-2.5 py-2 rounded-lg text-xs font-poppins font-medium transition-colors cursor-pointer flex items-center gap-1.5 shrink-0 border ${
                       hasItemDiscount || showItemDiscountIndex === idx
-                        ? 'bg-[#FFA400]/20 text-[#FFA400] font-semibold border-[#FFA400]'
+                        ? 'bg-emerald-500/20 text-emerald-400 font-semibold border-emerald-500/50'
                         : 'bg-[#08221B] text-[#ACBEA3] hover:text-[#F8F4ED] border-[#ACBEA3]/35'
                     }`}
                     title="Add or Edit Line-Item Discount"
@@ -1372,13 +1370,13 @@ export function InvoiceEditor({
                       />
                     </div>
 
-                    <div className="flex items-center justify-between sm:justify-end gap-2.5 bg-[#2C3330]/80 px-2.5 py-1.5 rounded-lg border border-[#ACBEA3]/30">
+                    <div className="flex items-center justify-between sm:justify-end gap-2.5 bg-[#2C3330]/80 px-2.5 py-1.5 rounded-lg border border-emerald-500/35">
                       <div className="text-left sm:text-right">
                         <span className="text-[9.5px] text-[#ACBEA3] block">
                           Gross: {formatIndianCurrency(itemGross)}
                         </span>
-                        <span className="text-[11px] font-space-mono font-bold text-rose-400">
-                          Disc: - {formatIndianCurrency(itemDiscAmt)}
+                        <span className="text-[11px] font-space-mono font-bold text-emerald-400">
+                          Saved: - {formatIndianCurrency(itemDiscAmt)}
                         </span>
                       </div>
                       {hasItemDiscount && (
@@ -1715,7 +1713,7 @@ export function InvoiceEditor({
             <span
               className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full font-space-mono border ${
                 current.discountAmount > 0
-                  ? 'bg-[#FFA400]/20 text-[#FFA400] border-[#FFA400]/50'
+                  ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/50'
                   : 'bg-[#2C3330] text-[#ACBEA3] border-[#ACBEA3]/30'
               }`}
             >
@@ -1828,19 +1826,19 @@ export function InvoiceEditor({
                 </div>
               </div>
 
-              {/* Box 2: Calculated Discount Amount in ₹ */}
-              <div className="p-3 rounded-xl bg-[#2C3330] border border-[#FFA400]/55 space-y-1 flex flex-col justify-between">
+              {/* Box 2: Calculated Discount Amount in ₹ (Positive Emerald Green) */}
+              <div className="p-3 rounded-xl bg-[#2C3330] border border-emerald-500/45 space-y-1 flex flex-col justify-between">
                 <div className="flex items-center justify-between">
-                  <span className="text-[9.5px] font-montserrat font-bold text-[#FFA400] uppercase">
+                  <span className="text-[9.5px] font-montserrat font-bold text-emerald-400 uppercase">
                     DISCOUNT AMOUNT (₹)
                   </span>
                   <span className="text-[9.5px] font-space-mono text-[#ACBEA3]">
                     {current.discountType === 'percentage'
                       ? `${current.discountValue || 0}% of ₹${current.subtotal.toLocaleString('en-IN')}`
-                      : 'Flat Deduction'}
+                      : 'Flat Savings'}
                   </span>
                 </div>
-                <div className="w-full px-3 py-2 bg-[#08221B] border border-[#FFA400]/40 rounded-lg text-sm font-space-mono font-bold text-rose-400 text-right">
+                <div className="w-full px-3 py-2 bg-[#08221B] border border-emerald-500/40 rounded-lg text-sm font-space-mono font-bold text-emerald-400 text-right">
                   - {formatIndianCurrency(current.discountAmount)}
                 </div>
               </div>
@@ -1957,9 +1955,9 @@ export function InvoiceEditor({
                 {formatIndianCurrency(current.subtotal)}
               </span>
             </div>
-            <div className="flex justify-between items-center text-rose-400 bg-[#08221B]/70 px-2.5 py-1.5 rounded-lg border border-rose-500/30">
+            <div className="flex justify-between items-center text-emerald-400 bg-emerald-500/10 px-2.5 py-1.5 rounded-lg border border-emerald-500/35">
               <span className="font-medium">
-                Discount Deduction{' '}
+                Discount Savings{' '}
                 {current.discountType === 'percentage'
                   ? `(${current.discountValue || 0}%)`
                   : '(Flat)'}

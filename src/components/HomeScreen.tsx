@@ -141,29 +141,28 @@ export function HomeScreen({
   const activePoint = chartData[activeDataIndex ?? 3] || chartData[3];
 
   return (
-    <div className="space-y-5 sm:space-y-6 pb-12 font-poppins text-[#F8F4ED]">
+    <div className="w-full space-y-8 lg:space-y-9 pb-14 font-poppins text-[#F8F4ED]">
       {/* Top Header: Studio Identity & Legal Status */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-1">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2.5">
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold font-montserrat tracking-tight text-[#F8F4ED]">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-1">
+        <div className="space-y-1.5">
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl sm:text-3xl font-bold font-montserrat tracking-tight text-[#F8F4ED]">
               Executive Overview
             </h1>
             {invoices.length === 0 && (
-              <span className="text-[11px] font-medium px-2.5 py-0.5 rounded-full bg-[#ACBEA3]/15 text-[#FFA400] border border-[#ACBEA3]/30 font-space-mono">
+              <span className="text-[11px] font-medium px-2.5 py-0.5 rounded-full bg-[#ACBEA3]/15 text-[#FFA400] border border-[#ACBEA3]/30 font-space-mono whitespace-nowrap">
                 Deployment Ready · ₹0.00
               </span>
             )}
           </div>
-          <p className="text-xs text-[#ACBEA3] leading-relaxed">
+          <p className="text-xs sm:text-sm text-[#ACBEA3] leading-relaxed">
             Real-time billing velocity, milestone cashflow, and statutory PAN compliance.
           </p>
         </div>
 
-        {/* Legal PAN & Exemption Pill */}
-        <div className="flex items-center gap-2 flex-wrap">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#08221B] border border-[#ACBEA3]/30 text-xs text-[#F8F4ED] shadow-xs">
-            <span className="w-2 h-2 rounded-full bg-[#FFA400] shadow-[0_0_8px_#FFA400]" />
+        {/* Legal PAN & Exemption Metadata */}
+        <div className="flex items-center gap-3 flex-wrap shrink-0">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#08221B] border border-[#ACBEA3]/25 text-xs text-[#F8F4ED] whitespace-nowrap">
             <span className="text-[#ACBEA3]">PAN:</span>
             <strong className="font-space-mono text-[#F8F4ED]">{studioConfig.pan || 'KJKPD8069P'}</strong>
             <span className="text-[#ACBEA3]/50">·</span>
@@ -173,7 +172,7 @@ export function HomeScreen({
           {onLoadSampleData && invoices.length === 0 && (
             <button
               onClick={onLoadSampleData}
-              className="press-scale inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#2C3330] hover:bg-[#38423e] text-[#FFA400] text-xs font-semibold border border-[#FFA400]/30 shadow-xs cursor-pointer"
+              className="press-scale inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#08221B] hover:bg-[#0d3328] text-[#FFA400] text-xs font-semibold border border-[#FFA400]/35 cursor-pointer whitespace-nowrap"
             >
               <Sparkles className="w-3.5 h-3.5 text-[#FFA400]" />
               <span>Load Sample Data</span>
@@ -182,62 +181,62 @@ export function HomeScreen({
         </div>
       </div>
 
-      {/* 4 Clean Metric Cards (Strict 5-Color Palette) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      {/* 4 Clean Metric Cards — Full width with generous Apple HIG negative space */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 lg:gap-6">
         {/* Card 1: Total Contracted Billings */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-[#08221B] border border-[#ACBEA3]/25 shadow-sm space-y-3 relative overflow-hidden">
-          <div className="flex items-start justify-between">
-            <span className="text-xs font-medium text-[#ACBEA3]">
+        <div className="p-6 lg:p-7 rounded-2xl bg-[#08221B] border border-[#ACBEA3]/20 flex flex-col justify-between gap-5 relative overflow-hidden">
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-xs font-medium text-[#ACBEA3] whitespace-nowrap">
               Contracted Billings
             </span>
-            <div className="w-8 h-8 rounded-xl bg-[#2C3330] border border-[#ACBEA3]/30 text-[#FFA400] flex items-center justify-center shrink-0">
+            <div className="w-8 h-8 rounded-xl bg-[#2C3330]/80 border border-[#ACBEA3]/25 text-[#FFA400] flex items-center justify-center shrink-0">
               <Zap className="w-4 h-4" />
             </div>
           </div>
           <div>
-            <div className="text-xl sm:text-2xl font-bold font-space-mono text-[#F8F4ED] tracking-tight tabular-nums whitespace-nowrap">
+            <div className="text-2xl lg:text-3xl font-bold font-space-mono text-[#F8F4ED] tracking-tight tabular-nums whitespace-nowrap">
               {formatIndianCurrency(metrics.totalContracted)}
             </div>
-            <div className="text-[11px] text-[#ACBEA3] mt-1">
+            <div className="text-xs text-[#ACBEA3] mt-1.5 whitespace-nowrap">
               {invoices.length > 0
                 ? `${invoices.length} Registered Invoice${invoices.length > 1 ? 's' : ''}`
                 : '0 Invoices on Ledger'}
             </div>
           </div>
-          <div className="pt-2 border-t border-[#ACBEA3]/15 flex items-center justify-between text-xs">
-            <span className="text-[#FFA400] font-medium flex items-center gap-1 text-[11px]">
-              <TrendingUp className="w-3 h-3" />
+          <div className="pt-3.5 border-t border-[#ACBEA3]/15 flex items-center justify-between gap-2 text-xs whitespace-nowrap">
+            <span className="text-[#FFA400] font-medium flex items-center gap-1.5 text-[11px]">
+              <TrendingUp className="w-3.5 h-3.5 shrink-0" />
               <span>Active Pipeline</span>
             </span>
             <button
               onClick={() => onNavigateTab('invoices')}
-              className="text-[#ACBEA3] hover:text-[#F8F4ED] flex items-center gap-0.5 text-[11px] cursor-pointer transition-colors"
+              className="text-[#ACBEA3] hover:text-[#F8F4ED] flex items-center gap-1 text-[11px] cursor-pointer transition-colors"
             >
               <span>View ledger</span>
-              <ArrowUpRight className="w-3 h-3" />
+              <ArrowUpRight className="w-3.5 h-3.5 shrink-0" />
             </button>
           </div>
         </div>
 
         {/* Card 2: Realized Collections */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-[#08221B] border border-[#ACBEA3]/25 shadow-sm space-y-3 relative overflow-hidden">
-          <div className="flex items-start justify-between">
-            <span className="text-xs font-medium text-[#ACBEA3]">
+        <div className="p-6 lg:p-7 rounded-2xl bg-[#08221B] border border-[#ACBEA3]/20 flex flex-col justify-between gap-5 relative overflow-hidden">
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-xs font-medium text-[#ACBEA3] whitespace-nowrap">
               Realized Cash Inflows
             </span>
-            <div className="w-8 h-8 rounded-xl bg-[#2C3330] border border-[#ACBEA3]/30 text-[#ACBEA3] flex items-center justify-center shrink-0">
+            <div className="w-8 h-8 rounded-xl bg-[#2C3330]/80 border border-[#ACBEA3]/25 text-[#ACBEA3] flex items-center justify-center shrink-0">
               <CheckCircle2 className="w-4 h-4 text-[#FFA400]" />
             </div>
           </div>
           <div>
-            <div className="text-xl sm:text-2xl font-bold font-space-mono text-[#F8F4ED] tracking-tight tabular-nums whitespace-nowrap">
+            <div className="text-2xl lg:text-3xl font-bold font-space-mono text-[#F8F4ED] tracking-tight tabular-nums whitespace-nowrap">
               {formatIndianCurrency(metrics.totalCollected)}
             </div>
-            <div className="text-[11px] text-[#ACBEA3] mt-1">
+            <div className="text-xs text-[#ACBEA3] mt-1.5 whitespace-nowrap">
               Bank UPI / Direct Settlement
             </div>
           </div>
-          <div className="pt-2 border-t border-[#ACBEA3]/15 flex items-center justify-between text-xs">
+          <div className="pt-3.5 border-t border-[#ACBEA3]/15 flex items-center justify-between gap-2 text-xs whitespace-nowrap">
             <span className="text-[#ACBEA3] font-medium text-[11px]">
               {metrics.collectionRate}% Realized
             </span>
@@ -246,24 +245,24 @@ export function HomeScreen({
         </div>
 
         {/* Card 3: Pending Receivables */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-[#08221B] border border-[#ACBEA3]/25 shadow-sm space-y-3 relative overflow-hidden">
-          <div className="flex items-start justify-between">
-            <span className="text-xs font-medium text-[#ACBEA3]">
+        <div className="p-6 lg:p-7 rounded-2xl bg-[#08221B] border border-[#ACBEA3]/20 flex flex-col justify-between gap-5 relative overflow-hidden">
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-xs font-medium text-[#ACBEA3] whitespace-nowrap">
               Pending Receivables
             </span>
-            <div className="w-8 h-8 rounded-xl bg-[#2C3330] border border-[#ACBEA3]/30 text-[#FFA400] flex items-center justify-center shrink-0">
+            <div className="w-8 h-8 rounded-xl bg-[#2C3330]/80 border border-[#ACBEA3]/25 text-[#FFA400] flex items-center justify-center shrink-0">
               <Clock className="w-4 h-4" />
             </div>
           </div>
           <div>
-            <div className="text-xl sm:text-2xl font-bold font-space-mono text-[#FFA400] tracking-tight tabular-nums whitespace-nowrap">
+            <div className="text-2xl lg:text-3xl font-bold font-space-mono text-[#FFA400] tracking-tight tabular-nums whitespace-nowrap">
               {formatIndianCurrency(metrics.pendingReceivables)}
             </div>
-            <div className="text-[11px] text-[#ACBEA3] mt-1">
+            <div className="text-xs text-[#ACBEA3] mt-1.5 whitespace-nowrap">
               Scheduled milestone balance
             </div>
           </div>
-          <div className="pt-2 border-t border-[#ACBEA3]/15 flex items-center justify-between text-xs">
+          <div className="pt-3.5 border-t border-[#ACBEA3]/15 flex items-center justify-between gap-2 text-xs whitespace-nowrap">
             <span className="text-[#ACBEA3] text-[11px]">
               {invoices.length > 0 ? 'Milestones 2 & 3' : '₹ 0.00 Balance'}
             </span>
@@ -274,26 +273,26 @@ export function HomeScreen({
         </div>
 
         {/* Card 4: Studio Settlement Efficiency */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-[#08221B] border border-[#ACBEA3]/25 shadow-sm space-y-3 relative overflow-hidden">
-          <div className="flex items-start justify-between">
-            <span className="text-xs font-medium text-[#ACBEA3]">
+        <div className="p-6 lg:p-7 rounded-2xl bg-[#08221B] border border-[#ACBEA3]/20 flex flex-col justify-between gap-5 relative overflow-hidden">
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-xs font-medium text-[#ACBEA3] whitespace-nowrap">
               Settlement Health
             </span>
-            <div className="w-8 h-8 rounded-xl bg-[#2C3330] border border-[#ACBEA3]/30 text-[#ACBEA3] flex items-center justify-center shrink-0">
+            <div className="w-8 h-8 rounded-xl bg-[#2C3330]/80 border border-[#ACBEA3]/25 text-[#ACBEA3] flex items-center justify-center shrink-0">
               <ShieldCheck className="w-4 h-4 text-[#FFA400]" />
             </div>
           </div>
           <div>
-            <div className="text-2xl sm:text-3xl font-bold font-space-mono text-[#F8F4ED] tracking-tight">
+            <div className="text-2xl lg:text-3xl font-bold font-space-mono text-[#F8F4ED] tracking-tight tabular-nums whitespace-nowrap">
               {metrics.overdueCount > 0 ? `${metrics.overdueCount} Overdue` : '100%'}
             </div>
-            <div className="text-[11px] text-[#ACBEA3] mt-1">
+            <div className="text-xs text-[#ACBEA3] mt-1.5 truncate">
               {metrics.overdueCount > 0
                 ? `${formatIndianCurrency(metrics.overdueAmount)} requires follow-up`
                 : 'Zero overdue payment alerts'}
             </div>
           </div>
-          <div className="pt-2 border-t border-[#ACBEA3]/15 flex items-center justify-between text-xs">
+          <div className="pt-3.5 border-t border-[#ACBEA3]/15 flex items-center justify-between gap-2 text-xs whitespace-nowrap">
             <span className="text-[#ACBEA3] text-[11px]">Statutory Sec 22</span>
             <span className="text-[11px] font-space-mono text-[#FFA400]">Compliant</span>
           </div>
@@ -301,11 +300,11 @@ export function HomeScreen({
       </div>
 
       {/* Bento Grid: Left Chart (8 cols) + Right Studio Details (4 cols) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5">
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 lg:gap-6">
         {/* Left: Interactive Cashflow Velocity Chart */}
-        <div className="lg:col-span-8 p-4 sm:p-6 rounded-2xl bg-[#08221B] border border-[#ACBEA3]/25 shadow-sm flex flex-col justify-between space-y-4">
+        <div className="xl:col-span-8 p-6 sm:p-7 rounded-2xl bg-[#08221B] border border-[#ACBEA3]/20 flex flex-col justify-between space-y-5">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-            <div>
+            <div className="space-y-1">
               <h2 className="text-base sm:text-lg font-bold font-montserrat text-[#F8F4ED]">
                 Weekly Billing Velocity &amp; Cashflow
               </h2>
@@ -313,8 +312,8 @@ export function HomeScreen({
                 Daily milestone disbursements vs projected cash clearance
               </p>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#2C3330] border border-[#ACBEA3]/30 text-xs text-[#F8F4ED]">
+            <div className="flex items-center gap-2 shrink-0">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#2C3330] border border-[#ACBEA3]/25 text-xs text-[#F8F4ED] whitespace-nowrap">
                 <span className="w-2 h-2 rounded-full bg-[#FFA400]" />
                 <span className="text-[11px]">Realized Revenue</span>
               </div>
@@ -322,10 +321,10 @@ export function HomeScreen({
           </div>
 
           {/* Active Data Chip */}
-          <div className="p-3 rounded-xl bg-[#2C3330]/70 border border-[#ACBEA3]/20 flex items-center justify-between flex-wrap gap-2 text-xs">
+          <div className="px-4 py-3 rounded-xl bg-[#2C3330]/70 border border-[#ACBEA3]/20 flex items-center justify-between flex-wrap gap-3 text-xs">
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-[#FFA400]" />
-              <span className="font-space-mono text-[#F8F4ED]">
+              <span className="font-space-mono text-[#F8F4ED] tabular-nums">
                 {activePoint?.day} Inflow: <strong className="text-[#FFA400]">{activePoint?.billed}</strong>
               </span>
             </div>
@@ -395,70 +394,72 @@ export function HomeScreen({
         </div>
 
         {/* Right: Studio Operations & Verified Profile */}
-        <div className="lg:col-span-4 flex flex-col gap-4">
+        <div className="xl:col-span-4 flex flex-col gap-5 lg:gap-6">
           {/* Card A: Official Studio Banking & Settlements */}
-          <div className="p-4 sm:p-5 rounded-2xl bg-[#08221B] border border-[#ACBEA3]/25 shadow-sm space-y-3.5">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-bold font-montserrat text-[#F8F4ED]">
+          <div className="p-6 sm:p-7 rounded-2xl bg-[#08221B] border border-[#ACBEA3]/20 space-y-4">
+            <div className="flex items-center justify-between gap-3">
+              <h3 className="text-sm font-bold font-montserrat text-[#F8F4ED] whitespace-nowrap">
                 Settlement Rail
               </h3>
-              <span className="text-[10px] font-space-mono text-[#FFA400] uppercase font-semibold">
+              <span className="text-[10px] font-space-mono text-[#FFA400] uppercase font-semibold whitespace-nowrap shrink-0">
                 Direct Clear
               </span>
             </div>
 
-            <div className="space-y-2.5 text-xs">
-              <div className="p-3 rounded-xl bg-[#2C3330]/80 border border-[#ACBEA3]/20 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Building2 className="w-4 h-4 text-[#FFA400]" />
-                  <div>
-                    <div className="text-[11px] text-[#ACBEA3]">Bank Account</div>
-                    <div className="font-space-mono font-medium text-[#F8F4ED]">
+            <div className="space-y-3 text-xs">
+              <div className="p-3.5 rounded-xl bg-[#2C3330]/80 border border-[#ACBEA3]/20 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0 flex-1">
+                  <Building2 className="w-4 h-4 text-[#FFA400] shrink-0" />
+                  <div className="min-w-0">
+                    <div className="text-[11px] text-[#ACBEA3] whitespace-nowrap">Bank Account</div>
+                    <div className="font-space-mono font-medium text-[#F8F4ED] truncate">
                       {studioConfig.accountNumber ? `•••• ${studioConfig.accountNumber.slice(-4)}` : 'HDFC Bank'}
                     </div>
                   </div>
                 </div>
-                <span className="text-[10px] text-[#ACBEA3] font-space-mono">
+                <span className="text-[10px] text-[#ACBEA3] font-space-mono whitespace-nowrap shrink-0">
                   {studioConfig.ifscCode || 'HDFC0000240'}
                 </span>
               </div>
 
-              <div className="p-3 rounded-xl bg-[#2C3330]/80 border border-[#ACBEA3]/20 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <QrCode className="w-4 h-4 text-[#FFA400]" />
-                  <div>
-                    <div className="text-[11px] text-[#ACBEA3]">UPI Settlement VPA</div>
-                    <div className="font-space-mono font-medium text-[#F8F4ED] truncate max-w-[150px]">
+              <div className="p-3.5 rounded-xl bg-[#2C3330]/80 border border-[#ACBEA3]/20 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0 flex-1">
+                  <QrCode className="w-4 h-4 text-[#FFA400] shrink-0" />
+                  <div className="min-w-0">
+                    <div className="text-[11px] text-[#ACBEA3] whitespace-nowrap">UPI Settlement VPA</div>
+                    <div className="font-space-mono font-medium text-[#F8F4ED] truncate">
                       {studioConfig.upiId || 'theindianpixel@okaxis'}
                     </div>
                   </div>
                 </div>
-                <span className="text-[10px] text-[#ACBEA3] font-space-mono">Instant</span>
+                <span className="text-[10px] text-[#ACBEA3] font-space-mono whitespace-nowrap shrink-0">
+                  Instant
+                </span>
               </div>
             </div>
 
-            <div className="p-3 rounded-xl bg-[#2C3330]/40 border border-[#ACBEA3]/15 text-[11px] text-[#ACBEA3] flex items-center gap-2">
+            <div className="p-3.5 rounded-xl bg-[#2C3330]/40 border border-[#ACBEA3]/15 text-[11px] text-[#ACBEA3] flex items-center gap-2.5">
               <ShieldCheck className="w-4 h-4 text-[#FFA400] shrink-0" />
               <span>Invoicing exempt under Section 22 CGST Act. No reverse tax obligation.</span>
             </div>
           </div>
 
           {/* Card B: Quick Actions */}
-          <div className="p-4 sm:p-5 rounded-2xl bg-[#08221B] border border-[#ACBEA3]/25 shadow-sm space-y-3">
+          <div className="p-6 sm:p-7 rounded-2xl bg-[#08221B] border border-[#ACBEA3]/20 space-y-3.5">
             <h3 className="text-sm font-bold font-montserrat text-[#F8F4ED]">
               Quick Create
             </h3>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-3">
               <button
                 onClick={() => onNavigateTab('create')}
-                className="press-scale p-3 rounded-xl bg-[#FFA400] hover:bg-[#ffb426] text-[#08221B] font-bold text-xs flex flex-col items-center justify-center gap-1 shadow-sm cursor-pointer"
+                className="press-scale p-3.5 rounded-xl bg-[#FFA400] hover:bg-[#ffb426] text-[#08221B] font-bold text-xs flex flex-col items-center justify-center gap-1.5 shadow-xs cursor-pointer whitespace-nowrap"
               >
                 <Plus className="w-4 h-4 stroke-[2.5]" />
                 <span>New Invoice</span>
               </button>
               <button
                 onClick={() => onNavigateTab('invoices')}
-                className="press-scale p-3 rounded-xl bg-[#2C3330] hover:bg-[#38423e] border border-[#ACBEA3]/30 text-[#F8F4ED] font-medium text-xs flex flex-col items-center justify-center gap-1 cursor-pointer transition-colors"
+                className="press-scale p-3.5 rounded-xl bg-[#2C3330] hover:bg-[#38423e] border border-[#ACBEA3]/25 text-[#F8F4ED] font-medium text-xs flex flex-col items-center justify-center gap-1.5 cursor-pointer transition-colors whitespace-nowrap"
               >
                 <FileText className="w-4 h-4 text-[#FFA400]" />
                 <span>All Invoices</span>
@@ -469,10 +470,10 @@ export function HomeScreen({
       </div>
 
       {/* Current Invoices Section */}
-      <div className="rounded-2xl bg-[#08221B] border border-[#ACBEA3]/25 shadow-sm overflow-hidden">
-        <div className="p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-[#ACBEA3]/15">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-[#2C3330] border border-[#ACBEA3]/30 text-[#FFA400] flex items-center justify-center shrink-0">
+      <div className="rounded-2xl bg-[#08221B] border border-[#ACBEA3]/20 overflow-hidden">
+        <div className="p-6 sm:p-7 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-[#ACBEA3]/15">
+          <div className="flex items-center gap-3.5">
+            <div className="w-9 h-9 rounded-xl bg-[#2C3330] border border-[#ACBEA3]/25 text-[#FFA400] flex items-center justify-center shrink-0">
               <FileText className="w-4 h-4" />
             </div>
             <div>
@@ -485,16 +486,16 @@ export function HomeScreen({
             </div>
           </div>
 
-          <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+          <div className="flex items-center gap-2.5 w-full sm:w-auto justify-end">
             <button
               onClick={() => onNavigateTab('invoices')}
-              className="px-3.5 py-1.5 rounded-xl bg-[#2C3330] hover:bg-[#38423e] text-xs text-[#F8F4ED] border border-[#ACBEA3]/30 transition-colors cursor-pointer"
+              className="px-4 py-2 rounded-xl bg-[#2C3330] hover:bg-[#38423e] text-xs text-[#F8F4ED] border border-[#ACBEA3]/25 transition-colors cursor-pointer whitespace-nowrap"
             >
               View All ({invoices.length})
             </button>
             <button
               onClick={() => onNavigateTab('create')}
-              className="press-scale flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-[#FFA400] hover:bg-[#ffb426] text-[#08221B] font-bold text-xs shadow-xs cursor-pointer"
+              className="press-scale flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#FFA400] hover:bg-[#ffb426] text-[#08221B] font-bold text-xs shadow-xs cursor-pointer whitespace-nowrap"
             >
               <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
               <span>+ Invoice</span>
@@ -504,9 +505,9 @@ export function HomeScreen({
 
         {/* Empty State */}
         {recentInvoices.length === 0 ? (
-          <div className="p-8 sm:p-12 text-center space-y-3">
-            <div className="w-12 h-12 rounded-xl bg-[#2C3330] border border-[#ACBEA3]/30 flex items-center justify-center p-1.5 mx-auto shadow-sm">
-              <BrandLogo size="sm" variant="icon" theme="white" withText={false} />
+          <div className="p-10 sm:p-14 text-center space-y-3">
+            <div className="flex items-center justify-center mx-auto">
+              <BrandLogo size="md" variant="icon" theme="white" withText={false} />
             </div>
             <div className="font-montserrat font-bold text-sm text-[#F8F4ED]">
               No Invoices Generated Yet

@@ -279,18 +279,17 @@ export function InvoicePrintSheet({
         <div className="space-y-2.5">
           {/* HEADER BAR: Brand Identity in ONE line + "Invoice" (First letter only capital) */}
           <div className="flex items-start justify-between pb-2.5 border-b border-[#08221B]/15">
-            {/* Left: [Origami Aperture] Indian Pixel strictly in ONE single line */}
+            {/* Left: [Origami Aperture] Indian Pixel strictly in ONE single line — NO background box */}
             <div className="space-y-0.5">
               <div className="flex items-center gap-2.5 whitespace-nowrap">
-                <div className="w-9 h-9 rounded-xl bg-[#08221B] flex items-center justify-center p-1.5 shadow-xs shrink-0">
-                  <BrandLogo
-                    customLogoUrl={studioConfig.logoDataUrl}
-                    size="sm"
-                    theme="white"
-                    variant="icon"
-                    withText={false}
-                  />
-                </div>
+                <BrandLogo
+                  customLogoUrl={studioConfig.logoDataUrl}
+                  size="sm"
+                  theme="green"
+                  isPrint={true}
+                  variant="icon"
+                  withText={false}
+                />
                 <span className="font-montserrat font-bold text-xl tracking-tight text-[#08221B] leading-none whitespace-nowrap">
                   {studioConfig.studioName || 'Indian Pixel'}
                 </span>
@@ -453,7 +452,7 @@ export function InvoicePrintSheet({
                           </div>
                         )}
                         {item.itemDiscountAmount && item.itemDiscountAmount > 0 ? (
-                          <span className="text-[9px] text-red-600 font-poppins block pt-0.5">
+                          <span className="text-[9px] text-emerald-700 font-medium font-poppins block pt-0.5">
                             Item concession: -{formatIndianCurrency(item.itemDiscountAmount)}
                           </span>
                         ) : null}
@@ -491,7 +490,7 @@ export function InvoicePrintSheet({
               </div>
 
               {invoice.discountAmount > 0 && (
-                <div className="flex items-start justify-between gap-4 py-0.5 text-red-600">
+                <div className="flex items-start justify-between gap-4 py-0.5 text-emerald-700">
                   <span className="font-medium text-left flex-1 leading-tight">
                     Discount{' '}
                     {invoice.discountReason ? `(${invoice.discountReason})` : ''}
