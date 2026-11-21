@@ -2,7 +2,7 @@ import { useEffect, useState, useId, useRef } from 'react';
 import QRCode from 'qrcode';
 import html2canvas from 'html2canvas-pro';
 import { jsPDF } from 'jspdf';
-import { Invoice, StudioConfig, MilestonePhase } from '../types/invoice.ts';
+import type { Invoice, StudioConfig, MilestonePhase } from '../types/invoice.ts';
 import {
   formatIndianCurrency,
   generateUpiUrl,

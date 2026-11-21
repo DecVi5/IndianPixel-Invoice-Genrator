@@ -1,5 +1,5 @@
 import { useState, ChangeEvent } from 'react';
-import { StudioConfig } from '../types/invoice.ts';
+import type { StudioConfig } from '../types/invoice.ts';
 import { BrandLogo } from './BrandLogo.tsx';
 import { X, Save, Upload, RotateCcw, Building, CreditCard, FileCheck, Target } from 'lucide-react';
 

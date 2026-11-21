@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Invoice, MasterPaymentStatus, StudioConfig } from '../types/invoice.ts';
+import type { Invoice, MasterPaymentStatus, StudioConfig } from '../types/invoice.ts';
 import { formatIndianCurrency, isInvoiceOverdue } from '../utils/financials.ts';
 import { BrandLogo } from './BrandLogo.tsx';
 import { RevenueHealthDashboard } from './RevenueHealthDashboard.tsx';

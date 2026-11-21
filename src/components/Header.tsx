@@ -1,5 +1,5 @@
 import { BrandLogo } from './BrandLogo.tsx';
-import { StudioConfig } from '../types/invoice.ts';
+import type { StudioConfig } from '../types/invoice.ts';
 import { Plus, SlidersHorizontal, Download, Upload, RefreshCw } from 'lucide-react';
 
 interface HeaderProps {

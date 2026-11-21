@@ -1,4 +1,4 @@
-import { Invoice, StudioConfig } from '../types/invoice.ts';
+import type { Invoice, StudioConfig } from '../types/invoice.ts';
 import {
   calculateInvoiceFinancials,
   calculateMilestones,

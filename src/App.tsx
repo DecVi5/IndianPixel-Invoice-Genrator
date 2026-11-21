@@ -5,7 +5,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
-import { Invoice, StudioConfig, MilestoneStatus, MilestonePhase } from './types/invoice.ts';
+import type { Invoice, StudioConfig, MilestonePhase } from './types/invoice.ts';
 import {
   loadStudioConfig,
   saveStudioConfig,
@@ -30,7 +30,7 @@ import {
   updateExistingStudioLedgerInDrive,
   deleteStudioLedgerFromDrive,
   DRIVE_LEDGER_FILENAME,
-  DriveFileMeta,
+  type DriveFileMeta,
 } from './utils/googleDrive.ts';
 import {
   auth as firebaseAuth,
@@ -43,7 +43,7 @@ import {
   deleteInvoiceFromServer,
 } from './utils/firestoreSync.ts';
 import { deriveMasterStatus, formatDateToDDMMYYYY, formatIndianCurrency } from './utils/financials.ts';
-import { Sidebar, MainNavTab } from './components/Sidebar.tsx';
+import { Sidebar, type MainNavTab } from './components/Sidebar.tsx';
 import { TopNavbar } from './components/TopNavbar.tsx';
 import { HomeScreen } from './components/HomeScreen.tsx';
 import { RevenueHealthDashboard } from './components/RevenueHealthDashboard.tsx';
@@ -274,6 +274,7 @@ export default function App() {
 
   // Dedicated Cloud Firestore real-time listener (persists across reloads independently of Drive OAuth token)
   useEffect(() => {
+    if (!firebaseAuth) return;
     let unsubscribeFirestore: (() => void) | null = null;
 
     const unsubscribeFirebaseAuth = onAuthStateChanged(firebaseAuth, (user) => {
@@ -281,9 +282,9 @@ export default function App() {
         setDriveUserEmail((prev) => prev || user.email || user.displayName || 'Connected Account');
 
         // Push current live invoices and config to Cloud Firestore
-        saveStudioConfigToFirestore(studioConfigRef.current);
+        void saveStudioConfigToFirestore(studioConfigRef.current).catch(() => {});
         invoicesRef.current.forEach((inv) => {
-          saveInvoiceToFirestore(inv);
+          void saveInvoiceToFirestore(inv).catch(() => {});
         });
 
         // Subscribe to real-time Cloud Firestore changes across browsers & devices
@@ -341,7 +342,7 @@ export default function App() {
   // Sync state to LocalStorage + IndexedDB + Server Ledger + Cloud Firestore
   useEffect(() => {
     saveStudioConfig(studioConfig);
-    saveStudioConfigToFirestore(studioConfig);
+    void saveStudioConfigToFirestore(studioConfig).catch(() => {});
   }, [studioConfig]);
 
   useEffect(() => {
@@ -946,7 +947,7 @@ export default function App() {
 
   const handleGoogleUnlockStudio = async () => {
     await handleConnectGoogleDrive();
-    if (firebaseAuth.currentUser) {
+    if (firebaseAuth?.currentUser) {
       handleLoginSuccess();
     }
   };

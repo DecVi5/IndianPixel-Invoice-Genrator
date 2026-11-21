@@ -1,7 +1,4 @@
-import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
 import {
-  getFirestore,
   doc,
   getDoc,
   getDocFromServer,
@@ -14,13 +11,11 @@ import {
   serverTimestamp,
   Timestamp,
 } from 'firebase/firestore';
-import firebaseConfig from '../../firebase-applet-config.json';
+import { auth, db, isFirebaseConfigured } from './firebaseClient.ts';
 import type { Invoice, StudioConfig, MilestonePhase } from '../types/invoice.ts';
 import { DEFAULT_STUDIO_CONFIG } from './storage.ts';
 
-const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
-export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
-export const auth = getAuth(app);
+export { auth, db, isFirebaseConfigured };
 
 export enum OperationType {
   CREATE = 'create',
@@ -56,13 +51,13 @@ export function handleFirestoreError(
   const errInfo: FirestoreErrorInfo = {
     error: error instanceof Error ? error.message : String(error),
     authInfo: {
-      userId: auth.currentUser?.uid,
-      email: auth.currentUser?.email,
-      emailVerified: auth.currentUser?.emailVerified,
-      isAnonymous: auth.currentUser?.isAnonymous,
-      tenantId: auth.currentUser?.tenantId,
+      userId: auth?.currentUser?.uid,
+      email: auth?.currentUser?.email,
+      emailVerified: auth?.currentUser?.emailVerified,
+      isAnonymous: auth?.currentUser?.isAnonymous,
+      tenantId: auth?.currentUser?.tenantId,
       providerInfo:
-        auth.currentUser?.providerData?.map((provider) => ({
+        auth?.currentUser?.providerData?.map((provider) => ({
           providerId: provider.providerId,
           email: provider.email,
         })) || [],
@@ -76,6 +71,7 @@ export function handleFirestoreError(
 
 // Validate connection to Firestore on boot
 async function testConnection() {
+  if (!db) return;
   try {
     await getDocFromServer(doc(db, 'test', 'connection'));
   } catch (error) {
@@ -213,6 +209,7 @@ function buildValidatedInvoicePayload(
  * Saves an invoice document to Firestore if the user is authenticated with Firebase Auth.
  */
 export async function saveInvoiceToFirestore(inv: Invoice): Promise<void> {
+  if (!db || !auth) return;
   const user = auth.currentUser;
   if (!user || !user.emailVerified) return;
 
@@ -241,6 +238,7 @@ export async function saveInvoiceToFirestore(inv: Invoice): Promise<void> {
  * Deletes an invoice document from Firestore if the user is authenticated.
  */
 export async function deleteInvoiceFromFirestore(invoiceId: string): Promise<void> {
+  if (!db || !auth) return;
   const user = auth.currentUser;
   if (!user || !user.emailVerified) return;
 
@@ -257,6 +255,7 @@ export async function deleteInvoiceFromFirestore(invoiceId: string): Promise<voi
  * Saves the StudioConfig document to Firestore if the user is authenticated.
  */
 export async function saveStudioConfigToFirestore(cfg: StudioConfig): Promise<void> {
+  if (!db || !auth) return;
   const user = auth.currentUser;
   if (!user || !user.emailVerified) return;
 
@@ -318,6 +317,9 @@ export function subscribeToFirestoreLedger(
   onInvoicesUpdate: (cloudInvoices: Invoice[]) => void,
   onConfigUpdate: (cloudConfig: Partial<StudioConfig>) => void
 ): () => void {
+  if (!db) {
+    return () => {};
+  }
   const safeUid = sanitizeValidId(uid);
   const invoicesQuery = query(
     collection(db, 'invoices'),
@@ -427,7 +429,8 @@ export async function fetchServerLedger(): Promise<{
 } | null> {
   try {
     const res = await fetch('/api/ledger');
-    if (!res.ok) return null;
+    const contentType = res.headers.get('content-type') || '';
+    if (!res.ok || !contentType.includes('application/json')) return null;
     const data = await res.json();
     return {
       studioConfig: (data.studioConfig as StudioConfig) || null,
@@ -457,7 +460,8 @@ export async function syncServerLedger(
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ studioConfig, invoices, deletedInvoiceIds, mode }),
     });
-    if (!res.ok) return null;
+    const contentType = res.headers.get('content-type') || '';
+    if (!res.ok || !contentType.includes('application/json')) return null;
     const data = await res.json();
     return {
       studioConfig: (data.studioConfig as StudioConfig) || null,
