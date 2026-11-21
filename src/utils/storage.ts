@@ -5,6 +5,11 @@ import {
   formatDateToDDMMYYYY,
 } from './financials.ts';
 import { BRAND_LOGO_DATA_URL } from '../assets/brandLogoData.ts';
+import {
+  LIVE_BROADNET_INVOICE,
+  LEGACY_EMPTY_DRAFT_IDS,
+  isLegacyEmptyBlankDraft,
+} from '../data/liveStudioSeed.ts';
 
 export const DEFAULT_STUDIO_CONFIG: StudioConfig = {
   studioName: 'Indian Pixel',
@@ -30,7 +35,37 @@ const STORAGE_KEYS = {
   CONFIG: 'ips_studio_config_prod_v1',
   INVOICES: 'ips_invoices_prod_v1',
   NEXT_INV_SEQ: 'ips_next_seq_prod_v1',
+  DELETED_IDS: 'ips_deleted_invoice_ids_v1',
 };
+
+export function loadDeletedInvoiceIds(): string[] {
+  const base = new Set<string>(Array.from(LEGACY_EMPTY_DRAFT_IDS));
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.DELETED_IDS);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        parsed.forEach((id) => {
+          if (typeof id === 'string' && id) base.add(id);
+        });
+      }
+    }
+  } catch (e) {
+    console.error('Failed to load deleted invoice IDs:', e);
+  }
+  return Array.from(base);
+}
+
+export function recordDeletedInvoiceIds(ids: string[]): string[] {
+  const merged = new Set<string>([...loadDeletedInvoiceIds(), ...ids]);
+  const list = Array.from(merged);
+  try {
+    localStorage.setItem(STORAGE_KEYS.DELETED_IDS, JSON.stringify(list));
+  } catch (e) {
+    console.error('Failed to persist deleted invoice IDs:', e);
+  }
+  return list;
+}
 
 // Purge any older legacy keys from earlier testing so user gets fresh start
 export function purgeLegacyStorage(): void {
@@ -189,10 +224,15 @@ export function saveStudioConfig(config: StudioConfig): void {
 }
 
 /**
- * Returns invoices, automatically recovering any saved invoices from previous storage versions
- * so custom client invoices (e.g. Broadnet) are never lost across storage version bumps.
+ * Returns live studio invoices, automatically recovering saved invoices,
+ * pruning legacy blank ₹0 drafts, and ensuring the live Broadnet invoice
+ * (IP2026001) is always displayed across browsers and deployments unless explicitly deleted.
  */
 export function loadInvoices(): Invoice[] {
+  const deletedSet = new Set<string>(loadDeletedInvoiceIds());
+  const recovered: Invoice[] = [];
+  const seenIds = new Set<string>();
+
   try {
     const invoiceKeys = [
       STORAGE_KEYS.INVOICES,
@@ -203,16 +243,19 @@ export function loadInvoices(): Invoice[] {
       'ips_invoices',
     ];
 
-    const seenIds = new Set<string>();
-    const recovered: Invoice[] = [];
-
     for (const key of invoiceKeys) {
       const raw = localStorage.getItem(key);
       if (raw) {
         const parsed = JSON.parse(raw);
         if (Array.isArray(parsed)) {
           for (const inv of parsed) {
-            if (inv && inv.id && !seenIds.has(inv.id)) {
+            if (
+              inv &&
+              inv.id &&
+              !seenIds.has(inv.id) &&
+              !deletedSet.has(inv.id) &&
+              !isLegacyEmptyBlankDraft(inv)
+            ) {
               seenIds.add(inv.id);
               recovered.push({
                 ...inv,
@@ -224,16 +267,22 @@ export function loadInvoices(): Invoice[] {
         }
       }
     }
-
-    if (recovered.length > 0) {
-      localStorage.setItem(STORAGE_KEYS.INVOICES, JSON.stringify(recovered));
-      return recovered;
-    }
   } catch (e) {
     console.error('Failed to load invoices:', e);
   }
-  // Default clean state: 0 invoices, 0 rupees
-  return [];
+
+  // Ensure the canonical live invoice IP2026001 (Broadnet Internet Services) is live on the site
+  if (!deletedSet.has(LIVE_BROADNET_INVOICE.id) && !seenIds.has(LIVE_BROADNET_INVOICE.id)) {
+    recovered.unshift(LIVE_BROADNET_INVOICE);
+  }
+
+  try {
+    localStorage.setItem(STORAGE_KEYS.INVOICES, JSON.stringify(recovered));
+  } catch (e) {
+    console.error('Failed to persist normalized invoices:', e);
+  }
+
+  return recovered;
 }
 
 export function saveInvoices(invoices: Invoice[]): void {
@@ -247,6 +296,7 @@ export function saveInvoices(invoices: Invoice[]): void {
 
 export function clearAllDataToZero(): void {
   try {
+    recordDeletedInvoiceIds([LIVE_BROADNET_INVOICE.id]);
     localStorage.removeItem(STORAGE_KEYS.INVOICES);
     localStorage.removeItem(STORAGE_KEYS.CONFIG);
     localStorage.removeItem(STORAGE_KEYS.NEXT_INV_SEQ);

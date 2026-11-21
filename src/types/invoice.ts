@@ -45,6 +45,7 @@ export interface StudioConfig {
   gstin: string;
   isGstRegistered: boolean;
   pan: string;
+  msmeNumber?: string;
   logoDataUrl?: string;
   bankName: string;
   accountName: string;
@@ -61,6 +62,7 @@ export interface Invoice {
   date: string;
   dueDate: string;
   projectName: string;
+  msmeNumber?: string;
   client: ClientInfo;
   items: LineItem[];
   billingType: BillingType; // 'single' for single full payment, 'milestone' for 40-40-20

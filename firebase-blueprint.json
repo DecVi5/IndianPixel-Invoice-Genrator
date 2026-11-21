@@ -1,0 +1,345 @@
+{
+  "entities": {
+    "StudioInvoice": {
+      "title": "StudioInvoice",
+      "description": "Represents an Indian Pixel Studio commercial invoice persisted across browsers and devices.",
+      "type": "object",
+      "properties": {
+        "ownerId": {
+          "type": "string",
+          "description": "Authenticated Firebase UID of the invoice owner.",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "invoiceNo": {
+          "type": "string",
+          "description": "Unique studio invoice number (e.g., INV-2026-0001).",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "date": {
+          "type": "string",
+          "description": "Invoice issue date in DD/MM/YYYY format.",
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "dueDate": {
+          "type": "string",
+          "description": "Invoice payment due date in DD/MM/YYYY format.",
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "projectName": {
+          "type": "string",
+          "description": "Client project title.",
+          "maxLength": 300
+        },
+        "billingType": {
+          "type": "string",
+          "description": "Single 100% bill or 3-phase milestone schedule.",
+          "enum": ["single", "milestone"],
+          "maxLength": 20
+        },
+        "singleBillPaid": {
+          "type": "boolean",
+          "description": "Whether a single bill has been settled."
+        },
+        "singleBillPaidAt": {
+          "type": "string",
+          "description": "Date string when a single bill was settled.",
+          "maxLength": 32
+        },
+        "msmeNumber": {
+          "type": "string",
+          "description": "MSME / Udyam certificate number printed on this invoice.",
+          "maxLength": 64
+        },
+        "subtotal": {
+          "type": "number",
+          "description": "Subtotal before invoice-level discounts and taxes."
+        },
+        "discountType": {
+          "type": "string",
+          "description": "Discount calculation mode.",
+          "enum": ["percentage", "flat"],
+          "maxLength": 20
+        },
+        "discountValue": {
+          "type": "number",
+          "description": "Raw percentage or flat rupee discount input."
+        },
+        "discountAmount": {
+          "type": "number",
+          "description": "Computed rupee discount deduction."
+        },
+        "discountReason": {
+          "type": "string",
+          "description": "Reason or title for the discount concession.",
+          "maxLength": 300
+        },
+        "taxableAmount": {
+          "type": "number",
+          "description": "Taxable base after discount deduction."
+        },
+        "gstType": {
+          "type": "string",
+          "description": "GST tax jurisdiction mode.",
+          "enum": ["intra", "inter", "zero"],
+          "maxLength": 20
+        },
+        "gstRate": {
+          "type": "number",
+          "description": "Applicable GST percentage slab."
+        },
+        "cgstRate": {
+          "type": "number",
+          "description": "Central GST rate."
+        },
+        "cgstAmount": {
+          "type": "number",
+          "description": "Central GST amount."
+        },
+        "sgstRate": {
+          "type": "number",
+          "description": "State GST rate."
+        },
+        "sgstAmount": {
+          "type": "number",
+          "description": "State GST amount."
+        },
+        "igstRate": {
+          "type": "number",
+          "description": "Integrated GST rate."
+        },
+        "igstAmount": {
+          "type": "number",
+          "description": "Integrated GST amount."
+        },
+        "totalTax": {
+          "type": "number",
+          "description": "Total computed tax amount."
+        },
+        "totalAmountDue": {
+          "type": "number",
+          "description": "Final payable amount on the invoice."
+        },
+        "amountInWords": {
+          "type": "string",
+          "description": "Indian numbering amount in words.",
+          "maxLength": 500
+        },
+        "masterStatus": {
+          "type": "string",
+          "description": "Settlement status of the invoice.",
+          "enum": ["PAID", "PARTIALLY PAID", "UNPAID", "VOID"],
+          "maxLength": 30
+        },
+        "client": {
+          "type": "object",
+          "description": "Client billing details map."
+        },
+        "bankDetails": {
+          "type": "object",
+          "description": "Payment settlement bank and UPI details map."
+        },
+        "items": {
+          "type": "array",
+          "description": "Bounded list of up to 50 line item deliverables."
+        },
+        "milestones": {
+          "type": "array",
+          "description": "Bounded list of 3 milestone phases."
+        },
+        "termsAndConditions": {
+          "type": "string",
+          "description": "Terms and conditions printed on the invoice.",
+          "maxLength": 2000
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server creation timestamp."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server update timestamp."
+        }
+      },
+      "required": [
+        "ownerId",
+        "invoiceNo",
+        "date",
+        "dueDate",
+        "projectName",
+        "billingType",
+        "singleBillPaid",
+        "singleBillPaidAt",
+        "msmeNumber",
+        "subtotal",
+        "discountType",
+        "discountValue",
+        "discountAmount",
+        "discountReason",
+        "taxableAmount",
+        "gstType",
+        "gstRate",
+        "cgstRate",
+        "cgstAmount",
+        "sgstRate",
+        "sgstAmount",
+        "igstRate",
+        "igstAmount",
+        "totalTax",
+        "totalAmountDue",
+        "amountInWords",
+        "masterStatus",
+        "client",
+        "bankDetails",
+        "items",
+        "milestones",
+        "termsAndConditions",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "StudioConfigDoc": {
+      "title": "StudioConfigDoc",
+      "description": "Stores studio branding, banking, tax profile, MSME registration, and financial goal.",
+      "type": "object",
+      "properties": {
+        "ownerId": {
+          "type": "string",
+          "description": "Authenticated Firebase UID owning this studio configuration.",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "studioName": {
+          "type": "string",
+          "description": "Registered studio name.",
+          "maxLength": 200
+        },
+        "address": {
+          "type": "string",
+          "description": "Studio address.",
+          "maxLength": 500
+        },
+        "phone": {
+          "type": "string",
+          "description": "Studio contact phone.",
+          "maxLength": 64
+        },
+        "email": {
+          "type": "string",
+          "description": "Studio contact email.",
+          "maxLength": 128
+        },
+        "web": {
+          "type": "string",
+          "description": "Studio website.",
+          "maxLength": 200
+        },
+        "gstin": {
+          "type": "string",
+          "description": "Studio GSTIN or exemption status.",
+          "maxLength": 64
+        },
+        "pan": {
+          "type": "string",
+          "description": "Studio PAN number.",
+          "maxLength": 32
+        },
+        "msmeNumber": {
+          "type": "string",
+          "description": "Studio MSME / Udyam registration certificate number.",
+          "maxLength": 64
+        },
+        "isGstRegistered": {
+          "type": "boolean",
+          "description": "Whether GST is enabled."
+        },
+        "bankName": {
+          "type": "string",
+          "description": "Settlement bank name.",
+          "maxLength": 200
+        },
+        "accountName": {
+          "type": "string",
+          "description": "Beneficiary account name.",
+          "maxLength": 200
+        },
+        "accountNumber": {
+          "type": "string",
+          "description": "Bank account number.",
+          "maxLength": 64
+        },
+        "ifscCode": {
+          "type": "string",
+          "description": "Bank IFSC code.",
+          "maxLength": 32
+        },
+        "upiId": {
+          "type": "string",
+          "description": "UPI VPA ID.",
+          "maxLength": 128
+        },
+        "defaultTerms": {
+          "type": "string",
+          "description": "Default invoice terms.",
+          "maxLength": 2000
+        },
+        "financialGoal": {
+          "type": "number",
+          "description": "Target studio financial goal in INR."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server creation timestamp."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server update timestamp."
+        }
+      },
+      "required": [
+        "ownerId",
+        "studioName",
+        "address",
+        "phone",
+        "email",
+        "web",
+        "gstin",
+        "pan",
+        "msmeNumber",
+        "isGstRegistered",
+        "bankName",
+        "accountName",
+        "accountNumber",
+        "ifscCode",
+        "upiId",
+        "defaultTerms",
+        "financialGoal",
+        "createdAt",
+        "updatedAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/invoices/{invoiceId}": {
+      "schema": {
+        "$ref": "#/entities/StudioInvoice"
+      },
+      "description": "Stores individual studio invoices scoped to the authenticated owner."
+    },
+    "/studioConfigs/{configId}": {
+      "schema": {
+        "$ref": "#/entities/StudioConfigDoc"
+      },
+      "description": "Stores studio configuration and financial goal scoped to the authenticated owner."
+    }
+  }
+}

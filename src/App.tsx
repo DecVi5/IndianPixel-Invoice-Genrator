@@ -4,6 +4,7 @@
  */
 
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { onAuthStateChanged } from 'firebase/auth';
 import { Invoice, StudioConfig, MilestoneStatus, MilestonePhase } from './types/invoice.ts';
 import {
   loadStudioConfig,
@@ -11,11 +12,14 @@ import {
   loadInvoices,
   saveInvoices,
   loadPersistedFromIndexedDB,
+  loadDeletedInvoiceIds,
+  recordDeletedInvoiceIds,
   getNextInvoiceNumber,
   createBlankInvoice,
   clearAllDataToZero,
   DEFAULT_STUDIO_CONFIG,
 } from './utils/storage.ts';
+import { isLegacyEmptyBlankDraft } from './data/liveStudioSeed.ts';
 import {
   initDriveAuth,
   googleDriveSignIn,
@@ -28,6 +32,16 @@ import {
   DRIVE_LEDGER_FILENAME,
   DriveFileMeta,
 } from './utils/googleDrive.ts';
+import {
+  auth as firebaseAuth,
+  saveInvoiceToFirestore,
+  deleteInvoiceFromFirestore,
+  saveStudioConfigToFirestore,
+  subscribeToFirestoreLedger,
+  fetchServerLedger,
+  syncServerLedger,
+  deleteInvoiceFromServer,
+} from './utils/firestoreSync.ts';
 import { deriveMasterStatus, formatDateToDDMMYYYY, formatIndianCurrency } from './utils/financials.ts';
 import { Sidebar, MainNavTab } from './components/Sidebar.tsx';
 import { TopNavbar } from './components/TopNavbar.tsx';
@@ -54,6 +68,49 @@ import {
   Cloud,
   Trash2,
 } from 'lucide-react';
+
+function mergeInvoiceLists(
+  localList: Invoice[],
+  remoteList: Invoice[],
+  extraDeletedIds: string[] = []
+): Invoice[] {
+  const deletedSet = new Set<string>([...loadDeletedInvoiceIds(), ...extraDeletedIds]);
+  const map = new Map<string, Invoice>();
+
+  for (const inv of localList) {
+    if (inv && inv.id && !deletedSet.has(inv.id) && !isLegacyEmptyBlankDraft(inv)) {
+      map.set(inv.id, inv);
+    }
+  }
+
+  for (const inv of remoteList) {
+    if (inv && inv.id && !deletedSet.has(inv.id) && !isLegacyEmptyBlankDraft(inv)) {
+      const existing = map.get(inv.id);
+      if (!existing) {
+        map.set(inv.id, inv);
+      } else {
+        const existingTime = existing.updatedAt ? new Date(existing.updatedAt).getTime() : 0;
+        const remoteTime = inv.updatedAt ? new Date(inv.updatedAt).getTime() : 0;
+        if (remoteTime > existingTime) {
+          map.set(inv.id, {
+            ...inv,
+            // Preserve invoice-specific bankDetails and singleBillPaidAt if remote snapshot used defaults
+            bankDetails: inv.bankDetails?.accountNumber
+              ? inv.bankDetails
+              : existing.bankDetails,
+            singleBillPaidAt: inv.singleBillPaidAt || existing.singleBillPaidAt,
+          });
+        }
+      }
+    }
+  }
+
+  return Array.from(map.values()).sort((a, b) => {
+    const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+    const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+    return timeB - timeA;
+  });
+}
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
@@ -104,6 +161,16 @@ export default function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const invoicesRef = useRef<Invoice[]>(invoices);
+  const studioConfigRef = useRef<StudioConfig>(studioConfig);
+
+  useEffect(() => {
+    invoicesRef.current = invoices;
+  }, [invoices]);
+
+  useEffect(() => {
+    studioConfigRef.current = studioConfig;
+  }, [studioConfig]);
 
   // Google Drive Cloud Persistence State
   const [driveConnected, setDriveConnected] = useState<boolean>(false);
@@ -121,51 +188,167 @@ export default function App() {
     }, 3200);
   };
 
-  // Recover from IndexedDB if localStorage was cleared by browser session
+  // Recover from IndexedDB + Cross-Browser Server Ledger on mount and periodic sync
   useEffect(() => {
     let active = true;
-    loadPersistedFromIndexedDB().then((persisted) => {
+
+    const bootstrapPersistence = async () => {
+      const persisted = await loadPersistedFromIndexedDB();
       if (!active) return;
+
+      let currentConfig = studioConfigRef.current;
+      let currentInvoices = invoicesRef.current;
+
       if (persisted.studioConfig) {
-        setStudioConfig((curr) => ({ ...curr, ...persisted.studioConfig }));
+        currentConfig = { ...currentConfig, ...persisted.studioConfig };
+        setStudioConfig(currentConfig);
       }
       if (Array.isArray(persisted.invoices) && persisted.invoices.length > 0) {
+        currentInvoices = mergeInvoiceLists(currentInvoices, persisted.invoices);
+        setInvoices(currentInvoices);
+      }
+
+      // Sync with server-side ledger so invoices created in Browser A appear in Browser B
+      const serverData = await syncServerLedger(
+        currentConfig,
+        currentInvoices,
+        'merge',
+        loadDeletedInvoiceIds()
+      );
+      if (!active || !serverData) return;
+
+      if (Array.isArray(serverData.deletedInvoiceIds) && serverData.deletedInvoiceIds.length > 0) {
+        recordDeletedInvoiceIds(serverData.deletedInvoiceIds);
+      }
+      if (serverData.studioConfig) {
+        setStudioConfig((curr) => ({ ...curr, ...serverData.studioConfig }));
+      }
+      if (Array.isArray(serverData.invoices)) {
         setInvoices((curr) => {
-          if (curr.length === 0 && persisted.invoices && persisted.invoices.length > 0) {
-            setActiveInvoiceId(persisted.invoices[0].id);
-            return persisted.invoices;
+          const merged = mergeInvoiceLists(
+            curr,
+            serverData.invoices || [],
+            serverData.deletedInvoiceIds || []
+          );
+          if (merged.length > 0) {
+            setActiveInvoiceId((prevId) => prevId || merged[0].id);
+          }
+          return merged;
+        });
+      }
+    };
+
+    bootstrapPersistence();
+
+    // Poll every 5 seconds to keep multiple open browsers in sync
+    const interval = setInterval(async () => {
+      if (!active) return;
+      const serverData = await fetchServerLedger();
+      if (!active || !serverData) return;
+      if (Array.isArray(serverData.deletedInvoiceIds) && serverData.deletedInvoiceIds.length > 0) {
+        recordDeletedInvoiceIds(serverData.deletedInvoiceIds);
+      }
+      if (Array.isArray(serverData.invoices)) {
+        setInvoices((curr) => {
+          const merged = mergeInvoiceLists(
+            curr,
+            serverData.invoices || [],
+            serverData.deletedInvoiceIds || []
+          );
+          if (JSON.stringify(merged) !== JSON.stringify(curr)) {
+            if (merged.length > 0) {
+              setActiveInvoiceId((prevId) => prevId || merged[0].id);
+            }
+            return merged;
           }
           return curr;
         });
       }
-    });
+    }, 5000);
+
     return () => {
       active = false;
+      clearInterval(interval);
     };
   }, []);
 
-  // Initialize Firebase Google Drive Auth Listener
+  // Dedicated Cloud Firestore real-time listener (persists across reloads independently of Drive OAuth token)
   useEffect(() => {
-    const unsubscribe = initDriveAuth(
+    let unsubscribeFirestore: (() => void) | null = null;
+
+    const unsubscribeFirebaseAuth = onAuthStateChanged(firebaseAuth, (user) => {
+      if (user && user.emailVerified) {
+        setDriveUserEmail((prev) => prev || user.email || user.displayName || 'Connected Account');
+
+        // Push current live invoices and config to Cloud Firestore
+        saveStudioConfigToFirestore(studioConfigRef.current);
+        invoicesRef.current.forEach((inv) => {
+          saveInvoiceToFirestore(inv);
+        });
+
+        // Subscribe to real-time Cloud Firestore changes across browsers & devices
+        if (unsubscribeFirestore) unsubscribeFirestore();
+        unsubscribeFirestore = subscribeToFirestoreLedger(
+          user.uid,
+          (remoteInvoices: Invoice[]) => {
+            if (remoteInvoices.length > 0) {
+              setInvoices((curr) => {
+                const merged = mergeInvoiceLists(curr, remoteInvoices);
+                if (merged.length > 0) {
+                  setActiveInvoiceId((prevId) => prevId || merged[0].id);
+                }
+                return merged;
+              });
+            }
+          },
+          (remoteConfig: Partial<StudioConfig>) => {
+            if (remoteConfig) {
+              setStudioConfig((curr) => ({ ...curr, ...remoteConfig }));
+            }
+          }
+        );
+      } else {
+        if (unsubscribeFirestore) {
+          unsubscribeFirestore();
+          unsubscribeFirestore = null;
+        }
+      }
+    });
+
+    return () => {
+      unsubscribeFirebaseAuth();
+      if (unsubscribeFirestore) unsubscribeFirestore();
+    };
+  }, []);
+
+  // Initialize Firebase Google Drive OAuth Listener
+  useEffect(() => {
+    const unsubscribeDriveAuth = initDriveAuth(
       (user) => {
         setDriveConnected(true);
         setDriveUserEmail(user.email || user.displayName || 'Connected Account');
       },
       () => {
         setDriveConnected(false);
-        setDriveUserEmail(null);
       }
     );
-    return () => unsubscribe();
+
+    return () => {
+      unsubscribeDriveAuth();
+    };
   }, []);
 
-  // Sync state to LocalStorage + IndexedDB
+  // Sync state to LocalStorage + IndexedDB + Server Ledger + Cloud Firestore
   useEffect(() => {
     saveStudioConfig(studioConfig);
+    saveStudioConfigToFirestore(studioConfig);
   }, [studioConfig]);
 
   useEffect(() => {
     saveInvoices(invoices);
+    if (invoices.length > 0) {
+      syncServerLedger(studioConfigRef.current, invoices, 'merge', loadDeletedInvoiceIds());
+    }
   }, [invoices]);
 
   const handleLoginSuccess = () => {
@@ -403,6 +586,8 @@ export default function App() {
     const updated = [newInv, ...invoices];
     setInvoices(updated);
     setActiveInvoiceId(newInv.id);
+    saveInvoiceToFirestore(newInv);
+    syncServerLedger(studioConfig, updated, 'merge');
     setActiveTab('create');
     setEditorSubView('split');
     setMobileMenuOpen(false);
@@ -424,11 +609,13 @@ export default function App() {
   const handleSaveInvoice = useCallback((updated: Invoice, options?: { isAutoSave?: boolean }) => {
     setInvoices((prev) => {
       const exists = prev.some((inv) => inv.id === updated.id);
-      if (exists) {
-        return prev.map((inv) => (inv.id === updated.id ? updated : inv));
-      }
-      return [updated, ...prev];
+      const nextList = exists
+        ? prev.map((inv) => (inv.id === updated.id ? updated : inv))
+        : [updated, ...prev];
+      syncServerLedger(studioConfigRef.current, nextList, 'merge');
+      return nextList;
     });
+    saveInvoiceToFirestore(updated);
     setActiveInvoiceId(updated.id);
     if (!options?.isAutoSave) {
       showToast(`Invoice ${updated.invoiceNo} saved`);
@@ -444,6 +631,7 @@ export default function App() {
       }
       return [updated, ...prev];
     });
+    saveInvoiceToFirestore(updated);
     setActiveInvoiceId(updated.id);
   }, []);
 
@@ -465,14 +653,20 @@ export default function App() {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
-    setInvoices([duplicated, ...invoices]);
+    const nextList = [duplicated, ...invoices];
+    setInvoices(nextList);
+    saveInvoiceToFirestore(duplicated);
+    syncServerLedger(studioConfig, nextList, 'merge');
     setActiveInvoiceId(duplicated.id);
     showToast(`Duplicated to ${nextNo}`);
   };
 
   const handleDeleteInvoice = (invoiceId: string) => {
+    recordDeletedInvoiceIds([invoiceId]);
     const remaining = invoices.filter((inv) => inv.id !== invoiceId);
     setInvoices(remaining);
+    deleteInvoiceFromFirestore(invoiceId);
+    deleteInvoiceFromServer(invoiceId);
     if (activeInvoiceId === invoiceId) {
       setActiveInvoiceId(remaining[0]?.id || '');
     }
@@ -489,13 +683,15 @@ export default function App() {
           const nextPaid = !inv.singleBillPaid;
           const nextPaidAt = nextPaid ? formatDateToDDMMYYYY(new Date()) : undefined;
           const masterStatus = nextPaid ? 'PAID' : 'UNPAID';
-          return {
+          const updatedInv: Invoice = {
             ...inv,
             singleBillPaid: nextPaid,
             singleBillPaidAt: nextPaidAt,
             masterStatus,
             updatedAt: new Date().toISOString(),
           };
+          saveInvoiceToFirestore(updatedInv);
+          return updatedInv;
         }
 
         const updatedMilestones: [MilestonePhase, MilestonePhase, MilestonePhase] = [
@@ -552,12 +748,14 @@ export default function App() {
           inv.singleBillPaid
         );
 
-        return {
+        const updatedInv: Invoice = {
           ...inv,
           milestones: updatedMilestones,
           masterStatus: newMasterStatus,
           updatedAt: new Date().toISOString(),
         };
+        saveInvoiceToFirestore(updatedInv);
+        return updatedInv;
       })
     );
   };
@@ -600,9 +798,16 @@ export default function App() {
         const parsed = JSON.parse(event.target?.result as string);
         if (parsed.studioConfig) {
           setStudioConfig(parsed.studioConfig);
+          saveStudioConfigToFirestore(parsed.studioConfig);
         }
         if (Array.isArray(parsed.invoices)) {
           setInvoices(parsed.invoices);
+          parsed.invoices.forEach((inv: Invoice) => saveInvoiceToFirestore(inv));
+          syncServerLedger(
+            parsed.studioConfig || studioConfig,
+            parsed.invoices,
+            'merge'
+          );
           if (parsed.invoices.length > 0) {
             setActiveInvoiceId(parsed.invoices[0].id);
           }
@@ -619,10 +824,12 @@ export default function App() {
 
   // Strict Reset to 0: Clears ledger so all metrics start at 0
   const handlePerformResetZero = () => {
+    invoices.forEach((inv) => deleteInvoiceFromFirestore(inv.id));
     clearAllDataToZero();
     setInvoices([]);
     setActiveInvoiceId('');
     setStudioConfig(DEFAULT_STUDIO_CONFIG);
+    syncServerLedger(DEFAULT_STUDIO_CONFIG, [], 'replace');
     setIsResetModalOpen(false);
     setActiveTab('home');
     showToast('Studio data reset to ₹0.00 — Ready for clean entry');
@@ -731,8 +938,17 @@ export default function App() {
       updatedAt: new Date().toISOString(),
     };
     setInvoices([sampleInv]);
+    saveInvoiceToFirestore(sampleInv);
+    syncServerLedger(studioConfig, [sampleInv], 'merge');
     setActiveInvoiceId(sampleInv.id);
     showToast('Loaded sample studio invoice with Single Bill & Discount');
+  };
+
+  const handleGoogleUnlockStudio = async () => {
+    await handleConnectGoogleDrive();
+    if (firebaseAuth.currentUser) {
+      handleLoginSuccess();
+    }
   };
 
   // If user is not authenticated, render confidential password login screen
@@ -740,6 +956,7 @@ export default function App() {
     return (
       <LoginScreen
         onLoginSuccess={handleLoginSuccess}
+        onGoogleSignIn={handleGoogleUnlockStudio}
         logoDataUrl={studioConfig.logoDataUrl}
       />
     );

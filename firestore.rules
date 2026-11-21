@@ -1,0 +1,192 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 1. Global Safety Net: Default-deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // 2. Hardened Global Primitives
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null && request.auth.token.email_verified == true;
+    }
+
+    // 3. Validation Blueprint for StudioInvoice (/invoices/{invoiceId})
+    function isValidStudioInvoice(data) {
+      return data.keys().hasAll([
+          'ownerId', 'invoiceNo', 'date', 'dueDate', 'projectName',
+          'billingType', 'singleBillPaid', 'subtotal', 'discountType',
+          'discountValue', 'discountAmount', 'discountReason', 'taxableAmount',
+          'gstType', 'gstRate', 'cgstRate', 'cgstAmount', 'sgstRate',
+          'sgstAmount', 'igstRate', 'igstAmount', 'totalTax', 'totalAmountDue',
+          'amountInWords', 'masterStatus', 'client', 'items', 'milestones',
+          'termsAndConditions', 'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'ownerId', 'invoiceNo', 'date', 'dueDate', 'projectName',
+          'billingType', 'singleBillPaid', 'subtotal', 'discountType',
+          'discountValue', 'discountAmount', 'discountReason', 'taxableAmount',
+          'gstType', 'gstRate', 'cgstRate', 'cgstAmount', 'sgstRate',
+          'sgstAmount', 'igstRate', 'igstAmount', 'totalTax', 'totalAmountDue',
+          'amountInWords', 'masterStatus', 'client', 'items', 'milestones',
+          'termsAndConditions', 'createdAt', 'updatedAt'
+        ])
+        && data.ownerId is string && data.ownerId.size() >= 1 && data.ownerId.size() <= 128 && data.ownerId.matches('^[a-zA-Z0-9_\\-]+$')
+        && data.ownerId == request.auth.uid
+        && data.invoiceNo is string && data.invoiceNo.size() >= 1 && data.invoiceNo.size() <= 64
+        && data.date is string && data.date.size() >= 1 && data.date.size() <= 32
+        && data.dueDate is string && data.dueDate.size() >= 1 && data.dueDate.size() <= 32
+        && data.projectName is string && data.projectName.size() <= 300
+        && data.billingType is string && data.billingType.size() <= 20 && data.billingType in ['single', 'milestone']
+        && data.singleBillPaid is bool
+        && data.subtotal is number && data.subtotal >= 0
+        && data.discountType is string && data.discountType.size() <= 20 && data.discountType in ['percentage', 'flat']
+        && data.discountValue is number && data.discountValue >= 0
+        && data.discountAmount is number && data.discountAmount >= 0
+        && data.discountReason is string && data.discountReason.size() <= 300
+        && data.taxableAmount is number && data.taxableAmount >= 0
+        && data.gstType is string && data.gstType.size() <= 20 && data.gstType in ['intra', 'inter', 'zero']
+        && data.gstRate is number && data.gstRate >= 0 && data.gstRate <= 100
+        && data.cgstRate is number && data.cgstRate >= 0
+        && data.cgstAmount is number && data.cgstAmount >= 0
+        && data.sgstRate is number && data.sgstRate >= 0
+        && data.sgstAmount is number && data.sgstAmount >= 0
+        && data.igstRate is number && data.igstRate >= 0
+        && data.igstAmount is number && data.igstAmount >= 0
+        && data.totalTax is number && data.totalTax >= 0
+        && data.totalAmountDue is number && data.totalAmountDue >= 0
+        && data.amountInWords is string && data.amountInWords.size() <= 500
+        && data.masterStatus is string && data.masterStatus.size() <= 30 && data.masterStatus in ['PAID', 'PARTIALLY PAID', 'UNPAID', 'VOID']
+        && data.client is map && data.client.size() <= 10
+        && data.items is list && data.items.size() >= 1 && data.items.size() <= 50 && data.items[0] is map
+        && data.milestones is list && data.milestones.size() == 3 && data.milestones[0] is map
+        && data.termsAndConditions is string && data.termsAndConditions.size() <= 2000
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    // 4. Validation Blueprint for StudioConfigDoc (/studioConfigs/{configId})
+    function isValidStudioConfig(data) {
+      return data.keys().hasAll([
+          'ownerId', 'studioName', 'address', 'phone', 'email', 'web',
+          'gstin', 'pan', 'isGstRegistered', 'bankName', 'accountName',
+          'accountNumber', 'ifscCode', 'upiId', 'defaultTerms',
+          'financialGoal', 'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'ownerId', 'studioName', 'address', 'phone', 'email', 'web',
+          'gstin', 'pan', 'isGstRegistered', 'bankName', 'accountName',
+          'accountNumber', 'ifscCode', 'upiId', 'defaultTerms',
+          'financialGoal', 'createdAt', 'updatedAt'
+        ])
+        && data.ownerId is string && data.ownerId.size() >= 1 && data.ownerId.size() <= 128 && data.ownerId.matches('^[a-zA-Z0-9_\\-]+$')
+        && data.ownerId == request.auth.uid
+        && data.studioName is string && data.studioName.size() <= 200
+        && data.address is string && data.address.size() <= 500
+        && data.phone is string && data.phone.size() <= 64
+        && data.email is string && data.email.size() <= 128
+        && data.web is string && data.web.size() <= 200
+        && data.gstin is string && data.gstin.size() <= 64
+        && data.pan is string && data.pan.size() <= 32
+        && data.isGstRegistered is bool
+        && data.bankName is string && data.bankName.size() <= 200
+        && data.accountName is string && data.accountName.size() <= 200
+        && data.accountNumber is string && data.accountNumber.size() <= 64
+        && data.ifscCode is string && data.ifscCode.size() <= 32
+        && data.upiId is string && data.upiId.size() <= 128
+        && data.defaultTerms is string && data.defaultTerms.size() <= 2000
+        && data.financialGoal is number && data.financialGoal >= 0
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    // Collection 1: /invoices/{invoiceId}
+    match /invoices/{invoiceId} {
+      allow get: if isSignedIn() && isValidId(invoiceId) && (resource == null || existing().ownerId == request.auth.uid);
+      allow list: if isSignedIn() && existing().ownerId == request.auth.uid;
+
+      allow create: if isSignedIn()
+        && isValidId(invoiceId)
+        && isValidStudioInvoice(incoming())
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+
+      allow update: if isSignedIn()
+        && isValidId(invoiceId)
+        && isValidStudioInvoice(incoming())
+        && existing().ownerId == request.auth.uid
+        && incoming().ownerId == existing().ownerId
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && existing().masterStatus != 'VOID'
+        && (
+          // Action 1: Full Invoice Edit / Auto-Save
+          incoming().diff(existing()).affectedKeys().hasOnly([
+            'invoiceNo', 'date', 'dueDate', 'projectName', 'billingType',
+            'singleBillPaid', 'subtotal', 'discountType', 'discountValue',
+            'discountAmount', 'discountReason', 'taxableAmount', 'gstType',
+            'gstRate', 'cgstRate', 'cgstAmount', 'sgstRate', 'sgstAmount',
+            'igstRate', 'igstAmount', 'totalTax', 'totalAmountDue',
+            'amountInWords', 'masterStatus', 'client', 'items', 'milestones',
+            'termsAndConditions', 'updatedAt'
+          ])
+          ||
+          // Action 2: Quick Settlement Status / Milestone Toggle
+          incoming().diff(existing()).affectedKeys().hasOnly([
+            'singleBillPaid', 'milestones', 'masterStatus', 'updatedAt'
+          ])
+        );
+
+      allow delete: if isSignedIn() && isValidId(invoiceId) && existing().ownerId == request.auth.uid;
+    }
+
+    // Collection 2: /studioConfigs/{configId}
+    match /studioConfigs/{configId} {
+      allow get: if isSignedIn() && isValidId(configId) && configId == request.auth.uid && (resource == null || existing().ownerId == request.auth.uid);
+
+      allow create: if isSignedIn()
+        && isValidId(configId)
+        && configId == request.auth.uid
+        && isValidStudioConfig(incoming())
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+
+      allow update: if isSignedIn()
+        && isValidId(configId)
+        && configId == request.auth.uid
+        && isValidStudioConfig(incoming())
+        && existing().ownerId == request.auth.uid
+        && incoming().ownerId == existing().ownerId
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && (
+          // Action 1: Update Full Studio Profile & Settings
+          incoming().diff(existing()).affectedKeys().hasOnly([
+            'studioName', 'address', 'phone', 'email', 'web', 'gstin', 'pan',
+            'isGstRegistered', 'bankName', 'accountName', 'accountNumber',
+            'ifscCode', 'upiId', 'defaultTerms', 'financialGoal', 'updatedAt'
+          ])
+          ||
+          // Action 2: Quick Financial Goal Update
+          incoming().diff(existing()).affectedKeys().hasOnly([
+            'financialGoal', 'updatedAt'
+          ])
+        );
+
+      allow delete: if isSignedIn() && isValidId(configId) && configId == request.auth.uid && existing().ownerId == request.auth.uid;
+    }
+  }
+}

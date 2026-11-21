@@ -299,6 +299,279 @@ export function HomeScreen({
         </div>
       </div>
 
+      {/* Live Studio Invoices — Prominently displayed right below Executive KPIs */}
+      <div className="rounded-2xl bg-[#08221B] border border-[#ACBEA3]/25 overflow-hidden">
+        <div className="p-6 sm:p-7 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-[#ACBEA3]/15">
+          <div className="flex items-center gap-3.5">
+            <div className="w-9 h-9 rounded-xl bg-[#2C3330] border border-[#ACBEA3]/25 text-[#FFA400] flex items-center justify-center shrink-0">
+              <FileText className="w-4 h-4" />
+            </div>
+            <div>
+              <h3 className="font-montserrat font-bold text-sm sm:text-base text-[#F8F4ED]">
+                Live Studio Invoices
+              </h3>
+              <p className="text-xs text-[#ACBEA3]">
+                Active client bills, package waivers, and real-time settlement records
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2.5 w-full sm:w-auto justify-end">
+            <button
+              onClick={() => onNavigateTab('invoices')}
+              className="px-4 py-2 rounded-xl bg-[#2C3330] hover:bg-[#38423e] text-xs text-[#F8F4ED] border border-[#ACBEA3]/25 transition-colors cursor-pointer whitespace-nowrap"
+            >
+              View Ledger ({invoices.length})
+            </button>
+            <button
+              onClick={() => onNavigateTab('create')}
+              className="press-scale flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#FFA400] hover:bg-[#ffb426] text-[#08221B] font-bold text-xs shadow-xs cursor-pointer whitespace-nowrap"
+            >
+              <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+              <span>+ Invoice</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Empty State */}
+        {recentInvoices.length === 0 ? (
+          <div className="p-10 sm:p-14 text-center space-y-3">
+            <div className="flex items-center justify-center mx-auto">
+              <BrandLogo size="md" variant="icon" theme="white" withText={false} />
+            </div>
+            <div className="font-montserrat font-bold text-sm text-[#F8F4ED]">
+              No Invoices Generated Yet
+            </div>
+            <p className="text-xs text-[#ACBEA3] max-w-sm mx-auto">
+              Ready to generate your first single bill or milestone invoice for Indian Pixel clients?
+            </p>
+            <div className="pt-2 flex items-center justify-center gap-2">
+              <button
+                onClick={() => onNavigateTab('create')}
+                className="press-scale px-4 py-2 rounded-xl bg-[#FFA400] text-[#08221B] text-xs font-bold shadow-xs cursor-pointer"
+              >
+                + Generate Invoice
+              </button>
+              {onLoadSampleData && (
+                <button
+                  onClick={onLoadSampleData}
+                  className="press-scale px-4 py-2 rounded-xl bg-[#2C3330] text-[#FFA400] text-xs font-semibold border border-[#FFA400]/40 cursor-pointer"
+                >
+                  Load Sample
+                </button>
+              )}
+            </div>
+          </div>
+        ) : (
+          <div>
+            {/* Desktop & Tablet Table */}
+            <div className="hidden sm:block overflow-x-auto">
+              <table className="w-full text-left text-xs font-poppins">
+                <thead className="text-[11px] font-bold font-montserrat uppercase tracking-wider text-[#ACBEA3] bg-[#051712] border-b border-[#ACBEA3]/15">
+                  <tr>
+                    <th className="py-3 px-4">Invoice #</th>
+                    <th className="py-3 px-4">Client / Deliverable</th>
+                    <th className="py-3 px-4">Billing Type</th>
+                    <th className="py-3 px-4 text-right">Net Payable (₹)</th>
+                    <th className="py-3 px-4 text-center">Status</th>
+                    <th className="py-3 px-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#ACBEA3]/10">
+                  {recentInvoices.map((inv) => {
+                    const isSingle = inv.billingType === 'single';
+                    const isOverdue = isInvoiceOverdue(inv.dueDate, inv.masterStatus);
+                    const grossValue = (inv.items || []).reduce(
+                      (sum, it) => sum + (Number(it.qty) || 0) * (Number(it.rate) || 0),
+                      0
+                    );
+                    const hasSavings = grossValue > inv.totalAmountDue;
+
+                    return (
+                      <tr
+                        key={inv.id}
+                        onClick={() => onSelectInvoice(inv)}
+                        className="hover:bg-[#2C3330]/45 transition-colors cursor-pointer"
+                      >
+                        <td className="py-4 px-4 font-space-mono font-bold text-[#F8F4ED]">
+                          {inv.invoiceNo}
+                          <span className="block text-[10px] font-poppins font-normal text-[#ACBEA3] mt-0.5">
+                            {inv.date}
+                          </span>
+                        </td>
+
+                        <td className="py-4 px-4">
+                          <div className="font-semibold text-[#F8F4ED]">
+                            {inv.client.name || 'Valued Client'}
+                          </div>
+                          <div className="text-[11px] truncate max-w-md text-[#ACBEA3] mt-0.5">
+                            {inv.items?.[0]?.description || inv.projectName || 'Commercial Design Services'}
+                          </div>
+                        </td>
+
+                        <td className="py-4 px-4">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-medium bg-[#2C3330] border border-[#ACBEA3]/30 text-[#F8F4ED]">
+                            {isSingle ? (
+                              <>
+                                <Zap className="w-3 h-3 text-[#FFA400]" />
+                                <span>Single Bill</span>
+                              </>
+                            ) : (
+                              <>
+                                <Layers className="w-3 h-3 text-[#ACBEA3]" />
+                                <span>Milestone</span>
+                              </>
+                            )}
+                          </span>
+                        </td>
+
+                        <td className="py-4 px-4 text-right font-space-mono tabular-nums">
+                          <div className="font-bold text-[#F8F4ED]">
+                            {formatIndianCurrency(inv.totalAmountDue)}
+                          </div>
+                          {hasSavings && (
+                            <div className="text-[10px] font-poppins text-emerald-400 mt-0.5">
+                              Value {formatIndianCurrency(grossValue)}
+                              {inv.discountReason ? ` · ${inv.discountReason}` : ''}
+                            </div>
+                          )}
+                        </td>
+
+                        <td className="py-4 px-4 text-center">
+                          <span
+                            className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-semibold ${
+                              inv.masterStatus === 'PAID'
+                                ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-400/35'
+                                : inv.masterStatus === 'PARTIALLY PAID'
+                                ? 'bg-[#FFA400]/20 text-[#FFA400] border border-[#FFA400]/40'
+                                : isOverdue
+                                ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40'
+                                : 'bg-[#2C3330] text-[#ACBEA3] border border-[#ACBEA3]/30'
+                            }`}
+                          >
+                            {inv.masterStatus === 'PAID' ? (
+                              <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                            ) : isOverdue ? (
+                              <AlertTriangle className="w-3 h-3 text-rose-400" />
+                            ) : (
+                              <Clock className="w-3 h-3 text-[#FFA400]" />
+                            )}
+                            <span>{isOverdue ? 'OVERDUE' : inv.masterStatus}</span>
+                          </span>
+                        </td>
+
+                        <td
+                          className="py-4 px-4 text-right"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <div className="flex items-center justify-end gap-2">
+                            <button
+                              onClick={() => onSelectInvoice(inv)}
+                              title="Preview / Print A4"
+                              className="px-2.5 py-1.5 rounded-lg bg-[#FFA400] hover:bg-[#ffb426] text-[#08221B] font-semibold text-[11px] inline-flex items-center gap-1 transition-colors cursor-pointer"
+                            >
+                              <Eye className="w-3.5 h-3.5" />
+                              <span>View A4</span>
+                            </button>
+                            <button
+                              onClick={() => onEditInvoice(inv)}
+                              title="Edit Invoice"
+                              className="p-1.5 rounded-lg bg-[#2C3330] hover:bg-[#38423e] text-[#F8F4ED] transition-colors cursor-pointer"
+                            >
+                              <Edit2 className="w-3.5 h-3.5 text-[#ACBEA3]" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile Cards View */}
+            <div className="block sm:hidden divide-y divide-[#ACBEA3]/10">
+              {recentInvoices.map((inv) => {
+                const isOverdue = isInvoiceOverdue(inv.dueDate, inv.masterStatus);
+                const grossValue = (inv.items || []).reduce(
+                  (sum, it) => sum + (Number(it.qty) || 0) * (Number(it.rate) || 0),
+                  0
+                );
+
+                return (
+                  <div key={inv.id} className="p-4 space-y-2.5">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <div className="font-space-mono font-bold text-sm text-[#F8F4ED]">
+                          {inv.invoiceNo}
+                        </div>
+                        <div className="text-xs font-semibold text-[#F8F4ED] mt-0.5">
+                          {inv.client.name || 'Valued Client'}
+                        </div>
+                        <div className="text-[11px] text-[#ACBEA3]">
+                          {inv.items?.[0]?.description || inv.projectName || 'Commercial Design Services'}
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="font-space-mono font-bold text-sm text-[#FFA400]">
+                          {formatIndianCurrency(inv.totalAmountDue)}
+                        </div>
+                        {grossValue > inv.totalAmountDue && (
+                          <div className="text-[10px] text-emerald-400">
+                            Value {formatIndianCurrency(grossValue)}
+                          </div>
+                        )}
+                        <div className="text-[10px] text-[#ACBEA3] mt-0.5">{inv.date}</div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-1">
+                      <span
+                        className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold ${
+                          inv.masterStatus === 'PAID'
+                            ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-400/35'
+                            : inv.masterStatus === 'PARTIALLY PAID'
+                            ? 'bg-[#FFA400]/20 text-[#FFA400] border border-[#FFA400]/40'
+                            : isOverdue
+                            ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40'
+                            : 'bg-[#2C3330] text-[#ACBEA3] border border-[#ACBEA3]/30'
+                        }`}
+                      >
+                        {inv.masterStatus === 'PAID' ? (
+                          <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                        ) : isOverdue ? (
+                          <AlertTriangle className="w-3 h-3 text-rose-400" />
+                        ) : (
+                          <Clock className="w-3 h-3 text-[#FFA400]" />
+                        )}
+                        <span>{isOverdue ? 'OVERDUE' : inv.masterStatus}</span>
+                      </span>
+
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          onClick={() => onSelectInvoice(inv)}
+                          className="px-3 py-1.5 rounded-lg bg-[#FFA400] text-[#08221B] text-xs font-bold flex items-center gap-1"
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                          <span>View A4</span>
+                        </button>
+                        <button
+                          onClick={() => onEditInvoice(inv)}
+                          className="px-3 py-1.5 rounded-lg bg-[#2C3330] text-xs font-medium text-[#F8F4ED] flex items-center gap-1"
+                        >
+                          <Edit2 className="w-3.5 h-3.5 text-[#ACBEA3]" />
+                          <span>Edit</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+
       {/* Bento Grid: Left Chart (8 cols) + Right Studio Details (4 cols) */}
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 lg:gap-6">
         {/* Left: Interactive Cashflow Velocity Chart */}
@@ -467,252 +740,6 @@ export function HomeScreen({
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Current Invoices Section */}
-      <div className="rounded-2xl bg-[#08221B] border border-[#ACBEA3]/20 overflow-hidden">
-        <div className="p-6 sm:p-7 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-[#ACBEA3]/15">
-          <div className="flex items-center gap-3.5">
-            <div className="w-9 h-9 rounded-xl bg-[#2C3330] border border-[#ACBEA3]/25 text-[#FFA400] flex items-center justify-center shrink-0">
-              <FileText className="w-4 h-4" />
-            </div>
-            <div>
-              <h3 className="font-montserrat font-bold text-sm sm:text-base text-[#F8F4ED]">
-                Recent Studio Invoices
-              </h3>
-              <p className="text-xs text-[#ACBEA3]">
-                Client disbursements, milestone breakdown, and settlement status
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2.5 w-full sm:w-auto justify-end">
-            <button
-              onClick={() => onNavigateTab('invoices')}
-              className="px-4 py-2 rounded-xl bg-[#2C3330] hover:bg-[#38423e] text-xs text-[#F8F4ED] border border-[#ACBEA3]/25 transition-colors cursor-pointer whitespace-nowrap"
-            >
-              View All ({invoices.length})
-            </button>
-            <button
-              onClick={() => onNavigateTab('create')}
-              className="press-scale flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#FFA400] hover:bg-[#ffb426] text-[#08221B] font-bold text-xs shadow-xs cursor-pointer whitespace-nowrap"
-            >
-              <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-              <span>+ Invoice</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Empty State */}
-        {recentInvoices.length === 0 ? (
-          <div className="p-10 sm:p-14 text-center space-y-3">
-            <div className="flex items-center justify-center mx-auto">
-              <BrandLogo size="md" variant="icon" theme="white" withText={false} />
-            </div>
-            <div className="font-montserrat font-bold text-sm text-[#F8F4ED]">
-              No Invoices Generated Yet
-            </div>
-            <p className="text-xs text-[#ACBEA3] max-w-sm mx-auto">
-              Ready to generate your first single bill or milestone invoice for Indian Pixel clients?
-            </p>
-            <div className="pt-2 flex items-center justify-center gap-2">
-              <button
-                onClick={() => onNavigateTab('create')}
-                className="press-scale px-4 py-2 rounded-xl bg-[#FFA400] text-[#08221B] text-xs font-bold shadow-xs cursor-pointer"
-              >
-                + Generate Invoice
-              </button>
-              {onLoadSampleData && (
-                <button
-                  onClick={onLoadSampleData}
-                  className="press-scale px-4 py-2 rounded-xl bg-[#2C3330] text-[#FFA400] text-xs font-semibold border border-[#FFA400]/40 cursor-pointer"
-                >
-                  Load Sample
-                </button>
-              )}
-            </div>
-          </div>
-        ) : (
-          <div>
-            {/* Desktop & Tablet Table (Hidden on small phones) */}
-            <div className="hidden sm:block overflow-x-auto">
-              <table className="w-full text-left text-xs font-poppins">
-                <thead className="text-[11px] font-bold font-montserrat uppercase tracking-wider text-[#ACBEA3] bg-[#051712] border-b border-[#ACBEA3]/15">
-                  <tr>
-                    <th className="py-3 px-4">Invoice #</th>
-                    <th className="py-3 px-4">Client / Project</th>
-                    <th className="py-3 px-4">Billing Type</th>
-                    <th className="py-3 px-4 text-right">Amount (₹)</th>
-                    <th className="py-3 px-4 text-center">Status</th>
-                    <th className="py-3 px-4 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[#ACBEA3]/10">
-                  {recentInvoices.map((inv) => {
-                    const isSingle = inv.billingType === 'single';
-                    const isOverdue = isInvoiceOverdue(inv.dueDate, inv.masterStatus);
-
-                    return (
-                      <tr
-                        key={inv.id}
-                        className="hover:bg-[#2C3330]/40 transition-colors"
-                      >
-                        <td className="py-3.5 px-4 font-space-mono font-bold text-[#F8F4ED]">
-                          {inv.invoiceNo}
-                          <span className="block text-[10px] font-poppins font-normal text-[#ACBEA3]">
-                            {inv.date}
-                          </span>
-                        </td>
-
-                        <td className="py-3.5 px-4">
-                          <div className="font-semibold text-[#F8F4ED]">
-                            {inv.client.name || 'Valued Client'}
-                          </div>
-                          <div className="text-[11px] truncate max-w-xs text-[#ACBEA3]">
-                            {inv.projectName || 'Commercial Design Services'}
-                          </div>
-                        </td>
-
-                        <td className="py-3.5 px-4">
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-medium bg-[#2C3330] border border-[#ACBEA3]/30 text-[#F8F4ED]">
-                            {isSingle ? (
-                              <>
-                                <Zap className="w-3 h-3 text-[#FFA400]" />
-                                <span>Single Bill</span>
-                              </>
-                            ) : (
-                              <>
-                                <Layers className="w-3 h-3 text-[#ACBEA3]" />
-                                <span>Milestone</span>
-                              </>
-                            )}
-                          </span>
-                        </td>
-
-                        <td className="py-3.5 px-4 text-right font-space-mono font-bold tabular-nums text-[#F8F4ED]">
-                          {formatIndianCurrency(inv.totalAmountDue)}
-                        </td>
-
-                        <td className="py-3.5 px-4 text-center">
-                          <span
-                            className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-semibold ${
-                              inv.masterStatus === 'PAID'
-                                ? 'bg-[#ACBEA3]/20 text-[#ACBEA3] border border-[#ACBEA3]/40'
-                                : inv.masterStatus === 'PARTIALLY PAID'
-                                ? 'bg-[#FFA400]/20 text-[#FFA400] border border-[#FFA400]/40'
-                                : isOverdue
-                                ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40'
-                                : 'bg-[#2C3330] text-[#ACBEA3] border border-[#ACBEA3]/30'
-                            }`}
-                          >
-                            {inv.masterStatus === 'PAID' ? (
-                              <CheckCircle2 className="w-3 h-3 text-[#ACBEA3]" />
-                            ) : isOverdue ? (
-                              <AlertTriangle className="w-3 h-3 text-rose-400" />
-                            ) : (
-                              <Clock className="w-3 h-3 text-[#FFA400]" />
-                            )}
-                            <span>{isOverdue ? 'OVERDUE' : inv.masterStatus}</span>
-                          </span>
-                        </td>
-
-                        <td className="py-3.5 px-4 text-right">
-                          <div className="flex items-center justify-end gap-1.5">
-                            <button
-                              onClick={() => onSelectInvoice(inv)}
-                              title="Preview / Print A4"
-                              className="p-1.5 rounded-lg bg-[#2C3330] hover:bg-[#38423e] text-[#F8F4ED] transition-colors cursor-pointer"
-                            >
-                              <Eye className="w-3.5 h-3.5 text-[#FFA400]" />
-                            </button>
-                            <button
-                              onClick={() => onEditInvoice(inv)}
-                              title="Edit Invoice"
-                              className="p-1.5 rounded-lg bg-[#2C3330] hover:bg-[#38423e] text-[#F8F4ED] transition-colors cursor-pointer"
-                            >
-                              <Edit2 className="w-3.5 h-3.5 text-[#ACBEA3]" />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Mobile Cards View (Visible only on small phones < 640px) */}
-            <div className="block sm:hidden divide-y divide-[#ACBEA3]/10">
-              {recentInvoices.map((inv) => {
-                const isOverdue = isInvoiceOverdue(inv.dueDate, inv.masterStatus);
-
-                return (
-                  <div key={inv.id} className="p-3.5 space-y-2.5">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <div className="font-space-mono font-bold text-sm text-[#F8F4ED]">
-                          {inv.invoiceNo}
-                        </div>
-                        <div className="text-xs font-semibold text-[#F8F4ED] mt-0.5">
-                          {inv.client.name || 'Valued Client'}
-                        </div>
-                        <div className="text-[11px] text-[#ACBEA3]">
-                          {inv.projectName || 'Commercial Design Services'}
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="font-space-mono font-bold text-sm text-[#FFA400]">
-                          {formatIndianCurrency(inv.totalAmountDue)}
-                        </div>
-                        <div className="text-[10px] text-[#ACBEA3] mt-0.5">{inv.date}</div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between pt-1">
-                      <span
-                        className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold ${
-                          inv.masterStatus === 'PAID'
-                            ? 'bg-[#ACBEA3]/20 text-[#ACBEA3] border border-[#ACBEA3]/40'
-                            : inv.masterStatus === 'PARTIALLY PAID'
-                            ? 'bg-[#FFA400]/20 text-[#FFA400] border border-[#FFA400]/40'
-                            : isOverdue
-                            ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40'
-                            : 'bg-[#2C3330] text-[#ACBEA3] border border-[#ACBEA3]/30'
-                        }`}
-                      >
-                        {inv.masterStatus === 'PAID' ? (
-                          <CheckCircle2 className="w-3 h-3 text-[#ACBEA3]" />
-                        ) : isOverdue ? (
-                          <AlertTriangle className="w-3 h-3 text-rose-400" />
-                        ) : (
-                          <Clock className="w-3 h-3 text-[#FFA400]" />
-                        )}
-                        <span>{isOverdue ? 'OVERDUE' : inv.masterStatus}</span>
-                      </span>
-
-                      <div className="flex items-center gap-1.5">
-                        <button
-                          onClick={() => onSelectInvoice(inv)}
-                          className="px-3 py-1.5 rounded-lg bg-[#2C3330] text-xs font-medium text-[#F8F4ED] flex items-center gap-1"
-                        >
-                          <Eye className="w-3.5 h-3.5 text-[#FFA400]" />
-                          <span>View</span>
-                        </button>
-                        <button
-                          onClick={() => onEditInvoice(inv)}
-                          className="px-3 py-1.5 rounded-lg bg-[#2C3330] text-xs font-medium text-[#F8F4ED] flex items-center gap-1"
-                        >
-                          <Edit2 className="w-3.5 h-3.5 text-[#ACBEA3]" />
-                          <span>Edit</span>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

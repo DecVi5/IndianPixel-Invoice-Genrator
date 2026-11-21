@@ -16,6 +16,7 @@ import {
 
 interface LoginScreenProps {
   onLoginSuccess: () => void;
+  onGoogleSignIn?: () => Promise<void>;
   logoDataUrl?: string;
 }
 
@@ -34,13 +35,14 @@ const AUTHORIZED_ACCOUNTS = [
 
 const MASTER_PASSWORD = 'IPCT*4057#';
 
-export function LoginScreen({ onLoginSuccess, logoDataUrl }: LoginScreenProps) {
+export function LoginScreen({ onLoginSuccess, onGoogleSignIn, logoDataUrl }: LoginScreenProps) {
   const [username, setUsername] = useState('Admin');
   const [mail, setMail] = useState('admin@indianpixel.in');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [agreeTerms, setAgreeTerms] = useState(true);
   const [activeSlide, setActiveSlide] = useState(0);
 
@@ -431,13 +433,39 @@ export function LoginScreen({ onLoginSuccess, logoDataUrl }: LoginScreenProps) {
             {/* Apple HIG Clean Primary Button in Amber Yellow CTA */}
             <button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isSubmitting || isGoogleLoading}
               className="w-full py-3 px-4 bg-[#FFA400] hover:bg-[#ffb424] active:bg-[#e69300] text-[#08221B] font-poppins font-bold text-xs sm:text-sm rounded-xl shadow-[0_10px_25px_rgba(255,164,0,0.28)] active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2 disabled:opacity-60"
             >
               <Lock className="w-3.5 h-3.5 stroke-[2.5]" />
               <span>{isSubmitting ? 'Verifying access...' : 'Unlock Studio & Enter Suite'}</span>
               <ArrowRight className="w-4 h-4 stroke-[2.5]" />
             </button>
+
+            {onGoogleSignIn && (
+              <button
+                type="button"
+                disabled={isSubmitting || isGoogleLoading}
+                onClick={async () => {
+                  try {
+                    setIsGoogleLoading(true);
+                    setError(null);
+                    await onGoogleSignIn();
+                  } catch {
+                    setError('Google sign-in was cancelled or blocked.');
+                  } finally {
+                    setIsGoogleLoading(false);
+                  }
+                }}
+                className="w-full py-2.5 px-4 bg-[#2C3330] hover:bg-[#38423e] border border-[#ACBEA3]/30 text-[#F8F4ED] font-poppins font-medium text-xs rounded-xl transition-all cursor-pointer flex items-center justify-center gap-2 disabled:opacity-60"
+              >
+                <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                <span>
+                  {isGoogleLoading
+                    ? 'Connecting Google Cloud Sync...'
+                    : 'Continue with Google (Live Cloud Sync)'}
+                </span>
+              </button>
+            )}
           </form>
 
           {/* Security badge at bottom */}
